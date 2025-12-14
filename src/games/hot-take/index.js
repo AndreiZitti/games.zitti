@@ -1,0 +1,1 @@
+export { HotTakeGame } from './HotTakeGame'

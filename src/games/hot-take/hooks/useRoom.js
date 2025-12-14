@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { supabase } from '../lib/supabase'
-import { generateRoomCode, assignNumbers } from '../lib/random'
+import { supabase } from '../../../lib/supabase'
+import { generateRoomCode, assignNumbers } from '../../../lib/random'
 
 // Get or create player ID from localStorage
 function getPlayerId() {
