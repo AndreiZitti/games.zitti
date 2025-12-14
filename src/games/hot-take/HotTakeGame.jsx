@@ -7,10 +7,30 @@ import { NumberReveal } from './components/NumberReveal'
 import { HiddenScreen } from './components/HiddenScreen'
 import { RevealScreen } from './components/RevealScreen'
 import { GameBoard } from './components/GameBoard'
+import { SingleDeviceSetup } from './components/SingleDeviceSetup'
+import { PassAndPlay } from './components/PassAndPlay'
+import { SingleDeviceBoard } from './components/SingleDeviceBoard'
+
+// Generate unique random numbers for single device mode
+function generateNumbers(count) {
+  const numbers = []
+  while (numbers.length < count) {
+    const num = Math.floor(Math.random() * 100) + 1
+    if (!numbers.includes(num)) {
+      numbers.push(num)
+    }
+  }
+  return numbers
+}
 
 export function HotTakeGame({ onBack, savedName: initialName, onUpdateName }) {
   const [screen, setScreen] = useState('home')
   const [pendingRoomCode, setPendingRoomCode] = useState(null)
+
+  // Single device mode state
+  const [singleDeviceGame, setSingleDeviceGame] = useState(null)
+  const [singleDevicePhase, setSingleDevicePhase] = useState('setup') // 'setup' | 'passplay' | 'board' | 'revealed'
+
   const {
     room,
     loading,
@@ -77,7 +97,56 @@ export function HotTakeGame({ onBack, savedName: initialName, onUpdateName }) {
     onBack()
   }
 
-  // Hot Take home screen (create/join)
+  // Single device handlers
+  const handleStartSingleDevice = (playerNames, category) => {
+    const numbers = generateNumbers(playerNames.length)
+    const players = playerNames.map((name, i) => ({
+      id: `player-${i}`,
+      name,
+      number: numbers[i],
+      slot: null
+    }))
+
+    setSingleDeviceGame({
+      players,
+      category,
+      round: 1
+    })
+    setSingleDevicePhase('passplay')
+  }
+
+  const handleAllSeen = () => {
+    setSingleDevicePhase('board')
+  }
+
+  const handleSingleDeviceReveal = () => {
+    setSingleDevicePhase('revealed')
+  }
+
+  const handleSingleDeviceNextRound = () => {
+    // Start a new round with same players, new numbers
+    const numbers = generateNumbers(singleDeviceGame.players.length)
+    const players = singleDeviceGame.players.map((p, i) => ({
+      ...p,
+      number: numbers[i],
+      slot: null
+    }))
+
+    setSingleDeviceGame(prev => ({
+      ...prev,
+      players,
+      round: prev.round + 1
+    }))
+    setSingleDevicePhase('passplay')
+  }
+
+  const handleLeaveSingleDevice = () => {
+    setSingleDeviceGame(null)
+    setSingleDevicePhase('setup')
+    setScreen('home')
+  }
+
+  // Hot Take home screen (create/join/single device)
   if (screen === 'home') {
     return (
       <div className="screen hot-take-home">
@@ -104,9 +173,68 @@ export function HotTakeGame({ onBack, savedName: initialName, onUpdateName }) {
           <button className="btn btn-secondary" onClick={() => setScreen('join')}>
             Join Room
           </button>
+          <button className="btn btn-secondary" onClick={() => setScreen('single-device')}>
+            Single Device
+          </button>
         </div>
       </div>
     )
+  }
+
+  // Single device mode screens
+  if (screen === 'single-device') {
+    // Setup screen
+    if (singleDevicePhase === 'setup' || !singleDeviceGame) {
+      return (
+        <SingleDeviceSetup
+          onBack={() => {
+            setSingleDeviceGame(null)
+            setSingleDevicePhase('setup')
+            setScreen('home')
+          }}
+          onStartGame={handleStartSingleDevice}
+        />
+      )
+    }
+
+    // Pass and play - show numbers one by one
+    if (singleDevicePhase === 'passplay') {
+      return (
+        <PassAndPlay
+          players={singleDeviceGame.players}
+          category={singleDeviceGame.category}
+          onAllSeen={handleAllSeen}
+        />
+      )
+    }
+
+    // Board screen - arrange cards
+    if (singleDevicePhase === 'board') {
+      return (
+        <SingleDeviceBoard
+          players={singleDeviceGame.players}
+          category={singleDeviceGame.category}
+          onReveal={handleSingleDeviceReveal}
+          onNextRound={handleSingleDeviceNextRound}
+          onLeave={handleLeaveSingleDevice}
+          isRevealed={false}
+        />
+      )
+    }
+
+    // Revealed screen
+    if (singleDevicePhase === 'revealed') {
+      return (
+        <SingleDeviceBoard
+          players={singleDeviceGame.players}
+          category={singleDeviceGame.category}
+          onReveal={handleSingleDeviceReveal}
+          onNextRound={handleSingleDeviceNextRound}
+          onLeave={handleLeaveSingleDevice}
+          isRevealed={true}
+        />
+      )
+    }
   }
 
   // Render create room screen

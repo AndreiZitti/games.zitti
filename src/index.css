@@ -1608,3 +1608,234 @@ h3 {
   padding-top: 0;
   margin-top: auto;
 }
+
+/* ============================================
+   SINGLE DEVICE MODE
+   ============================================ */
+
+/* Setup Screen */
+.single-device-setup {
+  padding-top: 24px;
+}
+
+.single-device-setup h1 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--hot) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.single-device-setup .subtitle {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.setup-section {
+  margin-bottom: 20px;
+}
+
+.setup-section > label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.setup-section > input {
+  width: 100%;
+  padding: 14px 16px;
+  font-family: inherit;
+  font-size: 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.2s;
+}
+
+.setup-section > input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+
+.player-count-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.count-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: 'Space Mono', monospace;
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.count-btn:hover {
+  border-color: var(--accent);
+  background: var(--bg-card-hover);
+}
+
+.count-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.player-names-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.player-names-list input {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.2s;
+}
+
+.player-names-list input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+
+.player-names-list input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Pass and Play Screen */
+.pass-play-waiting {
+  justify-content: space-between;
+  text-align: center;
+}
+
+.pass-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.pass-icon {
+  font-size: 4rem;
+  margin-bottom: 24px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.pass-content h2 {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.pass-player-name {
+  font-family: 'Space Mono', monospace;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 24px;
+  text-shadow: 0 0 30px var(--accent-glow);
+}
+
+.pass-instruction {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  max-width: 280px;
+  line-height: 1.5;
+  margin-bottom: 32px;
+}
+
+.pass-progress {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.progress-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  transition: all 0.3s;
+}
+
+.progress-dot.seen {
+  background: var(--success);
+  border-color: var(--success);
+  box-shadow: 0 0 10px var(--success-glow);
+}
+
+.progress-dot.current {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Pass and Play Reveal Screen */
+.pass-play-reveal {
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  background: radial-gradient(ellipse at center, var(--hot-glow) 0%, transparent 60%);
+}
+
+.reveal-player-name {
+  font-size: 1.25rem;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+/* Single Device Board Styles */
+.player-card.single-device {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  cursor: grab;
+}
+
+.player-card.single-device:hover {
+  border-color: var(--accent);
+  background: var(--bg-card-hover);
+}
+
+.player-card.single-device:active {
+  cursor: grabbing;
+}
+
+.player-card.single-device .card-hint {
+  color: var(--text-muted);
+}
