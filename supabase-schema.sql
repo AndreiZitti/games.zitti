@@ -1,4 +1,4 @@
--- Number Arrangement Party Game - Supabase Schema
+-- Hot Take - Party Game - Supabase Schema
 -- Run this in your Supabase SQL editor to set up the database
 
 -- Create the rooms table
