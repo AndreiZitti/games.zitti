@@ -766,6 +766,12 @@ h3 {
   justify-content: space-between;
 }
 
+.player-name-header {
+  text-align: center;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
 .hidden-display {
   flex: 1;
   display: flex;

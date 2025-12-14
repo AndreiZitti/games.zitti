@@ -1,6 +1,7 @@
-export function HiddenScreen({ category, confirmed, onPeek, onConfirm, playersConfirmed, totalPlayers }) {
+export function HiddenScreen({ category, playerName, confirmed, onPeek, onConfirm, playersConfirmed, totalPlayers }) {
   return (
     <div className="screen hidden-screen">
+      {playerName && <h2 className="player-name-header">{playerName}</h2>}
       <div className="category-reminder">{category}</div>
 
       <div className="hidden-display" onClick={onPeek}>

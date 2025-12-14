@@ -142,6 +142,7 @@ function App() {
       return (
         <HiddenScreen
           category={room.category}
+          playerName={currentPlayer?.name}
           confirmed={currentPlayer?.confirmed}
           onPeek={toggleHidden}
           onConfirm={confirmPosition}
