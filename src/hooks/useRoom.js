@@ -61,7 +61,8 @@ export function useRoom() {
         phase: 'lobby',
         round: 1,
         category: null,
-        players: [{ id: playerId, name: hostName, number: null, hidden: true, confirmed: false }]
+        mode: 'table', // 'table' or 'remote'
+        players: [{ id: playerId, name: hostName, number: null, hidden: true, confirmed: false, slot: null }]
       }
 
       const { data, error: supabaseError } = await supabase
@@ -107,7 +108,7 @@ export function useRoom() {
       // Add player to room
       const updatedPlayers = [
         ...existingRoom.players,
-        { id: playerId, name: playerName, number: null, hidden: true, confirmed: false }
+        { id: playerId, name: playerName, number: null, hidden: true, confirmed: false, slot: null }
       ]
 
       const { data, error: updateError } = await supabase
@@ -140,16 +141,30 @@ export function useRoom() {
     if (updateError) setError(updateError.message)
   }, [room, isHost])
 
+  // Set game mode (host only)
+  const setMode = useCallback(async (mode) => {
+    if (!room || !isHost) return
+
+    const { error: updateError } = await supabase
+      .from('rooms')
+      .update({ mode })
+      .eq('code', room.code)
+
+    if (updateError) setError(updateError.message)
+  }, [room, isHost])
+
   // Start round (host only)
   const startRound = useCallback(async () => {
     if (!room || !isHost) return
 
     const playersWithNumbers = assignNumbers(room.players, room.code, room.round)
+    // Reset slots for new round
+    const playersReset = playersWithNumbers.map(p => ({ ...p, slot: null }))
 
     const { error: updateError } = await supabase
       .from('rooms')
       .update({
-        players: playersWithNumbers,
+        players: playersReset,
         phase: 'playing'
       })
       .eq('code', room.code)
@@ -173,9 +188,46 @@ export function useRoom() {
     if (updateError) setError(updateError.message)
   }, [room, currentPlayer, playerId])
 
+  // Update player's slot position (for remote mode)
+  const updateSlot = useCallback(async (newSlot) => {
+    if (!room || !currentPlayer) return
+
+    // Check if slot is already taken by another player
+    const slotTaken = room.players.find(p => p.slot === newSlot && p.id !== playerId)
+
+    let updatedPlayers
+    if (slotTaken) {
+      // Swap slots with the other player
+      const myCurrentSlot = currentPlayer.slot
+      updatedPlayers = room.players.map(p => {
+        if (p.id === playerId) return { ...p, slot: newSlot }
+        if (p.id === slotTaken.id) return { ...p, slot: myCurrentSlot }
+        return p
+      })
+    } else {
+      // Just update my slot
+      updatedPlayers = room.players.map(p =>
+        p.id === playerId ? { ...p, slot: newSlot } : p
+      )
+    }
+
+    const { error: updateError } = await supabase
+      .from('rooms')
+      .update({ players: updatedPlayers })
+      .eq('code', room.code)
+
+    if (updateError) setError(updateError.message)
+  }, [room, currentPlayer, playerId])
+
   // Confirm position
   const confirmPosition = useCallback(async () => {
     if (!room || !currentPlayer) return
+
+    // In remote mode, must have a slot selected
+    if (room.mode === 'remote' && currentPlayer.slot === null) {
+      setError('Please select a position on the board first')
+      return
+    }
 
     const updatedPlayers = room.players.map(p =>
       p.id === playerId ? { ...p, confirmed: true, hidden: true } : p
@@ -204,7 +256,8 @@ export function useRoom() {
       ...p,
       number: null,
       hidden: true,
-      confirmed: false
+      confirmed: false,
+      slot: null
     }))
 
     const { error: updateError } = await supabase
@@ -236,8 +289,10 @@ export function useRoom() {
     createRoom,
     joinRoom,
     setCategory,
+    setMode,
     startRound,
     toggleHidden,
+    updateSlot,
     confirmPosition,
     nextRound,
     leaveRoom

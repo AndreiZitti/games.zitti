@@ -599,6 +599,249 @@ h3 {
   background: rgba(233, 69, 96, 0.1);
 }
 
+/* Mode Toggle */
+.mode-toggle-section {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.mode-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.mode-toggle {
+  display: inline-flex;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.mode-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mode-btn.active {
+  background: var(--accent);
+  color: white;
+}
+
+.mode-value {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mode-description {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  margin-bottom: 0;
+}
+
+/* Game Board */
+.game-board-screen {
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.board-labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.game-board {
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.board-track {
+  display: flex;
+  gap: 8px;
+  min-height: 140px;
+  align-items: stretch;
+}
+
+.board-slot {
+  flex: 1;
+  min-width: 70px;
+  background: var(--bg-primary);
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.board-slot.empty:hover {
+  border-color: var(--accent);
+  background: rgba(233, 69, 96, 0.1);
+}
+
+.board-slot.my-slot {
+  border-color: var(--accent);
+  border-style: solid;
+}
+
+.slot-placeholder {
+  color: var(--text-secondary);
+  font-size: 1.5rem;
+  font-weight: 600;
+  opacity: 0.3;
+}
+
+/* Player Cards */
+.player-card {
+  width: 100%;
+  height: 100%;
+  min-height: 120px;
+  background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+  border-radius: 10px;
+  padding: 12px 8px;
+  cursor: grab;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.player-card:active {
+  cursor: grabbing;
+}
+
+.player-card.mine {
+  background: linear-gradient(135deg, var(--accent) 0%, #c53030 100%);
+}
+
+.player-card.confirmed {
+  opacity: 0.8;
+  cursor: default;
+}
+
+.player-card.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+}
+
+.player-card.unplaced {
+  width: 80px;
+  min-height: 100px;
+  flex-shrink: 0;
+}
+
+.card-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+}
+
+.card-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+}
+
+.card-number.revealed {
+  font-size: 2.5rem;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.card-hidden {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+}
+
+.card-name {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.8);
+  margin-top: 4px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-hint {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.5);
+  margin-top: 4px;
+}
+
+.card-locked {
+  font-size: 0.6rem;
+  background: rgba(255,255,255,0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 4px;
+  color: rgba(255,255,255,0.7);
+}
+
+/* Unplaced Area */
+.unplaced-area {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  min-height: 60px;
+}
+
+.unplaced-area:empty::after {
+  content: 'All players placed';
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+/* Board Actions */
+.board-actions {
+  text-align: center;
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.board-hint {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.revealed-actions h2 {
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+  color: var(--success);
+}
+
 /* Responsive */
 @media (min-width: 481px) {
   .screen {

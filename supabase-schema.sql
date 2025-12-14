@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS rooms (
   phase TEXT NOT NULL DEFAULT 'lobby',
   round INT NOT NULL DEFAULT 1,
   category TEXT,
+  mode TEXT NOT NULL DEFAULT 'table',  -- 'table' or 'remote'
   players JSONB NOT NULL DEFAULT '[]',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -37,6 +38,9 @@ CREATE POLICY "Anyone can delete rooms"
 -- Enable realtime for the rooms table
 ALTER PUBLICATION supabase_realtime ADD TABLE rooms;
 
+-- If you already have the table and need to add the mode column:
+-- ALTER TABLE rooms ADD COLUMN IF NOT EXISTS mode TEXT NOT NULL DEFAULT 'table';
+
 -- Optional: Create a function to clean up old rooms (older than 24 hours)
 CREATE OR REPLACE FUNCTION cleanup_old_rooms()
 RETURNS void AS $$
@@ -57,12 +61,17 @@ Players JSONB Structure:
     "name": "Player Name",  -- Display name
     "number": null | 1-100, -- Secret number (null in lobby, assigned when round starts)
     "hidden": true | false, -- Whether number is currently hidden
-    "confirmed": false      -- Whether player has locked in their position
+    "confirmed": false,     -- Whether player has locked in their position
+    "slot": null | 0-N      -- Position on the game board (remote mode only)
   }
 ]
 
+Game Modes:
+- "table"  : Physical mode - arrange phones on a table
+- "remote" : Virtual mode - drag cards on a shared game board
+
 Game Phases:
-- "lobby"      : Waiting for players, host sets category
+- "lobby"      : Waiting for players, host sets category and mode
 - "playing"    : Players have numbers, arranging themselves
 - "confirming" : At least one player has confirmed position
 - "revealed"   : All players confirmed, numbers shown

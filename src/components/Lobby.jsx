@@ -248,11 +248,12 @@ const CATEGORIES = {
   }
 }
 
-export function Lobby({ room, isHost, onSetCategory, onStartRound, onLeave }) {
+export function Lobby({ room, isHost, onSetCategory, onSetMode, onStartRound, onLeave }) {
   const [category, setCategory] = useState(room.category || '')
   const [showPicker, setShowPicker] = useState(false)
   const [enabledGroups, setEnabledGroups] = useState(['safe', 'classic'])
   const [selectedGroup, setSelectedGroup] = useState('safe')
+  const mode = room.mode || 'table'
 
   const handleCategoryChange = (value) => {
     setCategory(value)
@@ -305,6 +306,34 @@ export function Lobby({ room, isHost, onSetCategory, onStartRound, onLeave }) {
             </li>
           ))}
         </ul>
+      </div>
+
+      {/* Mode Toggle */}
+      <div className="mode-toggle-section">
+        <span className="mode-label">Play Mode</span>
+        {isHost ? (
+          <div className="mode-toggle">
+            <button
+              className={`mode-btn ${mode === 'table' ? 'active' : ''}`}
+              onClick={() => onSetMode('table')}
+            >
+              Table
+            </button>
+            <button
+              className={`mode-btn ${mode === 'remote' ? 'active' : ''}`}
+              onClick={() => onSetMode('remote')}
+            >
+              Remote
+            </button>
+          </div>
+        ) : (
+          <span className="mode-value">{mode === 'table' ? 'Table (physical)' : 'Remote (virtual board)'}</span>
+        )}
+        <p className="mode-description">
+          {mode === 'table'
+            ? 'Arrange phones physically on a table'
+            : 'Drag cards on a shared virtual board'}
+        </p>
       </div>
 
       {isHost ? (

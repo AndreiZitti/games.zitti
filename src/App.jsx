@@ -7,6 +7,7 @@ import { Lobby } from './components/Lobby'
 import { NumberReveal } from './components/NumberReveal'
 import { HiddenScreen } from './components/HiddenScreen'
 import { RevealScreen } from './components/RevealScreen'
+import { GameBoard } from './components/GameBoard'
 
 // Screen states: 'home' | 'create' | 'join' | 'game'
 function App() {
@@ -15,13 +16,16 @@ function App() {
     room,
     loading,
     error,
+    playerId,
     currentPlayer,
     isHost,
     createRoom,
     joinRoom,
     setCategory,
+    setMode,
     startRound,
     toggleHidden,
+    updateSlot,
     confirmPosition,
     nextRound,
     leaveRoom
@@ -92,6 +96,7 @@ function App() {
           room={room}
           isHost={isHost}
           onSetCategory={setCategory}
+          onSetMode={setMode}
           onStartRound={startRound}
           onLeave={handleLeave}
         />
@@ -100,9 +105,30 @@ function App() {
 
     // Playing/Confirming phases
     if (room.phase === 'playing' || room.phase === 'confirming') {
+      const isRemoteMode = room.mode === 'remote'
+
+      // Remote mode - show the game board
+      if (isRemoteMode) {
+        return (
+          <GameBoard
+            players={room.players}
+            currentPlayer={currentPlayer}
+            playerId={playerId}
+            category={room.category}
+            phase={room.phase}
+            isHost={isHost}
+            onUpdateSlot={updateSlot}
+            onToggleHidden={toggleHidden}
+            onConfirm={confirmPosition}
+            onNextRound={nextRound}
+            onLeave={handleLeave}
+          />
+        )
+      }
+
+      // Table mode - show number or hidden screen based on player's hidden state
       const playersConfirmed = room.players.filter(p => p.confirmed).length
 
-      // Show number or hidden screen based on player's hidden state
       if (currentPlayer && !currentPlayer.hidden) {
         return (
           <NumberReveal
@@ -127,6 +153,25 @@ function App() {
 
     // Revealed phase
     if (room.phase === 'revealed') {
+      // In remote mode, show the board with revealed numbers
+      if (room.mode === 'remote') {
+        return (
+          <GameBoard
+            players={room.players}
+            currentPlayer={currentPlayer}
+            playerId={playerId}
+            category={room.category}
+            phase={room.phase}
+            isHost={isHost}
+            onUpdateSlot={updateSlot}
+            onToggleHidden={toggleHidden}
+            onConfirm={confirmPosition}
+            onNextRound={nextRound}
+            onLeave={handleLeave}
+          />
+        )
+      }
+
       return (
         <RevealScreen
           room={room}
