@@ -1,54 +1,83 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+// Single device mode
 import { useGameState } from './hooks/useGameState'
 import { Setup } from './components/Setup'
 import { PsychicScreen } from './components/PsychicScreen'
 import { GuessScreen } from './components/GuessScreen'
 import { RevealScreen } from './components/RevealScreen'
 import { ResultsScreen } from './components/ResultsScreen'
+// Multiplayer mode
+import { useWavelengthRoom } from './hooks/useWavelengthRoom'
+import {
+  RoomLobby,
+  PsychicView,
+  GuesserView,
+  RevealView,
+  WaitingScreen,
+  EndScreen,
+  CreateRoom,
+  JoinRoom
+} from './components/multiplayer'
 
 export function LikeMindedGame({ onBack }) {
-  const [screen, setScreen] = useState('home') // 'home' | 'setup' | 'playing'
+  // Mode: 'home' | 'single-setup' | 'single-playing' | 'mp-create' | 'mp-join' | 'mp-game'
+  const [mode, setMode] = useState('home')
 
-  const {
-    phase,
-    players,
-    currentPsychic,
-    currentPsychicIndex,
-    playerScore,
-    gameScore,
-    currentRound,
-    roundHistory,
-    startGame,
-    submitClue,
-    updateGuess,
-    lockInGuess,
-    finishReveal,
-    playAgain,
-    resetGame
-  } = useGameState()
+  // Single device state
+  const singleDevice = useGameState()
 
-  const handleStartGame = (playerNames) => {
-    startGame(playerNames)
-    setScreen('playing')
+  // Multiplayer state
+  const multiplayer = useWavelengthRoom()
+
+  // Try to rejoin multiplayer room on mount
+  useEffect(() => {
+    const tryRejoin = async () => {
+      const room = await multiplayer.tryRejoin()
+      if (room) {
+        setMode('mp-game')
+      }
+    }
+    tryRejoin()
+  }, [])
+
+  // === SINGLE DEVICE HANDLERS ===
+  const handleStartSingleGame = (playerNames) => {
+    singleDevice.startGame(playerNames)
+    setMode('single-playing')
   }
 
-  const handleExit = () => {
-    resetGame()
-    setScreen('home')
+  const handleSingleExit = () => {
+    singleDevice.resetGame()
+    setMode('home')
   }
 
-  const handleBackToHub = () => {
-    resetGame()
-    onBack()
+  const handleSinglePlayAgain = () => {
+    singleDevice.playAgain()
   }
 
-  const handlePlayAgain = () => {
-    playAgain()
+  // === MULTIPLAYER HANDLERS ===
+  const handleCreateRoom = async (name) => {
+    const room = await multiplayer.createRoom(name)
+    if (room) {
+      setMode('mp-game')
+    }
   }
 
-  // Home screen
-  if (screen === 'home') {
+  const handleJoinRoom = async (code, name) => {
+    const room = await multiplayer.joinRoom(code, name)
+    if (room) {
+      setMode('mp-game')
+    }
+  }
+
+  const handleLeaveRoom = async () => {
+    await multiplayer.leaveRoom()
+    setMode('home')
+  }
+
+  // === HOME SCREEN ===
+  if (mode === 'home') {
     return (
       <motion.div
         className="screen like-minded-home"
@@ -85,7 +114,7 @@ export function LikeMindedGame({ onBack }) {
         >
           <ul>
             <li>One player is the Psychic and sees a hidden target on a spectrum</li>
-            <li>The Psychic gives a one-word clue to help the team</li>
+            <li>The Psychic gives a clue to help the team</li>
             <li>The team moves the slider to guess the target&apos;s location</li>
             <li>Score points based on how close you get - beat the game!</li>
           </ul>
@@ -99,27 +128,54 @@ export function LikeMindedGame({ onBack }) {
         >
           <button
             className="btn btn-primary"
-            onClick={() => setScreen('setup')}
+            onClick={() => setMode('mp-create')}
           >
-            Start Game
+            Create Room
+          </button>
+          <button
+            className="btn btn-secondary"
+            onClick={() => setMode('mp-join')}
+          >
+            Join Room
+          </button>
+          <button
+            className="btn btn-secondary"
+            onClick={() => setMode('single-setup')}
+          >
+            Single Device
           </button>
         </motion.div>
       </motion.div>
     )
   }
 
-  // Setup screen
-  if (screen === 'setup') {
+  // === SINGLE DEVICE: SETUP ===
+  if (mode === 'single-setup') {
     return (
       <Setup
-        onStartGame={handleStartGame}
-        onBack={() => setScreen('home')}
+        onStartGame={handleStartSingleGame}
+        onBack={() => setMode('home')}
       />
     )
   }
 
-  // Game screens based on phase
-  if (screen === 'playing') {
+  // === SINGLE DEVICE: PLAYING ===
+  if (mode === 'single-playing') {
+    const {
+      phase,
+      players,
+      currentPsychic,
+      currentPsychicIndex,
+      playerScore,
+      gameScore,
+      currentRound,
+      roundHistory,
+      submitClue,
+      updateGuess,
+      lockInGuess,
+      finishReveal
+    } = singleDevice
+
     return (
       <AnimatePresence mode="wait">
         {phase === 'psychic' && (
@@ -175,15 +231,149 @@ export function LikeMindedGame({ onBack }) {
             playerScore={playerScore}
             gameScore={gameScore}
             roundHistory={roundHistory}
-            onPlayAgain={handlePlayAgain}
-            onExit={handleExit}
+            onPlayAgain={handleSinglePlayAgain}
+            onExit={handleSingleExit}
           />
         )}
       </AnimatePresence>
     )
   }
 
-  // Fallback
+  // === MULTIPLAYER: CREATE ROOM ===
+  if (mode === 'mp-create') {
+    return (
+      <CreateRoom
+        onCreateRoom={handleCreateRoom}
+        onBack={() => setMode('home')}
+        loading={multiplayer.loading}
+        error={multiplayer.error}
+        savedName={multiplayer.savedName}
+      />
+    )
+  }
+
+  // === MULTIPLAYER: JOIN ROOM ===
+  if (mode === 'mp-join') {
+    return (
+      <JoinRoom
+        onJoinRoom={handleJoinRoom}
+        onBack={() => setMode('home')}
+        loading={multiplayer.loading}
+        error={multiplayer.error}
+        savedName={multiplayer.savedName}
+      />
+    )
+  }
+
+  // === MULTIPLAYER: GAME ===
+  if (mode === 'mp-game' && multiplayer.room) {
+    const {
+      room,
+      players,
+      isHost,
+      isPsychic,
+      psychicIndex,
+      startGame,
+      submitClue,
+      lockInGuess,
+      nextRound,
+      playAgain
+    } = multiplayer
+
+    // Lobby phase
+    if (room.phase === 'lobby') {
+      return (
+        <RoomLobby
+          roomCode={room.code}
+          players={players}
+          isHost={isHost}
+          onStartGame={startGame}
+          onLeave={handleLeaveRoom}
+        />
+      )
+    }
+
+    // Psychic phase
+    if (room.phase === 'psychic') {
+      if (isPsychic) {
+        return (
+          <PsychicView
+            spectrum={room.spectrum}
+            targetPosition={room.target}
+            roundNumber={psychicIndex + 1}
+            totalRounds={players.length}
+            teamScore={room.team_score}
+            gameScore={room.game_score}
+            onSubmitClue={submitClue}
+          />
+        )
+      } else {
+        return (
+          <WaitingScreen
+            psychicName={room.current_psychic}
+            roundNumber={psychicIndex + 1}
+            totalRounds={players.length}
+            teamScore={room.team_score}
+            gameScore={room.game_score}
+            spectrum={room.spectrum}
+          />
+        )
+      }
+    }
+
+    // Guessing phase
+    if (room.phase === 'guessing') {
+      return (
+        <GuesserView
+          spectrum={room.spectrum}
+          clue={room.clue}
+          psychicName={room.current_psychic}
+          roundNumber={psychicIndex + 1}
+          totalRounds={players.length}
+          teamScore={room.team_score}
+          gameScore={room.game_score}
+          isPsychic={isPsychic}
+          onLockIn={lockInGuess}
+        />
+      )
+    }
+
+    // Reveal phase
+    if (room.phase === 'reveal') {
+      const isLastRound = psychicIndex === players.length - 1
+      return (
+        <RevealView
+          spectrum={room.spectrum}
+          targetPosition={room.target}
+          guessPosition={room.guess}
+          clue={room.clue}
+          psychicName={room.current_psychic}
+          roundNumber={psychicIndex + 1}
+          totalRounds={players.length}
+          teamScore={room.team_score}
+          gameScore={room.game_score}
+          isHost={isHost}
+          isLastRound={isLastRound}
+          onNextRound={nextRound}
+        />
+      )
+    }
+
+    // End phase
+    if (room.phase === 'end') {
+      return (
+        <EndScreen
+          teamScore={room.team_score}
+          gameScore={room.game_score}
+          isHost={isHost}
+          onPlayAgain={playAgain}
+          onLeave={handleLeaveRoom}
+        />
+      )
+    }
+  }
+
+  // Fallback / Loading
   return (
     <div className="screen">
       <p>Loading...</p>

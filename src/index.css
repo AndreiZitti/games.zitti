@@ -2532,3 +2532,268 @@ h3 {
     height: 46px;
   }
 }
+
+/* ============================================
+   LIKE MINDED MULTIPLAYER STYLES
+   ============================================ */
+
+/* Room Code Display - Wavelength style */
+.wavelength-code {
+  background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  filter: drop-shadow(0 0 20px rgba(6, 182, 212, 0.4));
+}
+
+.share-hint {
+  margin-top: 12px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Wavelength Players List */
+.wavelength-players {
+  flex: 1;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.wavelength-players ul {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wavelength-players li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-base);
+  border-radius: var(--radius-md);
+  border: none;
+}
+
+.player-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.player-name {
+  flex: 1;
+  font-weight: 500;
+}
+
+/* Room Lobby */
+.room-lobby {
+  padding-top: 24px;
+}
+
+.lobby-actions {
+  margin-top: auto;
+  padding-top: 24px;
+}
+
+.waiting-message {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
+/* Multiplayer Psychic View */
+.psychic-view-mp,
+.guesser-view-mp,
+.reveal-view-mp,
+.waiting-screen-mp,
+.end-screen-mp {
+  padding-top: 20px;
+}
+
+.you-are-psychic {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  border: 2px solid #06b6d4;
+}
+
+.psychic-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #06b6d4;
+}
+
+.psychic-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.target-info {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.target-info p {
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.target-info strong {
+  color: #4ade80;
+  font-family: 'Space Mono', monospace;
+  font-size: 1.25rem;
+}
+
+.target-hint {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* Multiplayer Clue Display */
+.mp-clue {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+/* Psychic Waiting */
+.psychic-waiting {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.waiting-animation span {
+  font-size: 3rem;
+  display: inline-block;
+}
+
+/* Waiting Screen */
+.waiting-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.waiting-icon {
+  font-size: 4rem;
+  margin-bottom: 24px;
+}
+
+.waiting-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #8b5cf6;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.waiting-subtitle {
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.spectrum-preview {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 32px;
+  margin-bottom: 24px;
+}
+
+.spectrum-endpoints {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-weight: 600;
+}
+
+.endpoint.left {
+  color: #06b6d4;
+}
+
+.endpoint.right {
+  color: #ec4899;
+}
+
+.endpoint-arrow {
+  color: var(--text-muted);
+  font-size: 1.25rem;
+}
+
+.waiting-dots {
+  font-family: 'Space Mono', monospace;
+  font-size: 2rem;
+  color: var(--text-muted);
+  display: flex;
+  gap: 4px;
+}
+
+/* End Screen */
+.victory-message {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.victory-message p {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Create/Join Room */
+.create-room-mp,
+.join-room-mp {
+  padding-top: 24px;
+}
+
+.create-room-mp h1,
+.join-room-mp h1 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.create-room-mp .subtitle,
+.join-room-mp .subtitle {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+/* Responsive for multiplayer */
+@media (min-width: 481px) {
+  .wavelength-players {
+    max-height: 50vh;
+  }
+
+  .waiting-title {
+    font-size: 2rem;
+  }
+
+  .waiting-icon {
+    font-size: 5rem;
+  }
+}
