@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1025"/>
+      <stop offset="100%" style="stop-color:#2d1f3d"/>
+    </linearGradient>
+    
+    <!-- Card gradient -->
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a3a5c"/>
+      <stop offset="100%" style="stop-color:#3d2d4a"/>
+    </linearGradient>
+    
+    <!-- Accent glow -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Subtle glow for symbols -->
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="300" fill="url(#bgGrad)"/>
+  
+  <!-- Subtle grid pattern -->
+  <g opacity="0.05">
+    <line x1="0" y1="75" x2="400" y2="75" stroke="#a78bba" stroke-width="0.5"/>
+    <line x1="0" y1="150" x2="400" y2="150" stroke="#a78bba" stroke-width="0.5"/>
+    <line x1="0" y1="225" x2="400" y2="225" stroke="#a78bba" stroke-width="0.5"/>
+    <line x1="100" y1="0" x2="100" y2="300" stroke="#a78bba" stroke-width="0.5"/>
+    <line x1="200" y1="0" x2="200" y2="300" stroke="#a78bba" stroke-width="0.5"/>
+    <line x1="300" y1="0" x2="300" y2="300" stroke="#a78bba" stroke-width="0.5"/>
+  </g>
+  
+  <!-- Card 1 - Eye (Werewolf/watching) - tilted left -->
+  <g transform="translate(85, 150) rotate(-15)">
+    <rect x="-35" y="-50" width="70" height="100" rx="6" fill="url(#cardGrad)" stroke="#6b5b7a" stroke-width="1.5"/>
+    <!-- Eye symbol -->
+    <g filter="url(#softGlow)">
+      <ellipse cx="0" cy="0" rx="18" ry="11" fill="none" stroke="#b794d4" stroke-width="2"/>
+      <circle cx="0" cy="0" r="6" fill="#b794d4"/>
+      <circle cx="2" cy="-2" r="2" fill="#1a1025"/>
+    </g>
+  </g>
+  
+  <!-- Card 2 - Question mark (mystery/deduction) - tilted right -->
+  <g transform="translate(165, 145) rotate(5)">
+    <rect x="-35" y="-50" width="70" height="100" rx="6" fill="url(#cardGrad)" stroke="#6b5b7a" stroke-width="1.5"/>
+    <!-- Question mark -->
+    <g filter="url(#softGlow)">
+      <path d="M-8,-15 Q-8,-25 0,-25 Q10,-25 10,-15 Q10,-5 0,-5 L0,5" fill="none" stroke="#c9a8e2" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="0" cy="15" r="3" fill="#c9a8e2"/>
+    </g>
+  </g>
+  
+  <!-- Card 3 - Speech bubbles (communication) - tilted left -->
+  <g transform="translate(235, 145) rotate(-8)">
+    <rect x="-35" y="-50" width="70" height="100" rx="6" fill="url(#cardGrad)" stroke="#6b5b7a" stroke-width="1.5"/>
+    <!-- Speech bubbles -->
+    <g filter="url(#softGlow)">
+      <ellipse cx="-6" cy="-8" rx="14" ry="10" fill="none" stroke="#a78bba" stroke-width="2"/>
+      <ellipse cx="8" cy="8" rx="12" ry="8" fill="none" stroke="#d4b8e8" stroke-width="2"/>
+      <circle cx="-14" cy="5" r="2" fill="#a78bba"/>
+      <circle cx="16" cy="18" r="2" fill="#d4b8e8"/>
+    </g>
+  </g>
+  
+  <!-- Card 4 - Spectrum/wave (Wavelength) - tilted right -->
+  <g transform="translate(315, 150) rotate(12)">
+    <rect x="-35" y="-50" width="70" height="100" rx="6" fill="url(#cardGrad)" stroke="#6b5b7a" stroke-width="1.5"/>
+    <!-- Wavelength spectrum -->
+    <g filter="url(#softGlow)">
+      <line x1="-20" y1="0" x2="20" y2="0" stroke="#6b5b7a" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="-18" cy="0" r="4" fill="#7a5c99"/>
+      <circle cx="18" cy="0" r="4" fill="#d4b8e8"/>
+      <!-- Indicator -->
+      <polygon points="5,-12 10,-5 0,-5" fill="#c9a8e2"/>
+    </g>
+  </g>
+  
+  <!-- Decorative floating elements -->
+  <g opacity="0.3">
+    <circle cx="50" cy="60" r="2" fill="#b794d4"/>
+    <circle cx="350" cy="80" r="1.5" fill="#c9a8e2"/>
+    <circle cx="30" cy="240" r="1.5" fill="#a78bba"/>
+    <circle cx="370" cy="220" r="2" fill="#d4b8e8"/>
+    <circle cx="200" cy="40" r="1" fill="#b794d4"/>
+    <circle cx="180" cy="260" r="1.5" fill="#c9a8e2"/>
+  </g>
+</svg>

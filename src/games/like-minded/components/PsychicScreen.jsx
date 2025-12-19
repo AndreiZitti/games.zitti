@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Spectrum } from './Spectrum'
 
@@ -13,6 +13,15 @@ export function PsychicScreen({
   onSubmitClue
 }) {
   const [clue, setClue] = useState('')
+  const [showTarget, setShowTarget] = useState(false)
+
+  // Trigger the reveal animation when component mounts
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowTarget(true)
+    }, 500) // Small delay before starting the spin
+    return () => clearTimeout(timer)
+  }, [targetPosition])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -58,7 +67,7 @@ export function PsychicScreen({
         <span className="psychic-role">is the Psychic!</span>
       </motion.div>
 
-      {/* Spectrum with target */}
+      {/* Spectrum with target - spin animation */}
       <motion.div
         className="spectrum-section"
         initial={{ y: 20, opacity: 0 }}
@@ -67,8 +76,9 @@ export function PsychicScreen({
       >
         <Spectrum
           spectrum={spectrum}
-          showTarget={true}
+          showTarget={showTarget}
           targetPosition={targetPosition}
+          animateReveal={true}
         />
       </motion.div>
 

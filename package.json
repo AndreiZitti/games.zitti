@@ -1,5 +1,5 @@
 {
-  "name": "hot-take",
+  "name": "games.zitti",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -9,13 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AndreiZitti/timeline-boardgame.git"
+    "url": "git+https://github.com/AndreiZitti/games.zitti.git"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.87.1",
     "framer-motion": "^12.23.26",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
+    "react-gauge-component": "^1.2.64",
     "seedrandom": "^3.0.5"
   },
   "devDependencies": {

@@ -1,5 +1,7 @@
-import { useState, useCallback } from 'react'
-import { getRandomSpectrum } from '../data/spectrums'
+import { useState, useCallback, useEffect } from 'react'
+import { getRandomSpectrum, spectrums } from '../data/spectrums'
+
+const STORAGE_KEY = 'like-minded-single-game'
 
 // Calculate score based on distance from target
 export function calculateScore(targetPosition, guessPosition) {
@@ -38,8 +40,57 @@ const initialState = {
   roundHistory: []
 }
 
+// Load saved game from localStorage
+function loadSavedGame() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      // Restore spectrum objects from IDs
+      if (parsed.currentRound?.spectrum?.id) {
+        parsed.currentRound.spectrum = spectrums.find(s => s.id === parsed.currentRound.spectrum.id) || parsed.currentRound.spectrum
+      }
+      if (parsed.roundHistory) {
+        parsed.roundHistory = parsed.roundHistory.map(round => ({
+          ...round,
+          spectrum: spectrums.find(s => s.id === round.spectrum?.id) || round.spectrum
+        }))
+      }
+      return parsed
+    }
+  } catch (e) {
+    console.error('Failed to load saved game:', e)
+  }
+  return initialState
+}
+
+// Save game to localStorage
+function saveGame(state) {
+  try {
+    if (state.phase !== 'setup') {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    }
+  } catch (e) {
+    console.error('Failed to save game:', e)
+  }
+}
+
+// Clear saved game
+function clearSavedGame() {
+  try {
+    localStorage.removeItem(STORAGE_KEY)
+  } catch (e) {
+    console.error('Failed to clear saved game:', e)
+  }
+}
+
 export function useGameState() {
-  const [state, setState] = useState(initialState)
+  const [state, setState] = useState(() => loadSavedGame())
+
+  // Save to localStorage whenever state changes
+  useEffect(() => {
+    saveGame(state)
+  }, [state])
 
   // Start a new game with player names
   const startGame = useCallback((playerNames) => {
@@ -182,6 +233,7 @@ export function useGameState() {
 
   // Reset to setup
   const resetGame = useCallback(() => {
+    clearSavedGame()
     setState(initialState)
   }, [])
 

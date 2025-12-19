@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Spectrum } from '../Spectrum'
 
@@ -12,6 +12,15 @@ export function PsychicView({
   onSubmitClue
 }) {
   const [clue, setClue] = useState('')
+  const [showTarget, setShowTarget] = useState(false)
+
+  // Trigger the reveal animation when component mounts
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowTarget(true)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [targetPosition])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -57,7 +66,7 @@ export function PsychicView({
         <span className="psychic-subtitle">Give your team a clue</span>
       </motion.div>
 
-      {/* Spectrum with target */}
+      {/* Spectrum with target - spin animation */}
       <motion.div
         className="spectrum-section"
         initial={{ y: 20, opacity: 0 }}
@@ -66,8 +75,9 @@ export function PsychicView({
       >
         <Spectrum
           spectrum={spectrum}
-          showTarget={true}
+          showTarget={showTarget}
           targetPosition={targetPosition}
+          animateReveal={true}
         />
       </motion.div>
 
