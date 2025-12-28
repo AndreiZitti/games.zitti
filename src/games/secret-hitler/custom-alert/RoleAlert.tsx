@@ -1,14 +1,16 @@
 import React, { Component } from "react";
-import RoleHitler from "../assets/role-hitler.png";
-import RoleLiberal1 from "../assets/role-liberal-1.png";
-import RoleLiberal2 from "../assets/role-liberal-2.png";
-import RoleLiberal3 from "../assets/role-liberal-3.png";
-import RoleLiberal4 from "../assets/role-liberal-4.png";
-import RoleLiberal5 from "../assets/role-liberal-5.png";
-import RoleLiberal6 from "../assets/role-liberal-6.png";
-import RoleFascist1 from "../assets/role-fascist-1.png";
-import RoleFascist2 from "../assets/role-fascist-2.png";
-import RoleFascist3 from "../assets/role-fascist-3.png";
+
+// Static paths
+const RoleHitler = "/secret-hitler/role-hitler.png";
+const RoleLiberal1 = "/secret-hitler/role-liberal-1.png";
+const RoleLiberal2 = "/secret-hitler/role-liberal-2.png";
+const RoleLiberal3 = "/secret-hitler/role-liberal-3.png";
+const RoleLiberal4 = "/secret-hitler/role-liberal-4.png";
+const RoleLiberal5 = "/secret-hitler/role-liberal-5.png";
+const RoleLiberal6 = "/secret-hitler/role-liberal-6.png";
+const RoleFascist1 = "/secret-hitler/role-fascist-1.png";
+const RoleFascist2 = "/secret-hitler/role-fascist-2.png";
+const RoleFascist3 = "/secret-hitler/role-fascist-3.png";
 
 import "./RoleAlert.css";
 import { GameState, Role } from "../types";

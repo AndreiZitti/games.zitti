@@ -2,9 +2,10 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import ButtonPrompt from "./ButtonPrompt";
 
-import PartyBack from "../assets/party-membership.png";
-import PartyLiberal from "../assets/party-membership-liberal.png";
-import PartyFascist from "../assets/party-membership-fascist.png";
+// Static paths
+const PartyBack = "/secret-hitler/party-membership.png";
+const PartyLiberal = "/secret-hitler/party-membership-liberal.png";
+const PartyFascist = "/secret-hitler/party-membership-fascist.png";
 import { LIBERAL } from "../constants";
 
 import "./InvestigationAlert.css";

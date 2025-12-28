@@ -96,12 +96,12 @@ class IconSelection extends Component<IconSelectionProps, IconSelectionState> {
     }
   }
 
-  getIconButtonHML(portraitNames: string[]): React.JSX.Element {
+  getIconButtonHML(portraitNames: string[]): React.ReactElement {
     // Update selections based on game state given by the server (this prevents duplicate player icons).
 
     let currPortrait = this.props.playerToIcon[this.props.user];
 
-    const iconHTML: (React.JSX.Element | undefined)[] = portraitNames.map(
+    const iconHTML: (React.ReactElement | undefined)[] = portraitNames.map(
       (portraitID, index: number) => {
         // Check if valid portrait name
         if (!portraits[portraitID]) {

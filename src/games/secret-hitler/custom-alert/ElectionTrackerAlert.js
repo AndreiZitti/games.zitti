@@ -2,8 +2,9 @@ import React, {Component} from 'react';
 import PropTypes from "prop-types";
 import ButtonPrompt from "./ButtonPrompt";
 
-import ETBoard from '../assets/board-election-tracker.png';
-import ETToken from '../assets/board-tracker.png';
+// Static paths
+const ETBoard = '/secret-hitler/board-election-tracker.png';
+const ETToken = '/secret-hitler/board-tracker.png';
 
 import './ElectionTrackerAlert.css';
 

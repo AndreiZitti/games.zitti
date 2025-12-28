@@ -3,19 +3,18 @@ import PropTypes from "prop-types";
 
 import './Player.css'
 import '../selectable.css'
-import {Textfit} from 'react-textfit';
+import { Textfit } from '../util/Textfit';
 
-import PlayerBase from "../assets/player-base.png"
-
-import IconFascist from "../assets/player-icon-fascist.png";
-import IconHitler from "../assets/player-icon-hitler.png";
-import IconLiberal from "../assets/player-icon-liberal.png";
-
-import IconBusy from "../assets/player-icon-busy.png";
-
-import YesVote from "../assets/player-icon-ja.png";
-import NoVote from "../assets/player-icon-nein.png";
 import portraits, {portraitsAltText} from "../assets";
+
+// Static paths - assets are in /public/secret-hitler/
+const PlayerBase = "/secret-hitler/player-base.png";
+const IconFascist = "/secret-hitler/player-icon-fascist.png";
+const IconHitler = "/secret-hitler/player-icon-hitler.png";
+const IconLiberal = "/secret-hitler/player-icon-liberal.png";
+const IconBusy = "/secret-hitler/player-icon-busy.png";
+const YesVote = "/secret-hitler/player-icon-ja.png";
+const NoVote = "/secret-hitler/player-icon-nein.png";
 
 const LIBERAL = "LIBERAL";
 const FASCIST = "FASCIST";
@@ -31,6 +30,16 @@ class Player extends Component {
         this.state = {
             initialState: true,
             initialVoteState: true,
+        }
+    }
+
+    componentDidUpdate(prevProps) {
+        // Move setState logic out of render - React 19 enforces this
+        if (this.state.initialState && this.props.isBusy) {
+            this.setState({initialState: false});
+        }
+        if (this.props.showVote && this.state.initialVoteState) {
+            this.setState({initialVoteState: false});
         }
     }
 
@@ -123,6 +132,43 @@ class Player extends Component {
     }
 
     /**
+     * Gets the icon key, handling both string and object formats.
+     * @return {String} The icon key (e.g., "p1", "p_default") or the raw value for data URLs.
+     */
+    getIconKey() {
+        const icon = this.props.icon;
+        if (!icon) return "p_default";
+        if (typeof icon === "string") return icon;
+        // Handle object format (fallback)
+        if (typeof icon === "object") {
+            return icon.id || icon.key || icon.name || icon.icon || "p_default";
+        }
+        return "p_default";
+    }
+
+    /**
+     * Gets the icon source URL.
+     */
+    getIconSrc() {
+        const iconKey = this.getIconKey();
+        if (iconKey && iconKey.startsWith("data:image")) {
+            return iconKey;
+        }
+        return portraits[iconKey] || portraits["p_default"];
+    }
+
+    /**
+     * Gets the icon alt text.
+     */
+    getIconAlt() {
+        const iconKey = this.getIconKey();
+        if (iconKey && iconKey.startsWith("data:image")) {
+            return "Custom photo";
+        }
+        return portraitsAltText[iconKey] || "Player icon";
+    }
+
+    /**
      * Returns the name of the player, with an optional " (you)" tag if {@code this.props.isUser.}
      */
     getNameWithYouTag() {
@@ -134,15 +180,6 @@ class Player extends Component {
     }
 
     render() {
-        // noinspection HtmlUnknownAttribute
-        if (this.state.initialState && this.props.isBusy) {
-            this.setState({initialState: false});
-        }
-
-        if (this.props.showVote && this.state.initialVoteState) {
-            this.setState({initialVoteState: false});
-        }
-
         let identity_components;
         // Conditionally rendered so information is not visible in Inspector view
         if (this.props.showRole) {
@@ -174,8 +211,8 @@ class Player extends Component {
                 />
 
                 <img id={"player-icon"}
-                     alt={this.props.icon && this.props.icon.startsWith("data:image") ? "Custom photo" : portraitsAltText[this.props.icon]}
-                     src={this.props.icon && this.props.icon.startsWith("data:image") ? this.props.icon : portraits[this.props.icon]}
+                     alt={this.getIconAlt()}
+                     src={this.getIconSrc()}
                      className={this.getClassName()}
                 />
 

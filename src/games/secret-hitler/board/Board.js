@@ -1,11 +1,12 @@
 import React, {Component} from 'react';
-import LiberalBoard from "../assets/board-liberal.png";
-import ElectionTracker from "../assets/board-tracker.png";
-import PolicyLiberal from "../assets/board-policy-liberal.png";
-import FascistBoard_5_6 from "../assets/board-fascist-5-6.png";
-import FascistBoard_7_8 from "../assets/board-fascist-7-8.png";
-import FascistBoard_9_10 from "../assets/board-fascist-9-10.png";
-import PolicyFascist from "../assets/board-policy-fascist.png";
+// Static paths
+const LiberalBoard = "/secret-hitler/board-liberal.png";
+const ElectionTracker = "/secret-hitler/board-tracker.png";
+const PolicyLiberal = "/secret-hitler/board-policy-liberal.png";
+const FascistBoard_5_6 = "/secret-hitler/board-fascist-5-6.png";
+const FascistBoard_7_8 = "/secret-hitler/board-fascist-7-8.png";
+const FascistBoard_9_10 = "/secret-hitler/board-fascist-9-10.png";
+const PolicyFascist = "/secret-hitler/board-policy-fascist.png";
 
 import "./Board.css";
 

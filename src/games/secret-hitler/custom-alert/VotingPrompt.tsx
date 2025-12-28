@@ -9,8 +9,9 @@ import {
 } from "../constants";
 import "../selectable.css";
 import "./VotingPrompt.css";
-import YesVote from "../assets/vote-yes.png";
-import NoVote from "../assets/vote-no.png";
+// Static paths
+const YesVote = "/secret-hitler/vote-yes.png";
+const NoVote = "/secret-hitler/vote-no.png";
 import Player from "../player/Player";
 import { GameState, Role, SendWSCommand, WSCommandType } from "../types";
 

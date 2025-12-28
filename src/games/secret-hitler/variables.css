@@ -21,6 +21,15 @@
     --buttonAltHoverFill: #7abcca;
     --buttonAltShadowFill: #386F8B;
 
+    /* Neutral theme for lobby/login pages */
+    --neutralPrimary: #6b7280;
+    --neutralPrimaryHover: #9ca3af;
+    --neutralPrimaryShadow: #4b5563;
+    --neutralAccent: #8b9299;
+    --neutralText: #e5e7eb;
+    --neutralBackground: #374151;
+    --neutralBackgroundLight: #4b5563;
+
     --alertFill: #141414;
     --alertOverlayOpacity: 0.8;
 

@@ -2,11 +2,12 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import ButtonPrompt from "./ButtonPrompt";
 
-import LiberalPolicy from "../assets/policy-liberal.png";
-import FascistPolicy from "../assets/policy-fascist.png";
-import FolderCoverFront from "../assets/policy-folder-cover-front.png";
-import FolderCoverBack from "../assets/policy-folder-cover-back.png";
-import FolderBack from "../assets/policy-folder-back.png";
+// Static paths
+const LiberalPolicy = "/secret-hitler/policy-liberal.png";
+const FascistPolicy = "/secret-hitler/policy-fascist.png";
+const FolderCoverFront = "/secret-hitler/policy-folder-cover-front.png";
+const FolderCoverBack = "/secret-hitler/policy-folder-cover-back.png";
+const FolderBack = "/secret-hitler/policy-folder-back.png";
 
 import "./PolicyEnactedAlert.css";
 import { LIBERAL } from "../constants";

@@ -1,8 +1,9 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import IconFascist from "../assets/player-icon-fascist.png";
-import IconHitler from "../assets/player-icon-hitler.png";
-import IconLiberal from "../assets/player-icon-liberal.png";
+// Static paths
+const IconFascist = "/secret-hitler/player-icon-fascist.png";
+const IconHitler = "/secret-hitler/player-icon-hitler.png";
+const IconLiberal = "/secret-hitler/player-icon-liberal.png";
 
 import './PlayerPolicyStatus.css';
 

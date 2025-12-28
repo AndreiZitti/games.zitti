@@ -252,7 +252,7 @@ export default function PlayerDisplay(
    * @return {html[]} an array of JSX representing the players in indices {@code start} (inclusive)
    *         to {@code end} (exclusive).
    */
-  const renderPlayer = (start: number, end: number): JSX.Element[] => {
+  const renderPlayer = (start: number, end: number): React.ReactElement[] => {
     const players = props.gameState.players;
     const playerOrder = getPlayerOrder();
     const busyPlayers = getBusyPlayerSet();

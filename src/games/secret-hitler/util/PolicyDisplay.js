@@ -2,8 +2,9 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import "./PolicyDisplay.css";
 import { LIBERAL } from "../constants";
-import LiberalPolicy from "../assets/policy-liberal.png";
-import FascistPolicy from "../assets/policy-fascist.png";
+// Static paths
+const LiberalPolicy = "/secret-hitler/policy-liberal.png";
+const FascistPolicy = "/secret-hitler/policy-fascist.png";
 
 class PolicyDisplay extends Component {
 	render() {

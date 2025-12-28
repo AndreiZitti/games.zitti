@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "./App.css";
 import "./Lobby.css";
+import "./Login.css";
 import "./fonts.css";
 import MaxLengthTextField from "./util/MaxLengthTextField";
 import CustomAlert from "./custom-alert/CustomAlert";
@@ -77,8 +78,9 @@ import DiscussionPrompt from "./custom-alert/DiscussionPrompt";
 import Deck from "./board/Deck";
 import PlayerPolicyStatus from "./util/PlayerPolicyStatus";
 
-import VictoryFascistHeader from "./assets/victory-fascist-header.png";
-import VictoryLiberalHeader from "./assets/victory-liberal-header.png";
+// Static paths - assets in /public/secret-hitler/
+const VictoryFascistHeader = "/secret-hitler/victory-fascist-header.png";
+const VictoryLiberalHeader = "/secret-hitler/victory-liberal-header.png";
 import IconSelection from "./custom-alert/IconSelection";
 import HelmetMetaData from "./util/HelmetMetaData";
 import { defaultPortrait } from "./assets";
@@ -133,6 +135,9 @@ if (DEBUG) {
 // TODO: Refactor out pages into separate components
 // TODO: Refactor out AnimationQueue
 
+// Art style options
+type ArtStyle = "original" | "voldemort";
+
 // TODO: Remove this type and replace with actual state variables.
 type AppState = {
   page: PAGE;
@@ -141,6 +146,7 @@ type AppState = {
   joinError: string;
   createLobbyName: string;
   createLobbyError: string;
+  selectedArtStyle: ArtStyle;
   name: string;
   lobby: string;
   lobbyFromURL: boolean;
@@ -158,7 +164,7 @@ type AppState = {
   discardDeckSize: number;
   snackbarMessage: string;
   showAlert: boolean;
-  alertContent: JSX.Element;
+  alertContent: React.ReactElement;
   showEventBar: boolean;
   eventBarMessage: string;
   statusBarText: string;
@@ -172,6 +178,7 @@ const defaultAppState: AppState = {
   joinError: "",
   createLobbyName: "",
   createLobbyError: "",
+  selectedArtStyle: "original",
   name: "P1",
   lobby: "AAAAAA",
   lobbyFromURL: false,
@@ -194,7 +201,11 @@ const defaultAppState: AppState = {
   allAnimationsFinished: true,
 };
 
-class App extends Component<{}, AppState> {
+interface AppProps {
+  onBack?: () => void;
+}
+
+class App extends Component<AppProps, AppState> {
   websocket?: WebSocket = undefined;
   failedConnections: number = 0;
   pingInterval?: NodeJS.Timeout = undefined;
@@ -625,19 +636,24 @@ class App extends Component<{}, AppState> {
 
   renderLoginPage() {
     return (
-      <div className="App">
+      <div className="App login-page">
+        {this.props.onBack && (
+          <button
+            className="btn-back neutral-btn"
+            onClick={this.props.onBack}
+            style={{
+              position: "absolute",
+              top: "10px",
+              left: "10px",
+              padding: "8px 16px",
+              fontSize: "calc(8px + 1.5vmin)",
+            }}
+          >
+            &larr; Back to Games
+          </button>
+        )}
         <br />
         <div style={{ textAlign: "center" }}>
-          {/** TODO: Add reusable announcement component. 
-                    <div style={{backgroundColor: "#222222", width: "50vmin", margin: "0 auto", padding: "20px"}}>
-                        <p>
-                            Hello! Secret Hitler Online is currently undergoing some maintenance.
-                            Sorry for the interruption and please check back in in a few hours! -Shrimp
-                        </p>
-                        <p style={{fontStyle: "italic", fontSize: "calc(8px + 1vmin)"}}>(DATE TIME PM PT)</p>
-
-                    </div>
-                    */}
           <h2>JOIN A GAME</h2>
           <MaxLengthTextField
             label={"Lobby"}
@@ -656,13 +672,16 @@ class App extends Component<{}, AppState> {
           />
           <p id={"errormessage"}>{this.state.joinError}</p>
           <button
+            className="neutral-btn"
             onClick={this.onClickJoin}
             disabled={!this.shouldJoinButtonBeEnabled()}
           >
             JOIN
           </button>
         </div>
-        <br />
+
+        <div className="login-divider" />
+
         <div>
           <h2>CREATE A LOBBY</h2>
           <MaxLengthTextField
@@ -671,8 +690,30 @@ class App extends Component<{}, AppState> {
             value={this.state.createLobbyName}
             maxLength={12}
           />
+
+          <div className="art-style-container">
+            <p className="art-style-label">Select Art Style:</p>
+            <div className="art-style-options">
+              <div
+                className={`art-style-option original ${this.state.selectedArtStyle === "original" ? "selected" : ""}`}
+                onClick={() => this.setState({ selectedArtStyle: "original" })}
+              >
+                <p className="art-style-option-title">Original</p>
+                <p className="art-style-option-subtitle">Classic theme</p>
+              </div>
+              <div
+                className={`art-style-option voldemort ${this.state.selectedArtStyle === "voldemort" ? "selected" : ""}`}
+                onClick={() => this.setState({ selectedArtStyle: "original" })}
+              >
+                <p className="art-style-option-title">Secret Voldemort</p>
+                <p className="art-style-option-subtitle">Coming soon</p>
+              </div>
+            </div>
+          </div>
+
           <p id={"errormessage"}>{this.state.createLobbyError}</p>
           <button
+            className="neutral-btn"
             onClick={this.onClickCreateLobby}
             disabled={!this.shouldCreateLobbyButtonBeEnabled()}
           >
@@ -1550,7 +1591,7 @@ class App extends Component<{}, AppState> {
    *          be closed when the server responds with an 'ok' to any command. (There will be a short delay before the
    *          animation queue advances if not waiting for a server response.)
    */
-  queueAlert(content: React.JSX.Element, closeOnOK = true) {
+  queueAlert(content: React.ReactElement, closeOnOK = true) {
     this.addAnimationToQueue(() => {
       this.setState({
         alertContent: content,

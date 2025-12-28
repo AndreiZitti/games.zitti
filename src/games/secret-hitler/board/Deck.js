@@ -1,8 +1,9 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import DiscardDeck from "../assets/board-discard.png";
-import DrawDeck from "../assets/board-draw.png";
-import PolicyBack from "../assets/board-policy.png";
+// Static paths
+const DiscardDeck = "/secret-hitler/board-discard.png";
+const DrawDeck = "/secret-hitler/board-draw.png";
+const PolicyBack = "/secret-hitler/board-policy.png";
 import './Deck.css';
 
 const MAX_CARDS = 17;

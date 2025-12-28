@@ -16,13 +16,16 @@
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.87.1",
     "framer-motion": "^12.23.26",
+    "js-cookie": "^3.0.5",
     "next": "^16.1.1",
+    "prop-types": "^15.8.1",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-gauge-component": "^1.2.64",
     "seedrandom": "^3.0.5"
   },
   "devDependencies": {
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^22.15.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
