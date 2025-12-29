@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import './hot-take.css'
 import { useRoom } from './hooks/useRoom'
 import { CreateRoom } from './components/CreateRoom'
 import { JoinRoom } from './components/JoinRoom'

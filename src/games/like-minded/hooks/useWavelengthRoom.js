@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
-import { supabase } from '../../../lib/supabase'
+import { supabase } from '@/lib/supabase/client'
 import { getRandomSpectrum } from '../data/spectrums'
+import { useUser } from '@/contexts/UserContext'
 
 // Generate a random 4-letter room code
 function generateRoomCode() {
@@ -10,29 +11,6 @@ function generateRoomCode() {
     code += chars.charAt(Math.floor(Math.random() * chars.length))
   }
   return code
-}
-
-// Get player ID from localStorage
-function getPlayerId() {
-  if (typeof window === 'undefined') return ''
-  let id = localStorage.getItem('playerId')
-  if (!id) {
-    id = crypto.randomUUID()
-    localStorage.setItem('playerId', id)
-  }
-  return id
-}
-
-// Get saved player name
-function getSavedName() {
-  if (typeof window === 'undefined') return ''
-  return localStorage.getItem('playerName') || ''
-}
-
-// Save player name
-function savePlayerName(name) {
-  if (typeof window === 'undefined') return
-  localStorage.setItem('playerName', name)
 }
 
 // Get saved wavelength room code
@@ -70,11 +48,14 @@ export function calculateScore(target, guess) {
 }
 
 export function useWavelengthRoom() {
+  const { profile, updateName } = useUser()
   const [room, setRoom] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [playerId] = useState(getPlayerId)
-  const [savedName, setSavedName] = useState(getSavedName)
+
+  // Use playerId and name from UserContext
+  const playerId = profile.id
+  const savedName = profile.name
 
   // Derived state
   const players = room?.players || []
@@ -117,7 +98,7 @@ export function useWavelengthRoom() {
   // Try to rejoin a room
   const tryRejoin = useCallback(async () => {
     const code = getSavedRoomCode()
-    const name = getSavedName()
+    const name = savedName
 
     if (!code || !name) return null
 
@@ -148,7 +129,7 @@ export function useWavelengthRoom() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [savedName])
 
   // Create a new room
   const createRoom = useCallback(async (hostName) => {
@@ -180,9 +161,8 @@ export function useWavelengthRoom() {
 
       if (supabaseError) throw supabaseError
 
-      savePlayerName(hostName)
+      updateName(hostName)
       saveRoomCode(data.code)
-      setSavedName(hostName)
       setRoom(data)
       return data
     } catch (err) {
@@ -191,7 +171,7 @@ export function useWavelengthRoom() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [updateName])
 
   // Join an existing room
   const joinRoom = useCallback(async (code, playerName) => {
@@ -225,9 +205,8 @@ export function useWavelengthRoom() {
 
       if (updateError) throw updateError
 
-      savePlayerName(playerName)
+      updateName(playerName)
       saveRoomCode(data.code)
-      setSavedName(playerName)
       setRoom(data)
       return data
     } catch (err) {
@@ -236,7 +215,7 @@ export function useWavelengthRoom() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [updateName])
 
   // Start the game (host only)
   const startGame = useCallback(async () => {

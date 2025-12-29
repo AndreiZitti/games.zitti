@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import './like-minded.css'
 // Single device mode
 import { useGameState } from './hooks/useGameState'
 import { Setup } from './components/Setup'

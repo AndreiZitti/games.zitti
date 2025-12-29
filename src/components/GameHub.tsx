@@ -33,7 +33,7 @@ const games: Game[] = [
     id: "secret-hitler",
     name: "Secret Hitler",
     description: "A social deduction game of political intrigue.",
-    available: false,
+    available: true,
     accent: "#dc2626",
     href: "/games/secret-hitler",
   },

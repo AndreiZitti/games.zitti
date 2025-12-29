@@ -1,52 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
-import { supabase } from '../../../lib/supabase'
+import { supabase } from '@/lib/supabase/client'
 import { generateRoomCode, assignNumbers } from '../../../lib/random'
-
-// Get or create player ID from localStorage
-function getPlayerId() {
-  if (typeof window === 'undefined') return ''
-  let id = localStorage.getItem('playerId')
-  if (!id) {
-    id = crypto.randomUUID()
-    localStorage.setItem('playerId', id)
-  }
-  return id
-}
-
-// Get saved player name from localStorage
-function getSavedName() {
-  if (typeof window === 'undefined') return ''
-  return localStorage.getItem('playerName') || ''
-}
-
-// Save player name to localStorage
-function savePlayerName(name) {
-  if (typeof window === 'undefined') return
-  localStorage.setItem('playerName', name)
-}
-
-// Get profile stats from localStorage
-function getProfileStats() {
-  if (typeof window === 'undefined') return { gamesPlayed: 0, gamesHosted: 0 }
-  return {
-    gamesPlayed: parseInt(localStorage.getItem('gamesPlayed') || '0', 10),
-    gamesHosted: parseInt(localStorage.getItem('gamesHosted') || '0', 10)
-  }
-}
-
-// Increment games played counter
-function incrementGamesPlayed() {
-  if (typeof window === 'undefined') return
-  const current = parseInt(localStorage.getItem('gamesPlayed') || '0', 10)
-  localStorage.setItem('gamesPlayed', (current + 1).toString())
-}
-
-// Increment games hosted counter
-function incrementGamesHosted() {
-  if (typeof window === 'undefined') return
-  const current = parseInt(localStorage.getItem('gamesHosted') || '0', 10)
-  localStorage.setItem('gamesHosted', (current + 1).toString())
-}
+import { useUser } from '@/contexts/UserContext'
 
 // Get saved room code from localStorage
 function getSavedRoomCode() {
@@ -84,12 +39,13 @@ function updateURLWithRoomCode(code) {
 }
 
 export function useRoom() {
+  const { profile, updateName, incrementGamesPlayed, incrementGamesHosted } = useUser()
   const [room, setRoom] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [playerId] = useState(getPlayerId)
-  const [savedName, setSavedName] = useState(getSavedName)
-  const [profileStats, setProfileStats] = useState(getProfileStats)
+
+  // Use playerId from UserContext
+  const playerId = profile.id
 
   // Get current player from room
   const currentPlayer = room?.players?.find(p => p.id === playerId)
@@ -114,7 +70,6 @@ export function useRoom() {
             // Check if phase changed to 'revealed' - count as game played
             if (payload.old?.phase !== 'revealed' && payload.new.phase === 'revealed') {
               incrementGamesPlayed()
-              setProfileStats(getProfileStats())
             }
             setRoom(payload.new)
           }
@@ -125,7 +80,7 @@ export function useRoom() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [room?.code])
+  }, [room?.code, incrementGamesPlayed])
 
   // Try to rejoin a room (from URL or localStorage)
   const tryRejoin = useCallback(async () => {
@@ -201,7 +156,7 @@ export function useRoom() {
       if (supabaseError) throw supabaseError
 
       // Save to localStorage and URL
-      savePlayerName(hostName)
+      updateName(hostName)
       saveRoomCode(data.code)
       updateURLWithRoomCode(data.code)
 
@@ -213,7 +168,7 @@ export function useRoom() {
     } finally {
       setLoading(false)
     }
-  }, [playerId])
+  }, [playerId, updateName])
 
   // Join an existing room
   const joinRoom = useCallback(async (code, playerName) => {
@@ -235,7 +190,7 @@ export function useRoom() {
       const existingPlayer = existingRoom.players.find(p => p.id === playerId)
       if (existingPlayer) {
         // Save to localStorage and URL
-        savePlayerName(playerName)
+        updateName(playerName)
         saveRoomCode(existingRoom.code)
         updateURLWithRoomCode(existingRoom.code)
 
@@ -259,7 +214,7 @@ export function useRoom() {
       if (updateError) throw updateError
 
       // Save to localStorage and URL
-      savePlayerName(playerName)
+      updateName(playerName)
       saveRoomCode(data.code)
       updateURLWithRoomCode(data.code)
 
@@ -271,7 +226,7 @@ export function useRoom() {
     } finally {
       setLoading(false)
     }
-  }, [playerId])
+  }, [playerId, updateName])
 
   // Set category (host only)
   const setCategory = useCallback(async (category) => {
@@ -316,11 +271,10 @@ export function useRoom() {
     if (!updateError) {
       // Increment games hosted counter
       incrementGamesHosted()
-      setProfileStats(getProfileStats())
     } else {
       setError(updateError.message)
     }
-  }, [room, isHost])
+  }, [room, isHost, incrementGamesHosted])
 
   // Toggle number visibility
   const toggleHidden = useCallback(async () => {
@@ -414,18 +368,10 @@ export function useRoom() {
     setError(null)
   }, [])
 
-  // Update profile name
+  // Update profile name (delegates to UserContext)
   const updateProfileName = useCallback((name) => {
-    savePlayerName(name)
-    setSavedName(name)
-  }, [])
-
-  // Get full profile object
-  const profile = {
-    playerId,
-    name: savedName,
-    ...profileStats
-  }
+    updateName(name)
+  }, [updateName])
 
   return {
     room,
@@ -434,7 +380,7 @@ export function useRoom() {
     playerId,
     currentPlayer,
     isHost,
-    savedName,
+    savedName: profile.name,
     profile,
     createRoom,
     joinRoom,
