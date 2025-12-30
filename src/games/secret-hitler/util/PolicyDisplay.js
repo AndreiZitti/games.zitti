@@ -2,12 +2,14 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import "./PolicyDisplay.css";
 import { LIBERAL } from "../constants";
-// Static paths
-const LiberalPolicy = "/secret-hitler/policy-liberal.png";
-const FascistPolicy = "/secret-hitler/policy-fascist.png";
 
 class PolicyDisplay extends Component {
 	render() {
+		const { themeAssets } = this.props;
+		// Use themed assets if provided, otherwise fall back to original
+		const liberalPolicy = themeAssets?.policyLiberal || "/secret-hitler/policy-liberal.png";
+		const fascistPolicy = themeAssets?.policyFascist || "/secret-hitler/policy-fascist.png";
+
 		return (
 			<div id={"legislative-policy-container"}>
 				{this.props.policies.map((value, index) => {
@@ -24,7 +26,7 @@ class PolicyDisplay extends Component {
 							}
 							onClick={() => this.props.onClick(index)}
 							disabled={!this.props.allowSelection}
-							src={value === LIBERAL ? LiberalPolicy : FascistPolicy} // Toggles fascist/liberal policy
+							src={value === LIBERAL ? liberalPolicy : fascistPolicy}
 							alt={
 								"A " +
 								policyName +
@@ -41,9 +43,10 @@ class PolicyDisplay extends Component {
 
 PolicyDisplay.propTypes = {
 	policies: PropTypes.array.isRequired,
-	onClick: PropTypes.func, // If undefined, the policies cannot be selected.
+	onClick: PropTypes.func,
 	selection: PropTypes.number,
 	allowSelection: PropTypes.bool,
+	themeAssets: PropTypes.object,
 };
 
 export default PolicyDisplay;

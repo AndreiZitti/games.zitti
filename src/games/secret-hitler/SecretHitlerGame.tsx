@@ -12,6 +12,10 @@ import "./styles/theme-voldemort.css";
 // Import screens
 import { HomeScreen, CreateRoomScreen, JoinRoomScreen, ArtStyle } from "./screens";
 
+// Import theme context
+import { ThemeProvider } from "./contexts/ThemeContext";
+import { ThemeId, getThemeLabels } from "./assets/themes";
+
 // Import server constants from existing constants file
 import { SERVER_ADDRESS_HTTP, NEW_LOBBY, CHECK_LOGIN } from "./constants";
 
@@ -51,7 +55,7 @@ export function SecretHitlerGame({ onBack }: SecretHitlerGameProps) {
   const [gameSession, setGameSession] = useState<{
     name: string;
     lobby: string;
-    artStyle: ArtStyle;
+    artStyle: ThemeId;
   } | null>(null);
 
   // Load saved data from cookies/URL on mount (client-side only)
@@ -174,6 +178,7 @@ export function SecretHitlerGame({ onBack }: SecretHitlerGameProps) {
           onBack={onBack}
           onCreateRoom={() => setScreen("create")}
           onJoinRoom={() => setScreen("join")}
+          themeLabels={getThemeLabels("original")}
         />
       );
 
@@ -214,13 +219,16 @@ export function SecretHitlerGame({ onBack }: SecretHitlerGameProps) {
       }
 
       return (
-        <div className={`secret-hitler-game-container theme-${gameSession.artStyle}`}>
-          <GameApp
-            onBack={handleLeaveGame}
-            initialName={gameSession.name}
-            initialLobby={gameSession.lobby}
-          />
-        </div>
+        <ThemeProvider themeId={gameSession.artStyle}>
+          <div className={`secret-hitler-game-container theme-${gameSession.artStyle}`}>
+            <GameApp
+              onBack={handleLeaveGame}
+              initialName={gameSession.name}
+              initialLobby={gameSession.lobby}
+              themeId={gameSession.artStyle}
+            />
+          </div>
+        </ThemeProvider>
       );
 
     default:

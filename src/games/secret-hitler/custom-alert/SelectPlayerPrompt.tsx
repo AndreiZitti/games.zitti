@@ -7,6 +7,7 @@ import {
   DISABLE_TERM_LIMITED_PLAYERS,
 } from "../player/PlayerDisplay";
 import { GameState, SendWSCommand, WSCommandType } from "../types";
+import { ThemeLabels } from "../assets/themes";
 
 type AllowedWSCommandTypes =
   | WSCommandType.NOMINATE_CHANCELLOR
@@ -90,9 +91,13 @@ export default function SelectPlayerPrompt(
 export const SelectNominationPrompt = (
   user: string,
   gameState: GameState,
-  sendWSCommand: SendWSCommand
+  sendWSCommand: SendWSCommand,
+  themeLabels?: ThemeLabels
 ): ReactElement => {
   let shouldFascistVictoryWarningBeShown = gameState.fascistPolicies >= 3;
+  const warningText = themeLabels
+    ? `${themeLabels.fascistParty} will win if ${themeLabels.hitler} is nominated and voted in as Chancellor!`
+    : "Fascists will win if Hitler is nominated and voted in as Chancellor!";
 
   return (
     <SelectPlayerPrompt
@@ -111,8 +116,7 @@ export const SelectNominationPrompt = (
               className="left-align highlight"
               hidden={!shouldFascistVictoryWarningBeShown}
             >
-              Fascists will win if Hitler is nominated and voted in as
-              Chancellor!
+              {warningText}
             </p>
           </div>
         );
@@ -135,8 +139,13 @@ export const SelectNominationPrompt = (
 export const SelectInvestigationPrompt = (
   user: string,
   gameState: GameState,
-  sendWSCommand: SendWSCommand
+  sendWSCommand: SendWSCommand,
+  themeLabels?: ThemeLabels
 ): ReactElement => {
+  const descriptionText = themeLabels
+    ? `Choose a player and investigate their party alignment. You'll learn if the player is a member of the ${themeLabels.fascistParty} or ${themeLabels.liberalParty}, but not their specific role (e.g., ${themeLabels.hitler}).`
+    : "Choose a player and investigate their party alignment. You'll learn if the player is a member of the Fascist or Liberal party, but not their specific role (e.g., Hitler).";
+
   return (
     <SelectPlayerPrompt
       user={user}
@@ -149,11 +158,7 @@ export const SelectInvestigationPrompt = (
       renderHeader={() => {
         return (
           <>
-            <p className={"left-align"}>
-              Choose a player and investigate their party alignment. You'll
-              learn if the player is a member of the Fascist or Liberal party,
-              but not their specific role (e.g., Hitler).
-            </p>
+            <p className={"left-align"}>{descriptionText}</p>
             <p className={"left-align"}>
               Players that have been investigated once cannot be investigated
               again.
@@ -192,8 +197,13 @@ export const SelectSpecialElectionPrompt = (
 export const SelectExecutionPrompt = (
   user: string,
   gameState: GameState,
-  sendWSCommand: SendWSCommand
+  sendWSCommand: SendWSCommand,
+  themeLabels?: ThemeLabels
 ): ReactElement => {
+  const warningText = themeLabels
+    ? `The game ends and ${themeLabels.liberalParty} win if ${themeLabels.hitler} is executed.`
+    : "The game ends and Liberals win if Hitler is executed.";
+
   return (
     <SelectPlayerPrompt
       user={user}
@@ -210,9 +220,7 @@ export const SelectExecutionPrompt = (
               Choose a player to execute. That player can no longer speak, vote,
               or run for office.
             </p>
-            <p className={"left-align highlight"}>
-              The game ends and Liberals win if Hitler is executed.
-            </p>
+            <p className={"left-align highlight"}>{warningText}</p>
           </>
         );
       }}

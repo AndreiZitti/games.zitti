@@ -5,10 +5,12 @@ import { SERVER_TIMEOUT } from "../constants";
 import "../util/PolicyDisplay.css";
 import PolicyDisplay from "../util/PolicyDisplay";
 import { PolicyType, SendWSCommand, WSCommandType } from "../types";
+import { ThemeAssets } from "../assets/themes";
 
 type PresidentLegislativePromptProps = {
   policyOptions: PolicyType[];
   sendWSCommand: SendWSCommand;
+  themeAssets?: ThemeAssets;
 };
 
 type PresidentLegislativePromptState = {
@@ -65,6 +67,7 @@ class PresidentLegislativePrompt extends Component<
           onClick={(index: number) => this.setState({ selection: index })}
           selection={this.state.selection}
           allowSelection={true}
+          themeAssets={this.props.themeAssets}
         />
       </ButtonPrompt>
     );

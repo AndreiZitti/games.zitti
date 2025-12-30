@@ -78,10 +78,10 @@ import DiscussionPrompt from "./custom-alert/DiscussionPrompt";
 import Deck from "./board/Deck";
 import PlayerPolicyStatus from "./util/PlayerPolicyStatus";
 
-// Static paths - assets in /public/secret-hitler/
-const VictoryFascistHeader = "/secret-hitler/victory-fascist-header.png";
-const VictoryLiberalHeader = "/secret-hitler/victory-liberal-header.png";
 import IconSelection from "./custom-alert/IconSelection";
+
+// Theme-aware assets, layout, and labels
+import { ThemeId, getThemeAssets, getThemeLayout, getThemeLabels, ThemeAssets, ThemeLayout, ThemeLabels } from "./assets/themes";
 import HelmetMetaData from "./util/HelmetMetaData";
 import { defaultPortrait } from "./assets";
 import Player from "./player/Player";
@@ -204,11 +204,15 @@ interface AppProps {
   onBack?: () => void;
   initialName?: string;
   initialLobby?: string;
+  themeId?: ThemeId;
 }
 
 class App extends Component<AppProps, AppState> {
   websocket?: WebSocket = undefined;
   failedConnections: number = 0;
+  themeAssets: ThemeAssets;
+  themeLayout: ThemeLayout;
+  themeLabels: ThemeLabels;
   pingInterval?: NodeJS.Timeout = undefined;
   reconnectOnConnectionClosed: boolean = true;
   snackbarMessages: number = 0;
@@ -220,6 +224,11 @@ class App extends Component<AppProps, AppState> {
   // noinspection DuplicatedCode
   constructor(props: AppProps) {
     super(props);
+
+    // Initialize theme assets, layout, and labels
+    this.themeAssets = getThemeAssets(props.themeId || "original");
+    this.themeLayout = getThemeLayout(props.themeId || "original");
+    this.themeLabels = getThemeLabels(props.themeId || "original");
 
     // Use props if provided, otherwise fall back to cookies
     const name = props.initialName || Cookies.get(COOKIE_NAME) || "";
@@ -473,6 +482,7 @@ class App extends Component<AppProps, AppState> {
             party={party}
             target={message[PARAM_TARGET]}
             hideAlert={this.hideAlertAndFinish}
+            themeAssets={this.themeAssets}
           />,
           false
         );
@@ -1039,6 +1049,7 @@ class App extends Component<AppProps, AppState> {
           <PolicyEnactedAlert
             hideAlert={this.hideAlertAndFinish}
             policyType={newState.lastPolicy}
+            themeAssets={this.themeAssets}
           />
         );
       }
@@ -1073,6 +1084,8 @@ class App extends Component<AppProps, AppState> {
                 onClick={() => {
                   this.hideAlertAndFinish();
                 }}
+                themeAssets={this.themeAssets}
+                themeLabels={this.themeLabels}
               />,
               false
             );
@@ -1086,7 +1099,7 @@ class App extends Component<AppProps, AppState> {
           if (isPresident) {
             //Show the chancellor nomination window.
             this.queueAlert(
-              SelectNominationPrompt(name, newState, this.sendWSCommand)
+              SelectNominationPrompt(name, newState, this.sendWSCommand, this.themeLabels)
             );
           }
 
@@ -1106,6 +1119,8 @@ class App extends Component<AppProps, AppState> {
                 gameState={newState}
                 sendWSCommand={this.sendWSCommand}
                 user={this.state.name}
+                themeAssets={this.themeAssets}
+                themeLabels={this.themeLabels}
               />,
               true
             );
@@ -1132,6 +1147,7 @@ class App extends Component<AppProps, AppState> {
               <PresidentLegislativePrompt
                 policyOptions={newState.presidentChoices}
                 sendWSCommand={this.sendWSCommand}
+                themeAssets={this.themeAssets}
               />
             );
           }
@@ -1158,6 +1174,8 @@ class App extends Component<AppProps, AppState> {
                 enableVeto={
                   newState.fascistPolicies === 5 && !newState.vetoOccurred
                 }
+                themeAssets={this.themeAssets}
+                themeLabels={this.themeLabels}
               />
             );
           }
@@ -1215,7 +1233,7 @@ class App extends Component<AppProps, AppState> {
           this.queueEventUpdate("PRESIDENTIAL POWER");
           if (isPresident) {
             this.queueAlert(
-              SelectExecutionPrompt(name, newState, this.sendWSCommand),
+              SelectExecutionPrompt(name, newState, this.sendWSCommand, this.themeLabels),
               true
             );
           } else {
@@ -1229,7 +1247,7 @@ class App extends Component<AppProps, AppState> {
           this.queueEventUpdate("PRESIDENTIAL POWER");
           if (isPresident) {
             this.queueAlert(
-              SelectInvestigationPrompt(name, newState, this.sendWSCommand)
+              SelectInvestigationPrompt(name, newState, this.sendWSCommand, this.themeLabels)
             );
           } else {
             this.queueStatusMessage(
@@ -1365,24 +1383,23 @@ class App extends Component<AppProps, AppState> {
 
           if (fascistVictoryElection || fascistVictoryPolicy) {
             players = fascistPlayers.concat(liberalPlayers);
-            headerImage = VictoryFascistHeader;
+            headerImage = this.themeAssets.victoryFascistHeader;
             headerAlt = "Fascist Victory, written in red with a skull icon.";
             messageClass = "highlight";
             if (fascistVictoryPolicy) {
-              victoryMessage = "Fascists successfully passed six policies!";
+              victoryMessage = this.themeLabels.fascistPolicyVictory;
             } else if (fascistVictoryElection) {
-              victoryMessage =
-                "Fascists successfully elected Hitler as chancellor!";
+              victoryMessage = this.themeLabels.fascistElectionVictory;
             }
           } else {
             players = liberalPlayers.concat(fascistPlayers);
-            headerImage = VictoryLiberalHeader;
+            headerImage = this.themeAssets.victoryLiberalHeader;
             headerAlt = "Liberal Victory, written in blue with a dove icon.";
             messageClass = "highlight-blue";
             if (liberalVictoryPolicy) {
-              victoryMessage = "Liberals successfully passed five policies!";
+              victoryMessage = this.themeLabels.liberalPolicyVictory;
             } else if (liberalVictoryExecution) {
-              victoryMessage = "Liberals successfully executed Hitler!";
+              victoryMessage = this.themeLabels.liberalExecutionVictory;
             }
           }
           if (DEBUG) {
@@ -1679,7 +1696,7 @@ class App extends Component<AppProps, AppState> {
                 marginTop: "15px",
               }}
             >
-              <Deck cardCount={this.state.drawDeckSize} deckType={"DRAW"} />
+              <Deck cardCount={this.state.drawDeckSize} deckType={"DRAW"} themeAssets={this.themeAssets} />
 
               <div style={{ margin: "auto auto" }}>
                 <button
@@ -1706,6 +1723,7 @@ class App extends Component<AppProps, AppState> {
               <Deck
                 cardCount={this.state.discardDeckSize}
                 deckType={"DISCARD"}
+                themeAssets={this.themeAssets}
               />
             </div>
 
@@ -1714,6 +1732,8 @@ class App extends Component<AppProps, AppState> {
               numFascistPolicies={this.state.fascistPolicies}
               numLiberalPolicies={this.state.liberalPolicies}
               electionTracker={this.state.electionTracker}
+              themeAssets={this.themeAssets}
+              themeLayout={this.themeLayout}
             />
           </div>
         </div>

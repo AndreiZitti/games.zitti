@@ -9,16 +9,16 @@ import {
 } from "../constants";
 import "../selectable.css";
 import "./VotingPrompt.css";
-// Static paths
-const YesVote = "/secret-hitler/vote-yes.png";
-const NoVote = "/secret-hitler/vote-no.png";
 import Player from "../player/Player";
 import { GameState, Role, SendWSCommand, WSCommandType } from "../types";
+import { ThemeAssets, ThemeLabels } from "../assets/themes";
 
 type VotingPromptProps = {
   gameState: GameState;
   sendWSCommand: SendWSCommand;
   user: string;
+  themeAssets?: ThemeAssets;
+  themeLabels?: ThemeLabels;
 };
 
 type VotingPromptState = {
@@ -127,9 +127,9 @@ class VotingPrompt extends Component<VotingPromptProps, VotingPromptState> {
                                       such as if fascists can win the game or if the voting tracker will hit the end. */}
               {this.props.gameState.fascistPolicies >= 3 && (
                 <p className="highlight left-align">
-                  {
-                    "Fascists will win if Hitler is successfully voted in as chancellor!"
-                  }
+                  {this.props.themeLabels
+                    ? `${this.props.themeLabels.fascistParty} will win if ${this.props.themeLabels.hitler} is successfully voted in as chancellor!`
+                    : "Fascists will win if Hitler is successfully voted in as chancellor!"}
                 </p>
               )}
               {this.props.gameState.electionTracker === 2 && (
@@ -154,7 +154,7 @@ class VotingPrompt extends Component<VotingPromptProps, VotingPromptState> {
               "selectable " +
               (this.state.selection === "yes" ? "selected " : "")
             } /*Determines if this should be selected.*/
-            src={YesVote}
+            src={this.props.themeAssets?.voteYes || "/secret-hitler/vote-yes.png"}
             alt={"Ja! (Yes)"}
             onClick={() => this.setState({ selection: "yes" })}
           />
@@ -163,7 +163,7 @@ class VotingPrompt extends Component<VotingPromptProps, VotingPromptState> {
             className={
               "selectable " + (this.state.selection === "no" ? "selected " : "")
             }
-            src={NoVote}
+            src={this.props.themeAssets?.voteNo || "/secret-hitler/vote-no.png"}
             alt={"Nein (No)"}
             onClick={() => this.setState({ selection: "no" })}
           />

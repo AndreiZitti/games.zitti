@@ -1,38 +1,188 @@
-/* Secret Voldemort Theme - Coming Soon */
-/* This theme will be used when "Secret Voldemort" art style is selected */
-/* For now, it's a placeholder that mirrors the original theme */
+/* Secret Voldemort Theme - Harry Potter themed variant */
+/* Death Eaters vs Order of the Phoenix */
 
 .theme-voldemort {
-  /* Primary colors - Dark green/Slytherin inspired */
-  --theme-primary: #1a472a;
-  --theme-primary-hover: #2d5a3e;
-  --theme-primary-shadow: #0d2818;
+  /* Primary colors - Slytherin green */
+  --theme-primary: #1a5c32;
+  --theme-primary-hover: #2a7a4a;
+  --theme-primary-shadow: #0d3a1e;
 
-  /* Background colors */
+  /* Background colors - Dark, mysterious */
   --theme-bg: #1a1a2e;
   --theme-bg-dark: #0f0f1a;
   --theme-bg-card: #252540;
 
   /* Text colors */
-  --theme-text: #c0c0c0;
-  --theme-text-muted: #888888;
+  --theme-text: #e0e0e0;
+  --theme-text-muted: #a0a0a0;
   --theme-text-highlight: #50c878;
-  --theme-text-secondary: #9370db;
+  --theme-text-phoenix: #c9a227;
 
-  /* Button colors */
-  --theme-btn-bg: #1a472a;
-  --theme-btn-hover: #2d5a3e;
-  --theme-btn-shadow: #0d2818;
-  --theme-btn-disabled: #4a4a4a;
-  --theme-btn-disabled-shadow: #2a2a2a;
+  /* Button colors - Slytherin green */
+  --theme-btn-bg: #1a5c32;
+  --theme-btn-hover: #2a7a4a;
+  --theme-btn-shadow: #0d3a1e;
+  --theme-btn-disabled: #4a4a5a;
+  --theme-btn-disabled-shadow: #2a2a3a;
+
+  /* Alt button (phoenix gold) */
+  --theme-btn-alt-bg: #c9a227;
+  --theme-btn-alt-hover: #dab840;
+  --theme-btn-alt-shadow: #9a7a1a;
 
   /* UI elements */
-  --theme-alert-bg: #0a0a0a;
-  --theme-status-bar: #0a0a0a;
+  --theme-alert-bg: #0a0a14;
+  --theme-alert-overlay: 0.85;
+  --theme-status-bar: #0a0a14;
+  --theme-selection-hover: rgba(201, 162, 39, 1.00);
+  --theme-selection-selected: rgba(26, 92, 50, 1.00);
 
   /* Apply theme background */
   background-color: var(--theme-bg);
   color: var(--theme-text);
 }
 
-/* TODO: Add full Voldemort theme styling when art assets are ready */
+/* Themed screen base */
+.theme-voldemort.secret-hitler-themed {
+  min-height: 100vh;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Themed typography */
+.theme-voldemort h1,
+.theme-voldemort h2 {
+  font-family: 'Germania One', cursive;
+  color: var(--theme-text);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.theme-voldemort h2 {
+  font-size: calc(12px + 2vmin);
+  font-weight: normal;
+  margin: 0.5em 0;
+}
+
+.theme-voldemort p {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: calc(12px + 1vmin);
+  color: var(--theme-text-muted);
+}
+
+.theme-voldemort .highlight {
+  color: var(--theme-text-highlight);
+}
+
+.theme-voldemort .highlight-blue {
+  color: var(--theme-text-phoenix);
+}
+
+/* Themed buttons */
+.theme-voldemort button {
+  background: var(--theme-btn-bg);
+  box-shadow: 0 5px 0 var(--theme-btn-shadow);
+  font-family: 'Germania One', cursive;
+  font-size: calc(6px + 4vmin);
+  color: var(--theme-text);
+  padding: 10px 25px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-voldemort button:hover,
+.theme-voldemort button:focus {
+  background: var(--theme-btn-hover);
+}
+
+.theme-voldemort button:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--theme-btn-shadow);
+}
+
+.theme-voldemort button:disabled {
+  background: var(--theme-btn-disabled);
+  box-shadow: 0 5px 0 var(--theme-btn-disabled-shadow);
+  cursor: not-allowed;
+}
+
+/* Themed inputs */
+.theme-voldemort input {
+  font-family: 'Montserrat', sans-serif;
+  font-size: calc(4px + 3vmin);
+  color: #2a2a40;
+  background: #e8e8f0;
+  border: 2px solid transparent;
+  border-radius: 5px;
+  padding: 5px;
+  outline: none;
+}
+
+.theme-voldemort input:focus {
+  border-color: var(--theme-primary);
+}
+
+.theme-voldemort textarea {
+  font-family: 'Montserrat', sans-serif;
+  font-size: calc(2px + 2vmin);
+  color: #2a2a40;
+  background: #e8e8f0;
+  border: 2px solid transparent;
+  border-radius: 5px;
+  padding: calc(5px + 1.5vmin) 5px 5px;
+  outline: none;
+  resize: none;
+}
+
+/* Links */
+.theme-voldemort a {
+  font-family: 'Montserrat', sans-serif;
+  font-size: calc(12px + 1vmin);
+  color: var(--theme-btn-hover);
+}
+
+/* Snackbar */
+.theme-voldemort #snackbar {
+  background-color: var(--theme-alert-bg);
+  color: var(--theme-text);
+  font-family: 'Montserrat', sans-serif;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+/* Custom alert styling for Voldemort theme */
+.theme-voldemort .custom-alert-container {
+  background: linear-gradient(180deg, var(--theme-bg-card) 0%, var(--theme-bg-dark) 100%);
+  border: 1px solid rgba(26, 92, 50, 0.3);
+}
+
+/* Board container styling */
+.theme-voldemort #board-container {
+  filter: none;
+}
+
+/* Policy tile positioning for Voldemort theme boards */
+/* The SVG boards have different slot positions than original PNGs */
+.theme-voldemort #board-group #policy {
+  top: 25%;
+  width: 10%;
+}
+
+/* Legislative Session policy card styling */
+/* Adjust size and positioning for Voldemort theme cards */
+.theme-voldemort #legislative-policy {
+  width: 25vmin;       /* Card size - increase for bigger cards */
+  margin: 15px;        /* Spacing between cards */
+  /* margin-top: 20px; */ /* Uncomment to offset from top */
+}
+
+/* Selection styles override */
+.theme-voldemort .selectable:hover {
+  box-shadow: 0 0 20px var(--theme-selection-hover);
+}
+
+.theme-voldemort .selectable.selected {
+  box-shadow: 0 0 25px var(--theme-selection-selected);
+}

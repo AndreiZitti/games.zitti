@@ -1,13 +1,15 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { ThemeLabels } from "../assets/themes";
 
 interface HomeScreenProps {
   onBack: () => void;
   onCreateRoom: () => void;
   onJoinRoom: () => void;
+  themeLabels: ThemeLabels;
 }
 
-export function HomeScreen({ onBack, onCreateRoom, onJoinRoom }: HomeScreenProps) {
+export function HomeScreen({ onBack, onCreateRoom, onJoinRoom, themeLabels }: HomeScreenProps) {
   return (
     <motion.div
       className="secret-hitler-screen"
@@ -24,7 +26,7 @@ export function HomeScreen({ onBack, onCreateRoom, onJoinRoom }: HomeScreenProps
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.1 }}
       >
-        SECRET HITLER
+        {themeLabels.themeName.toUpperCase()}
       </motion.h1>
       <motion.p
         className="subtitle"
@@ -42,9 +44,9 @@ export function HomeScreen({ onBack, onCreateRoom, onJoinRoom }: HomeScreenProps
         transition={{ delay: 0.3 }}
       >
         <ul>
-          <li>Players are secretly divided into Liberals and Fascists</li>
-          <li>Liberals must enact liberal policies or find and execute Hitler</li>
-          <li>Fascists must enact fascist policies or elect Hitler as Chancellor</li>
+          <li>{themeLabels.gameDescription.factionSplit}</li>
+          <li>{themeLabels.gameDescription.liberalGoal}</li>
+          <li>{themeLabels.gameDescription.fascistGoal}</li>
           <li>Trust no one - anyone could be lying about their identity!</li>
         </ul>
       </motion.div>

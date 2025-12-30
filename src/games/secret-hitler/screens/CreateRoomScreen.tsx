@@ -99,16 +99,14 @@ export function CreateRoomScreen({
 
             <div
               className={`art-style-card voldemort ${artStyle === "voldemort" ? "selected" : ""}`}
-              onClick={() => setArtStyle("original")} // Still selects original for now
+              onClick={() => setArtStyle("voldemort")}
             >
               <div className="art-style-preview voldemort-preview" />
               <div className="art-style-info">
                 <h3>Secret Voldemort</h3>
-                <p>Coming soon</p>
+                <p>Harry Potter theme</p>
               </div>
-              <div className="coming-soon-overlay">
-                <span>Coming Soon</span>
-              </div>
+              {artStyle === "voldemort" && <div className="selected-badge">Selected</div>}
             </div>
           </div>
         </div>

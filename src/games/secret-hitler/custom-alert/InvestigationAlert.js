@@ -1,13 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import ButtonPrompt from "./ButtonPrompt";
-
-// Static paths
-const PartyBack = "/secret-hitler/party-membership.png";
-const PartyLiberal = "/secret-hitler/party-membership-liberal.png";
-const PartyFascist = "/secret-hitler/party-membership-fascist.png";
 import { LIBERAL } from "../constants";
-
 import "./InvestigationAlert.css";
 
 /**
@@ -31,10 +25,15 @@ class InvestigationAlert extends Component {
   }
 
   render() {
+    const { themeAssets } = this.props;
+    const partyBack = themeAssets?.partyMembership || "/secret-hitler/party-membership.png";
+    const partyLiberal = themeAssets?.partyMembershipLiberal || "/secret-hitler/party-membership-liberal.png";
+    const partyFascist = themeAssets?.partyMembershipFascist || "/secret-hitler/party-membership-fascist.png";
+
     let alt =
       this.props.target + " is a member of the " + this.props.party + " party.";
     let cardFrontSrc =
-      this.props.party === LIBERAL ? PartyLiberal : PartyFascist;
+      this.props.party === LIBERAL ? partyLiberal : partyFascist;
     let footerClass = this.state.showText
       ? "investigation-text-show"
       : "investigation-text-hide";
@@ -62,7 +61,7 @@ class InvestigationAlert extends Component {
           <img
             id={"party-card-back"}
             className={cardClass}
-            src={PartyBack}
+            src={partyBack}
             alt={alt}
           />
           <img
@@ -81,6 +80,7 @@ InvestigationAlert.propTypes = {
   party: PropTypes.string.isRequired,
   target: PropTypes.string.isRequired,
   hideAlert: PropTypes.func.isRequired,
+  themeAssets: PropTypes.object,
 };
 
 export default InvestigationAlert;

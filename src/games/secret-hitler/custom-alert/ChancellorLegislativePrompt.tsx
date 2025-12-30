@@ -5,6 +5,7 @@ import { SERVER_TIMEOUT } from "../constants";
 import "../util/PolicyDisplay.css";
 import PolicyDisplay from "../util/PolicyDisplay";
 import { PolicyType, SendWSCommand, WSCommandType } from "../types";
+import { ThemeAssets, ThemeLabels } from "../assets/themes";
 
 type ChancellorLegislativePromptProps = {
   policyOptions: PolicyType[];
@@ -12,6 +13,8 @@ type ChancellorLegislativePromptProps = {
   fascistPolicies: number;
   showError: (message: string) => void;
   enableVeto: boolean;
+  themeAssets?: ThemeAssets;
+  themeLabels?: ThemeLabels;
 };
 
 type ChancellorLegislativePromptState = {
@@ -64,9 +67,10 @@ class ChancellorLegislativePrompt extends Component<
       });
     } else {
       // veto power is not activated
-      this.props.showError(
-        "Veto power is unlocked when there are 5 fascist policies."
-      );
+      const errorMessage = this.props.themeLabels
+        ? `Veto power is unlocked when there are 5 ${this.props.themeLabels.fascistPolicies}.`
+        : "Veto power is unlocked when there are 5 fascist policies.";
+      this.props.showError(errorMessage);
     }
   }
 
@@ -124,6 +128,7 @@ class ChancellorLegislativePrompt extends Component<
           onClick={(index: number) => this.setState({ selection: index })}
           selection={this.state.selection}
           allowSelection={true}
+          themeAssets={this.props.themeAssets}
         />
       </ButtonPrompt>
     );

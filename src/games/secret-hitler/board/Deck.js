@@ -1,9 +1,5 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-// Static paths
-const DiscardDeck = "/secret-hitler/board-discard.png";
-const DrawDeck = "/secret-hitler/board-draw.png";
-const PolicyBack = "/secret-hitler/board-policy.png";
 import './Deck.css';
 
 const MAX_CARDS = 17;
@@ -77,6 +73,9 @@ class Deck extends Component {
     }
 
     getCards() {
+        const { themeAssets } = this.props;
+        const policyBack = themeAssets?.policyBack || "/secret-hitler/board-policy.png";
+
         let cards = [MAX_CARDS];
         let topOffset = 9;
         let topDistance = 2;
@@ -88,7 +87,7 @@ class Deck extends Component {
 
             cards[i] = (
                 <img
-                    src={PolicyBack}
+                    src={policyBack}
                     id={"deck-policy"}
                     style={{top: top + "%"}}
                     className={this.cardStates[i]}
@@ -101,13 +100,17 @@ class Deck extends Component {
     }
 
     render() {
+        const { themeAssets } = this.props;
+        const drawDeck = themeAssets?.boardDraw || "/secret-hitler/board-draw.png";
+        const discardDeck = themeAssets?.boardDiscard || "/secret-hitler/board-discard.png";
+
         return(
             <div id={"deck-container"} style={{position:"relative"}}>
                 <p id={"deck-card-count"}>
                     {this.numCards}
                 </p>
                 <img id={"deck-base"}
-                     src={(this.props.deckType === "DRAW" ? DrawDeck : DiscardDeck)}
+                     src={(this.props.deckType === "DRAW" ? drawDeck : discardDeck)}
                      alt={"The " + this.props.deckType.toLowerCase() + " deck. (" + this.props.cardCount + " policies)"}/>
                 {this.getCards()}
             </div>
@@ -118,6 +121,7 @@ class Deck extends Component {
 Deck.propTypes = {
     cardCount: PropTypes.number.isRequired,
     deckType: PropTypes.string.isRequired,
+    themeAssets: PropTypes.object,
 };
 
 export default Deck;

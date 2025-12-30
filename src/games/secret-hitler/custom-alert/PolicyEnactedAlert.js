@@ -1,14 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import ButtonPrompt from "./ButtonPrompt";
-
-// Static paths
-const LiberalPolicy = "/secret-hitler/policy-liberal.png";
-const FascistPolicy = "/secret-hitler/policy-fascist.png";
-const FolderCoverFront = "/secret-hitler/policy-folder-cover-front.png";
-const FolderCoverBack = "/secret-hitler/policy-folder-cover-back.png";
-const FolderBack = "/secret-hitler/policy-folder-back.png";
-
 import "./PolicyEnactedAlert.css";
 import { LIBERAL } from "../constants";
 
@@ -39,6 +31,13 @@ class PolicyEnactedAlert extends Component {
   }
 
   render() {
+    const { themeAssets } = this.props;
+    const liberalPolicy = themeAssets?.policyLiberal || "/secret-hitler/policy-liberal.png";
+    const fascistPolicy = themeAssets?.policyFascist || "/secret-hitler/policy-fascist.png";
+    const folderCoverFront = themeAssets?.policyFolderCoverFront || "/secret-hitler/policy-folder-cover-front.png";
+    const folderCoverBack = themeAssets?.policyFolderCoverBack || "/secret-hitler/policy-folder-cover-back.png";
+    const folderBack = themeAssets?.policyFolderBack || "/secret-hitler/policy-folder-back.png";
+
     return (
       <ButtonPrompt
         renderLabel={() => {
@@ -51,14 +50,14 @@ class PolicyEnactedAlert extends Component {
           <img
             id={"policy-enacted-back"}
             className={this.state.className}
-            src={FolderBack}
+            src={folderBack}
             alt={""}
           />
           <img
             id={"policy-enacted-policy"}
             className={this.state.className}
             src={
-              this.props.policyType === LIBERAL ? LiberalPolicy : FascistPolicy
+              this.props.policyType === LIBERAL ? liberalPolicy : fascistPolicy
             }
             alt={
               "A " +
@@ -72,13 +71,13 @@ class PolicyEnactedAlert extends Component {
           />
           <img
             id={"policy-enacted-cover-back"}
-            src={FolderCoverBack}
+            src={folderCoverBack}
             className={this.state.className}
             alt={"A manila folder labeled 'New Policy.'"}
           />
           <img
             id={"policy-enacted-cover-front"}
-            src={FolderCoverFront}
+            src={folderCoverFront}
             className={this.state.className}
             alt={"A manila folder labeled 'New Policy.'"}
           />
@@ -91,6 +90,7 @@ class PolicyEnactedAlert extends Component {
 PolicyEnactedAlert.propTypes = {
   hideAlert: PropTypes.func.isRequired,
   policyType: PropTypes.string.isRequired,
+  themeAssets: PropTypes.object,
 };
 
 export default PolicyEnactedAlert;

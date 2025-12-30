@@ -1,33 +1,28 @@
 import React, {Component} from 'react';
-// Static paths
-const LiberalBoard = "/secret-hitler/board-liberal.png";
-const ElectionTracker = "/secret-hitler/board-tracker.png";
-const PolicyLiberal = "/secret-hitler/board-policy-liberal.png";
-const FascistBoard_5_6 = "/secret-hitler/board-fascist-5-6.png";
-const FascistBoard_7_8 = "/secret-hitler/board-fascist-7-8.png";
-const FascistBoard_9_10 = "/secret-hitler/board-fascist-9-10.png";
-const PolicyFascist = "/secret-hitler/board-policy-fascist.png";
-
 import "./Board.css";
 
-class Board extends Component {
+// Default layout (matches original theme)
+const DEFAULT_LAYOUT = {
+  liberalPolicy: { offset: "18.2%", spacing: "13.54%" },
+  fascistPolicy: { offset: "11%", spacing: "13.6%" },
+  electionTracker: { top: "74%", leftOffset: "34.2%", spacing: "9.16%", width: "3.2%" },
+};
 
+class Board extends Component {
 
     /**
      * Returns the correct board image based on the number of players in the game.
      * @requires this.props.numPlayers must in range [5, 10], inclusive.
-     * @return {image} The Fascist board corresponding to the number of players.
-     *         >= 6: FascistBoard_5_6
-     *         7-8: FascistBoard_7_8
-     *         9-10: FascistBoard_9_10
+     * @return {string} The Fascist board corresponding to the number of players.
      */
     getFascistBoard() {
+        const { themeAssets } = this.props;
         if(this.props.numPlayers <= 6) {
-            return FascistBoard_5_6;
+            return themeAssets?.boardFascist56 || "/secret-hitler/board-fascist-5-6.png";
         } else if (this.props.numPlayers <= 8) {
-            return FascistBoard_7_8;
+            return themeAssets?.boardFascist78 || "/secret-hitler/board-fascist-7-8.png";
         } else {
-            return FascistBoard_9_10;
+            return themeAssets?.boardFascist910 || "/secret-hitler/board-fascist-9-10.png";
         }
     }
 
@@ -67,21 +62,42 @@ class Board extends Component {
     }
 
     render() {
+        const { themeAssets, themeLayout } = this.props;
+        const layout = themeLayout || DEFAULT_LAYOUT;
+
+        const liberalBoard = themeAssets?.boardLiberal || "/secret-hitler/board-liberal.png";
+        const electionTracker = themeAssets?.boardTracker || "/secret-hitler/board-tracker.png";
+        const policyLiberal = themeAssets?.boardPolicyLiberal || "/secret-hitler/board-policy-liberal.png";
+        const policyFascist = themeAssets?.boardPolicyFascist || "/secret-hitler/board-policy-fascist.png";
+
+        // Get layout positions from theme
+        const { liberalPolicy, fascistPolicy, electionTracker: etLayout } = layout;
+
         return (
             <div id="board-container" style={{display:"flex", flexDirection:"column"}}>
                 <div id="board-group" style ={{margin:"4px 10px", position:"relative"}}>
                     <img id="board"
-                         src={LiberalBoard}
+                         src={liberalBoard}
                          alt={this.props.numLiberalPolicies + " liberal policies have been passed."}
                     />
                     <img id="election-tracker"
-                         src={ElectionTracker}
-                         style={{position:"absolute",
-                                 top:"74%", left:"calc(34.2% + " + this.props.electionTracker+"*9.16%)",
-                                 width:"3.2%"}}
+                         src={electionTracker}
+                         style={{
+                             position: "absolute",
+                             top: etLayout.top,
+                             left: `calc(${etLayout.leftOffset} + ${this.props.electionTracker}*${etLayout.spacing})`,
+                             width: etLayout.width
+                         }}
                          alt={"Election tracker at position " + this.props.electionTracker + " out of 3."}
                     />
-                    {this.placeRepeating(this.props.numLiberalPolicies, 5, PolicyLiberal, "policy", "18.2%", "13.54%")}
+                    {this.placeRepeating(
+                        this.props.numLiberalPolicies,
+                        5,
+                        policyLiberal,
+                        "policy",
+                        liberalPolicy.offset,
+                        liberalPolicy.spacing
+                    )}
                 </div>
 
                 <div id="board-group" style={{margin:"4px 10px", position:"relative"}}>
@@ -90,7 +106,14 @@ class Board extends Component {
                       src={this.getFascistBoard()}
                       alt={this.props.numFascistPolicies + " fascist policies have been passed."}
                     />
-                    {this.placeRepeating(this.props.numFascistPolicies, 6, PolicyFascist, "policy", "11%", "13.6%")}
+                    {this.placeRepeating(
+                        this.props.numFascistPolicies,
+                        6,
+                        policyFascist,
+                        "policy",
+                        fascistPolicy.offset,
+                        fascistPolicy.spacing
+                    )}
                 </div>
             </div>
         );
@@ -102,7 +125,9 @@ Board.defaultProps = {
     numFascistPolicies: 5,
     numLiberalPolicies: 6,
     electionTracker: 0,
-    numPlayers: 5
+    numPlayers: 5,
+    themeAssets: null,
+    themeLayout: null
 };
 
 export default Board;
