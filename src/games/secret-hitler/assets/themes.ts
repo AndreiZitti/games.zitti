@@ -270,16 +270,16 @@ const originalLayout: ThemeLayout = {
 // Voldemort theme layout (adjusted for SVG board dimensions)
 const voldemortLayout: ThemeLayout = {
   liberalPolicy: {
-    offset: "17%",
-    spacing: "15.5%",
+    offset: "15%",
+    spacing: "15%",
   },
   fascistPolicy: {
-    offset: "10%",
-    spacing: "15.6%",
+    offset: "8%",
+    spacing: "14.7%",
   },
   electionTracker: {
-    top: "82%",
-    leftOffset: "34.5%",
+    top: "84%",
+    leftOffset: "32.8%",
     spacing: "10.5%",
     width: "3.0%",
   },

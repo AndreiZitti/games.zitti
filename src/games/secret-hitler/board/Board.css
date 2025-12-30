@@ -3,17 +3,25 @@
 #board-container {
     display: flex;
     flex-direction: column;
+    align-items: center;
 }
 
 #board-group {
-    margin:4px 10px;
-    position:relative;
+    margin: 4px 10px;
+    position: relative;
+    /* Size container to the board image so percentages work correctly */
+    display: inline-block;
+    width: fit-content;
+    max-width: 90vw;
 }
 
 #board {
+    /* Board image controls the container size */
+    display: block;
     min-width: 40vmin;
     width: 90vmin;
-    max-width: 90vw;
+    max-width: 100%;
+    height: auto;
 }
 
 

@@ -74,8 +74,8 @@ class Board extends Component {
         const { liberalPolicy, fascistPolicy, electionTracker: etLayout } = layout;
 
         return (
-            <div id="board-container" style={{display:"flex", flexDirection:"column"}}>
-                <div id="board-group" style ={{margin:"4px 10px", position:"relative"}}>
+            <div id="board-container">
+                <div id="board-group">
                     <img id="board"
                          src={liberalBoard}
                          alt={this.props.numLiberalPolicies + " liberal policies have been passed."}
@@ -100,7 +100,7 @@ class Board extends Component {
                     )}
                 </div>
 
-                <div id="board-group" style={{margin:"4px 10px", position:"relative"}}>
+                <div id="board-group">
                     <img
                       id="board"
                       src={this.getFascistBoard()}
