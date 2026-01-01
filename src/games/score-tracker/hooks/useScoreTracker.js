@@ -33,6 +33,139 @@ function calcWhistScore(bid, tricks) {
   return -Math.abs(bid - tricks);
 }
 
+// Rentz mini-games configuration
+const RENTZ_MINI_GAMES = {
+  whistPlus: { id: 'whistPlus', name: 'Levate +', icon: 'L+', type: 'tricks', positive: true },
+  whistMinus: { id: 'whistMinus', name: 'Levate -', icon: 'L-', type: 'tricks', positive: false },
+  diamonds: { id: 'diamonds', name: 'Diamonds', icon: '♦', type: 'cards', positive: false },
+  queens: { id: 'queens', name: 'Queens', icon: 'Q', type: 'cards', positive: false, maxCount: 4 },
+  kingHearts: { id: 'kingHearts', name: 'King ♥', icon: 'K♥', type: 'single', positive: false },
+  tenClubs: { id: 'tenClubs', name: '10 ♣', icon: '10♣', type: 'single', positive: true },
+  rentz: { id: 'rentz', name: 'Rentz', icon: 'R', type: 'placement', positive: true },
+  totalsPlus: { id: 'totalsPlus', name: 'Totals +', icon: 'Σ+', type: 'totals', positive: true },
+  totalsMinus: { id: 'totalsMinus', name: 'Totals -', icon: 'Σ-', type: 'totals', positive: false },
+};
+
+// Default scoring values for Rentz
+const DEFAULT_RENTZ_CONFIG = {
+  whistPoints: 100,          // Points per trick (+ or -)
+  diamondPoints: -50,        // Points per diamond card
+  queenPoints: -100,         // Points per queen
+  kingHeartsPoints: -500,    // Points for taking King of Hearts
+  tenClubsPoints: 500,       // Points for taking 10 of Clubs
+  rentzPlacement: [500, 300, 100], // Points for 1st, 2nd, 3rd (only top 3 count)
+};
+
+// Generate Rentz data structure for all dealers and mini-games
+// Rounds alternate between dealers: dealer0-game1, dealer1-game1, dealer2-game1, dealer0-game2, etc.
+function generateRentzData(playerCount) {
+  const gamesCount = 9; // 9 mini-games per dealer
+  const data = [];
+
+  // Interleave rounds: each dealer picks one game, then next dealer, etc.
+  for (let gameRound = 0; gameRound < gamesCount; gameRound++) {
+    for (let dealerIndex = 0; dealerIndex < playerCount; dealerIndex++) {
+      data.push({
+        index: data.length,
+        dealerIndex,
+        dealerRound: gameRound,
+        miniGame: null,  // Selected when dealer chooses
+        isBlind: false,
+        phase: 'pending', // pending | selecting | scoring | complete
+        inputs: null,
+        scores: Array(playerCount).fill(null),
+      });
+    }
+  }
+
+  // First round starts in selecting phase
+  if (data.length > 0) {
+    data[0].phase = 'selecting';
+  }
+
+  return data;
+}
+
+// Calculate scores for a Rentz mini-game
+function calcRentzScores(miniGame, inputs, config, playerCount) {
+  const scores = Array(playerCount).fill(0);
+  const gameInfo = RENTZ_MINI_GAMES[miniGame];
+
+  if (!gameInfo || !inputs) return scores;
+
+  switch (gameInfo.type) {
+    case 'tricks':
+      // Whist+ or Whist-: points per trick
+      const multiplier = gameInfo.positive ? 1 : -1;
+      inputs.tricks.forEach((tricks, i) => {
+        scores[i] = tricks * config.whistPoints * multiplier;
+      });
+      break;
+
+    case 'cards':
+      // Diamonds or Queens: points per card taken
+      const pointsPerCard = miniGame === 'diamonds' ? config.diamondPoints : config.queenPoints;
+      inputs.cards.forEach((count, i) => {
+        scores[i] = count * pointsPerCard;
+      });
+      break;
+
+    case 'single':
+      // King of Hearts or 10 of Clubs: one player gets points
+      const points = miniGame === 'kingHearts' ? config.kingHeartsPoints : config.tenClubsPoints;
+      if (inputs.takenBy !== null && inputs.takenBy !== undefined) {
+        scores[inputs.takenBy] = points;
+      }
+      break;
+
+    case 'placement':
+      // Rentz domino game: placement points
+      if (inputs.placements) {
+        inputs.placements.forEach((playerIndex, place) => {
+          if (playerIndex !== null && config.rentzPlacement[place] !== undefined) {
+            scores[playerIndex] = config.rentzPlacement[place];
+          }
+        });
+      }
+      break;
+
+    case 'totals':
+      // Totals+ or Totals-: combine tricks, diamonds, queens, K♥, and 10♣
+      const isPositive = gameInfo.positive;
+      const sign = isPositive ? 1 : -1;
+
+      // Tricks
+      if (inputs.tricks) {
+        inputs.tricks.forEach((tricks, i) => {
+          scores[i] += tricks * config.whistPoints * sign;
+        });
+      }
+      // Diamonds
+      if (inputs.diamonds) {
+        inputs.diamonds.forEach((count, i) => {
+          scores[i] += count * Math.abs(config.diamondPoints) * sign;
+        });
+      }
+      // Queens
+      if (inputs.queens) {
+        inputs.queens.forEach((count, i) => {
+          scores[i] += count * Math.abs(config.queenPoints) * sign;
+        });
+      }
+      // King of Hearts
+      if (inputs.kingHeartsTakenBy !== null && inputs.kingHeartsTakenBy !== undefined) {
+        scores[inputs.kingHeartsTakenBy] += Math.abs(config.kingHeartsPoints) * sign;
+      }
+      // 10 of Clubs (only for Totals+)
+      if (isPositive && inputs.tenClubsTakenBy !== null && inputs.tenClubsTakenBy !== undefined) {
+        scores[inputs.tenClubsTakenBy] += config.tenClubsPoints;
+      }
+      break;
+  }
+
+  return scores;
+}
+
 const GAME_CONFIG = {
   septica: {
     name: "Septica",
@@ -48,7 +181,7 @@ const GAME_CONFIG = {
     minPlayers: 3,
     maxPlayers: 6,
   },
-  rentz: { name: "Rentz", minPlayers: 3, maxPlayers: 5 },
+  rentz: { name: "Rentz", minPlayers: 3, maxPlayers: 6 },
 };
 
 function loadFromStorage(gameType) {
@@ -80,6 +213,8 @@ export function useScoreTracker(initialGameType = null) {
   const [teams, setTeams] = useState([]); // For team games like Septica: [["P1", "P3"], ["P2", "P4"]]
   const [rounds, setRounds] = useState([]); // For Septica/Rentz
   const [whistData, setWhistData] = useState([]); // For Whist: pre-populated rounds with phases
+  const [rentzConfig, setRentzConfig] = useState(DEFAULT_RENTZ_CONFIG); // Rentz scoring config
+  const [rentzData, setRentzData] = useState([]); // For Rentz: dealers and mini-games
   const [phase, setPhase] = useState(initialGameType ? "setup" : "select");
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -97,6 +232,8 @@ export function useScoreTracker(initialGameType = null) {
       setTeams(stored.teams || []);
       setRounds(stored.rounds || []);
       setWhistData(stored.whistData || []);
+      setRentzConfig(stored.rentzConfig || DEFAULT_RENTZ_CONFIG);
+      setRentzData(stored.rentzData || []);
       if (stored.players?.length > 0 || stored.teams?.length > 0) {
         setPhase("playing");
       }
@@ -116,17 +253,19 @@ export function useScoreTracker(initialGameType = null) {
         teams,
         rounds,
         whistData,
+        rentzConfig,
+        rentzData,
         updatedAt: new Date().toISOString(),
       });
     }
-  }, [isLoaded, initialGameType, gameType, players, teams, rounds, whistData]);
+  }, [isLoaded, initialGameType, gameType, players, teams, rounds, whistData, rentzConfig, rentzData]);
 
   const selectGame = useCallback((type) => {
     setGameType(type);
     setPhase("setup");
   }, []);
 
-  const startGame = useCallback((playerNames, gameTypeOverride = null) => {
+  const startGame = useCallback((playerNames, gameTypeOverride = null, customRentzConfig = null) => {
     const type = gameTypeOverride || gameType;
 
     setPlayers(playerNames);
@@ -138,6 +277,16 @@ export function useScoreTracker(initialGameType = null) {
       setWhistData(generateWhistData(playerNames.length));
     } else {
       setWhistData([]);
+    }
+
+    // Generate rentzData for Rentz
+    if (type === "rentz") {
+      if (customRentzConfig) {
+        setRentzConfig(customRentzConfig);
+      }
+      setRentzData(generateRentzData(playerNames.length));
+    } else {
+      setRentzData([]);
     }
 
     setPhase("playing");
@@ -223,12 +372,84 @@ export function useScoreTracker(initialGameType = null) {
     });
   }, [players.length]);
 
+  // Rentz: Select a mini-game for the current round
+  const selectRentzMiniGame = useCallback((roundIndex, miniGame, isBlind = false) => {
+    setRentzData((prev) => {
+      const next = [...prev];
+      next[roundIndex] = {
+        ...next[roundIndex],
+        miniGame,
+        isBlind,
+        phase: 'scoring',
+      };
+      return next;
+    });
+  }, []);
+
+  // Rentz: Update scores for a round and move to complete
+  const updateRentzScores = useCallback((roundIndex, inputs) => {
+    setRentzData((prev) => {
+      const next = [...prev];
+      const round = next[roundIndex];
+      const scores = calcRentzScores(round.miniGame, inputs, rentzConfig, players.length);
+
+      // Apply blind multiplier if applicable
+      const finalScores = round.isBlind
+        ? scores.map(s => s * 2)
+        : scores;
+
+      next[roundIndex] = {
+        ...round,
+        inputs,
+        scores: finalScores,
+        phase: 'complete',
+      };
+
+      // Activate next round if exists
+      if (roundIndex + 1 < next.length) {
+        next[roundIndex + 1] = {
+          ...next[roundIndex + 1],
+          phase: 'selecting',
+        };
+      }
+
+      return next;
+    });
+  }, [rentzConfig, players.length]);
+
+  // Rentz: Go back to mini-game selection
+  const revertRentzToSelecting = useCallback((roundIndex) => {
+    setRentzData((prev) => {
+      const next = [...prev];
+      next[roundIndex] = {
+        ...next[roundIndex],
+        miniGame: null,
+        isBlind: false,
+        inputs: null,
+        scores: Array(players.length).fill(null),
+        phase: 'selecting',
+      };
+      return next;
+    });
+  }, [players.length]);
+
+  // Rentz: Get remaining (unplayed) mini-games for a dealer
+  const getRentzRemainingGames = useCallback((dealerIndex) => {
+    const playedGames = rentzData
+      .filter(r => r.dealerIndex === dealerIndex && r.phase === 'complete' && r.miniGame)
+      .map(r => r.miniGame);
+
+    return Object.keys(RENTZ_MINI_GAMES).filter(game => !playedGames.includes(game));
+  }, [rentzData]);
+
   const newGame = useCallback(() => {
     const typeToRemove = initialGameType || gameType;
     setPlayers([]);
     setTeams([]);
     setRounds([]);
     setWhistData([]);
+    setRentzData([]);
+    setRentzConfig(DEFAULT_RENTZ_CONFIG);
     setPhase("setup");
     if (typeToRemove) {
       saveToStorage(typeToRemove, null);
@@ -268,6 +489,25 @@ export function useScoreTracker(initialGameType = null) {
   const whistActiveRoundIndex = whistData.findIndex(r => r.phase === 'bidding' || r.phase === 'tricks');
   const whistIsComplete = whistData.length > 0 && whistData.every(r => r.phase === 'complete');
 
+  // Rentz-specific computed values
+  const rentzTotals = players.map((_, playerIndex) =>
+    rentzData.reduce((sum, round) => sum + (round.scores?.[playerIndex] || 0), 0)
+  );
+  const rentzActiveRoundIndex = rentzData.findIndex(r => r.phase === 'selecting' || r.phase === 'scoring');
+  const rentzIsComplete = rentzData.length > 0 && rentzData.every(r => r.phase === 'complete');
+  const rentzCurrentDealerIndex = rentzActiveRoundIndex >= 0 ? rentzData[rentzActiveRoundIndex]?.dealerIndex : -1;
+
+  // Get games played by each dealer (for grid display)
+  const rentzDealerGames = players.map((_, dealerIndex) => {
+    const dealerRounds = rentzData.filter(r => r.dealerIndex === dealerIndex);
+    return dealerRounds.reduce((acc, round) => {
+      if (round.miniGame && round.phase === 'complete') {
+        acc[round.miniGame] = true;
+      }
+      return acc;
+    }, {});
+  });
+
   return {
     // State
     gameType,
@@ -275,6 +515,8 @@ export function useScoreTracker(initialGameType = null) {
     teams,
     rounds,
     whistData,
+    rentzConfig,
+    rentzData,
     phase,
     isLoaded,
     config,
@@ -289,6 +531,13 @@ export function useScoreTracker(initialGameType = null) {
     whistActiveRoundIndex,
     whistIsComplete,
 
+    // Rentz-specific computed
+    rentzTotals,
+    rentzActiveRoundIndex,
+    rentzIsComplete,
+    rentzCurrentDealerIndex,
+    rentzDealerGames,
+
     // Actions
     selectGame,
     startGame,
@@ -299,10 +548,16 @@ export function useScoreTracker(initialGameType = null) {
     updateWhistBids,
     updateWhistTricks,
     revertWhistToBidding,
+    selectRentzMiniGame,
+    updateRentzScores,
+    revertRentzToSelecting,
+    getRentzRemainingGames,
     newGame,
     goBack,
 
     // Constants
     GAME_CONFIG,
+    RENTZ_MINI_GAMES,
+    DEFAULT_RENTZ_CONFIG,
   };
 }

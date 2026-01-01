@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { AddRoundModal } from "./AddRoundModal";
 import { WhistBidModal } from "./WhistBidModal";
+import { RentzGameGrid } from "./RentzGameGrid";
+import { RentzScoringModal } from "./RentzScoringModal";
 
 export function ScoreTable({
   gameType,
@@ -16,18 +18,31 @@ export function ScoreTable({
   whistTotals,
   whistActiveRoundIndex,
   whistIsComplete,
+  // Rentz-specific props
+  rentzData,
+  rentzConfig,
+  rentzTotals,
+  rentzActiveRoundIndex,
+  rentzIsComplete,
+  rentzCurrentDealerIndex,
+  rentzDealerGames,
+  rentzMiniGames,
   onAddRound,
   onUpdateRound,
   onDeleteRound,
   onUpdateWhistBids,
   onUpdateWhistTricks,
   onRevertWhistToBidding,
+  onSelectRentzMiniGame,
+  onUpdateRentzScores,
+  onRevertRentzToSelecting,
   onReset,
   onBackToMenu,
 }) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingRound, setEditingRound] = useState(null);
   const [whistModalRound, setWhistModalRound] = useState(null);
+  const [rentzScoringRound, setRentzScoringRound] = useState(null);
   const addRowRef = useRef(null);
   const whistTableRef = useRef(null);
   const whistRowRefs = useRef({});
@@ -318,6 +333,215 @@ export function ScoreTable({
   }
 
   const isSeptica = gameType === "septica";
+  const isRentz = gameType === "rentz";
+
+  // Rentz: Handle game selection from grid
+  const handleRentzGameSelect = (roundIndex, miniGame) => {
+    onSelectRentzMiniGame(roundIndex, miniGame, false); // Not blind by default
+    // Open scoring modal
+    const round = rentzData[roundIndex];
+    setRentzScoringRound({ ...round, roundIndex, miniGame });
+  };
+
+  // Rentz: Save scores from modal
+  const handleRentzScoresSave = (inputs) => {
+    if (rentzScoringRound) {
+      onUpdateRentzScores(rentzScoringRound.roundIndex, inputs);
+      setRentzScoringRound(null);
+    }
+  };
+
+  // Rentz: Go back to game selection
+  const handleRentzBack = () => {
+    if (rentzScoringRound) {
+      onRevertRentzToSelecting(rentzScoringRound.roundIndex);
+      setRentzScoringRound(null);
+    }
+  };
+
+  // Rentz leader calculation
+  const rentzLeaderIndex = rentzTotals && rentzTotals.length > 0
+    ? rentzTotals.reduce((maxIdx, val, idx, arr) => (val > arr[maxIdx] ? idx : maxIdx), 0)
+    : -1;
+
+  // Rentz export
+  const handleRentzExport = () => {
+    if (!rentzData || !players) return;
+
+    const sortedPlayers = players
+      .map((name, i) => ({ name, score: rentzTotals[i] }))
+      .sort((a, b) => b.score - a.score);
+
+    let exportText = `🃏 RENTZ RESULTS\n`;
+    exportText += `${'─'.repeat(24)}\n\n`;
+    exportText += `🏆 FINAL STANDINGS\n\n`;
+
+    sortedPlayers.forEach((p, i) => {
+      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '  ';
+      exportText += `${medal} ${p.name}: ${p.score} pts\n`;
+    });
+
+    const completedRounds = rentzData.filter(r => r.phase === 'complete').length;
+    exportText += `\n${'─'.repeat(24)}\n`;
+    exportText += `📊 ${completedRounds} rounds played\n`;
+
+    navigator.clipboard.writeText(exportText).then(() => {
+      alert('Results copied to clipboard!');
+    }).catch(() => {
+      alert('Failed to copy. Here are your results:\n\n' + exportText);
+    });
+  };
+
+  // Rentz-specific render
+  if (isRentz && rentzData && rentzMiniGames) {
+    const completedRounds = rentzData.filter(r => r.phase === 'complete').length;
+    const totalRounds = rentzData.length;
+
+    return (
+      <div className="score-table-container rentz-container">
+        <div className="score-table-header">
+          <button className="btn-back-menu" onClick={onBackToMenu}>
+            &larr; Score Tracker
+          </button>
+          <span className="score-table-title">{config.name}</span>
+          <button className="btn-reset" onClick={onReset}>
+            Reset
+          </button>
+        </div>
+
+        {/* Rentz progress bar */}
+        <div className="rentz-status-bar">
+          <div className="rentz-progress-info">
+            <span className="rentz-progress-label">
+              {completedRounds}/{totalRounds}
+            </span>
+            <div className="rentz-progress-bar">
+              <div
+                className="rentz-progress-fill"
+                style={{ width: `${(completedRounds / totalRounds) * 100}%` }}
+              />
+            </div>
+          </div>
+          {rentzIsComplete && (
+            <span className="rentz-complete">Complete!</span>
+          )}
+        </div>
+
+        {/* Game grid */}
+        <RentzGameGrid
+          players={players}
+          currentDealerIndex={rentzCurrentDealerIndex}
+          dealerGames={rentzDealerGames}
+          activeRoundIndex={rentzActiveRoundIndex}
+          rentzData={rentzData}
+          miniGameConfig={rentzMiniGames}
+          onSelectGame={handleRentzGameSelect}
+        />
+
+        {/* Score table */}
+        <div className="score-table-wrapper rentz-table-wrapper">
+          <table className="score-table rentz-table">
+            <thead>
+              <tr>
+                <th className="round-col">Game</th>
+                {players.map((name, i) => (
+                  <th
+                    key={i}
+                    className={`player-col ${i === rentzLeaderIndex && completedRounds > 0 ? "leader" : ""}`}
+                  >
+                    {name}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rentzData.filter(r => r.phase === 'complete').map((round, idx) => {
+                const gameInfo = rentzMiniGames[round.miniGame];
+                // Calculate running totals up to this round
+                const completedUpTo = rentzData.filter((r, i) => i <= round.index && r.phase === 'complete');
+                const runningTotals = players.map((_, playerIndex) =>
+                  completedUpTo.reduce((sum, r) => sum + (r.scores?.[playerIndex] || 0), 0)
+                );
+
+                return (
+                  <tr key={round.index} className="rentz-score-row">
+                    <td className="round-col game-col">
+                      <span className={`game-icon-small ${gameInfo?.positive ? 'positive' : 'negative'}`}>
+                        {gameInfo?.icon}
+                      </span>
+                      {round.isBlind && <span className="blind-indicator">2x</span>}
+                    </td>
+                    {players.map((_, playerIndex) => {
+                      const score = round.scores?.[playerIndex] || 0;
+                      const runningTotal = runningTotals[playerIndex];
+                      const isDealer = round.dealerIndex === playerIndex;
+
+                      return (
+                        <td
+                          key={playerIndex}
+                          className={`total-col ${runningTotal < 0 ? 'negative' : ''} ${playerIndex === rentzLeaderIndex ? 'leader' : ''} ${isDealer ? 'dealer' : ''}`}
+                        >
+                          {isDealer && <span className="dealer-marker">●</span>}
+                          {runningTotal}
+                          {score !== 0 && (
+                            <span className={`score-delta ${score < 0 ? 'negative' : 'positive'}`}>
+                              {score >= 0 ? '+' : ''}{score}
+                            </span>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
+            </tbody>
+            {completedRounds > 0 && (
+              <tfoot>
+                <tr className="totals-row">
+                  <td className="round-col">Total</td>
+                  {rentzTotals.map((total, i) => (
+                    <td
+                      key={i}
+                      className={`total-col ${total < 0 ? 'negative' : ''} ${i === rentzLeaderIndex ? 'leader' : ''}`}
+                    >
+                      {total}
+                    </td>
+                  ))}
+                </tr>
+              </tfoot>
+            )}
+          </table>
+        </div>
+
+        {rentzIsComplete && (
+          <div className="game-complete-message">
+            <p>Winner: <strong>{players[rentzLeaderIndex]}</strong> with {rentzTotals[rentzLeaderIndex]} points!</p>
+            <button className="btn btn-export" onClick={handleRentzExport}>
+              Export Results
+            </button>
+          </div>
+        )}
+
+        {rentzScoringRound && (
+          <RentzScoringModal
+            round={rentzScoringRound}
+            players={players}
+            miniGameConfig={rentzMiniGames}
+            rentzConfig={rentzConfig}
+            onSave={handleRentzScoresSave}
+            onBack={handleRentzBack}
+            onClose={() => {
+              // Revert to selecting if closing without saving
+              if (rentzScoringRound.phase !== 'complete') {
+                onRevertRentzToSelecting(rentzScoringRound.roundIndex);
+              }
+              setRentzScoringRound(null);
+            }}
+          />
+        )}
+      </div>
+    );
+  }
 
   // Calculate running totals for each round (for Septica display)
   const getRunningTotals = (upToIndex) => {

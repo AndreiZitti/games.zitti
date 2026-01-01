@@ -1535,3 +1535,769 @@
   min-width: 60px;
   text-align: right;
 }
+
+/* ============================================
+   RENTZ STYLES
+   ============================================ */
+
+/* Rentz Setup (Scoring Configuration) */
+.rentz-setup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.rentz-setup-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.rentz-setup-header h2 {
+  font-size: 1.5rem;
+  color: var(--tracker-accent);
+  margin: 0;
+}
+
+.rentz-setup-header .btn-back {
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.rentz-setup-header .btn-back:hover {
+  color: var(--text-primary);
+}
+
+.rentz-config-grid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  padding-bottom: 20px;
+}
+
+.config-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.config-section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin: 0 0 12px 0;
+}
+
+.config-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.config-row + .config-row {
+  border-top: 1px solid var(--border);
+}
+
+.config-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.config-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Space Mono', monospace;
+}
+
+.config-icon.positive {
+  color: var(--success);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.config-icon.negative {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.config-icon.diamond {
+  color: #ef4444;
+}
+
+.config-icon.heart {
+  color: #ef4444;
+}
+
+.config-icon.club {
+  color: var(--success);
+}
+
+.config-name {
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+}
+
+.config-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.config-prefix,
+.config-suffix {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.config-input {
+  width: 70px;
+  padding: 8px 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  transition: border-color 0.2s ease;
+}
+
+.config-input:focus {
+  outline: none;
+  border-color: var(--tracker-accent);
+}
+
+.config-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.config-input.negative {
+  color: #ef4444;
+}
+
+.config-input::-webkit-outer-spin-button,
+.config-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.config-input {
+  -moz-appearance: textfield;
+}
+
+/* Rentz placement config */
+.placement-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.placement-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+}
+
+.placement-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.placement-input {
+  width: 60px;
+}
+
+.rentz-setup-actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+}
+
+.rentz-setup-actions .btn {
+  flex: 1;
+}
+
+/* Rentz Container & Status Bar */
+.rentz-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.rentz-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  background: transparent;
+  border-bottom: 1px solid var(--border);
+}
+
+.rentz-progress-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.rentz-progress-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.rentz-progress-bar {
+  flex: 1;
+  height: 2px;
+  background: var(--bg-card);
+  border-radius: 1px;
+  overflow: hidden;
+  max-width: 100px;
+}
+
+.rentz-progress-fill {
+  height: 100%;
+  background: var(--tracker-accent);
+  border-radius: 1px;
+  transition: width 0.3s ease;
+}
+
+.rentz-complete {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--success);
+  padding: 3px 8px;
+  background: rgba(34, 197, 94, 0.1);
+  border-radius: var(--radius-sm);
+}
+
+/* Rentz Compact Game Grid - All Players View */
+.rentz-compact-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  justify-content: center;
+}
+
+.rentz-player-grid {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  transition: all 0.2s ease;
+  width: 160px;
+}
+
+.rentz-player-grid.current {
+  border-color: var(--tracker-accent);
+  background: rgba(245, 158, 11, 0.06);
+  box-shadow: 0 0 0 1px var(--tracker-accent);
+}
+
+.rentz-player-grid.complete {
+  opacity: 0.5;
+}
+
+.player-grid-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  gap: 4px;
+}
+
+.player-grid-name {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.rentz-player-grid.current .player-grid-name {
+  color: var(--tracker-accent);
+  font-weight: 600;
+}
+
+.player-grid-count {
+  font-size: 0.5625rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Mini 3x3 grid */
+.player-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 40px);
+  gap: 6px;
+  justify-content: center;
+}
+
+.player-mini-grid.interactive .mini-cell.available {
+  cursor: pointer;
+}
+
+.mini-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated);
+  border: 1px solid transparent;
+  border-radius: clamp(3px, 0.8vw, 6px);
+  padding: 0;
+  transition: all 0.15s ease;
+}
+
+.mini-cell:disabled {
+  cursor: default;
+}
+
+.mini-cell.played {
+  background: var(--bg-base);
+  opacity: 0.35;
+}
+
+.mini-cell.available {
+  border-color: var(--tracker-accent);
+  background: var(--tracker-accent-subtle);
+}
+
+.mini-cell.available:hover {
+  background: rgba(245, 158, 11, 0.3);
+  transform: scale(1.05);
+}
+
+.mini-icon {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.mini-cell.pos .mini-icon {
+  color: var(--success);
+}
+
+.mini-cell.neg .mini-icon {
+  color: #ef4444;
+}
+
+.mini-cell.played .mini-icon {
+  color: var(--text-muted);
+}
+
+/* Rentz Score Table */
+.rentz-table-wrapper {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: auto;
+  margin: 0 -20px;
+  padding: 0 20px;
+}
+
+.rentz-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.rentz-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.rentz-table th {
+  background: var(--bg-base);
+  font-size: 0.625rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  padding: 6px 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.rentz-table td {
+  padding: 8px 6px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.rentz-table .game-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.game-icon-small {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.game-icon-small.positive {
+  color: var(--success);
+}
+
+.game-icon-small.negative {
+  color: #ef4444;
+}
+
+.blind-indicator {
+  font-size: 0.5rem;
+  font-weight: 600;
+  color: var(--tracker-accent);
+  background: var(--tracker-accent-subtle);
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+
+.rentz-score-row {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.rentz-score-row:hover {
+  background: var(--bg-card);
+}
+
+/* Rentz table - more subtle totals */
+.rentz-table .total-col {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.rentz-table .score-delta {
+  font-size: 0.5625rem;
+}
+
+/* Rentz Scoring Modal */
+.rentz-scoring-modal {
+  max-width: 400px;
+}
+
+.rentz-scoring-modal.totals-modal {
+  max-width: 440px;
+}
+
+.rentz-scoring-modal .modal-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+}
+
+.rentz-scoring-modal .game-icon {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.rentz-scoring-modal .game-icon.positive {
+  color: var(--success);
+}
+
+.rentz-scoring-modal .game-icon.negative {
+  color: #ef4444;
+}
+
+.blind-badge {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  color: var(--tracker-accent);
+  background: var(--tracker-accent-subtle);
+  padding: 2px 5px;
+  border-radius: 3px;
+  margin-left: auto;
+}
+
+/* Scoring sections */
+.scoring-section {
+  margin-bottom: 14px;
+}
+
+.scoring-section-title {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin: 0 0 10px 0;
+}
+
+.scoring-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scoring-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.scoring-player-label {
+  flex: 1;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dealer-dot {
+  font-size: 0.4375rem;
+  color: var(--tracker-accent);
+}
+
+.scoring-stepper {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.stepper-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stepper-btn:hover:not(:disabled) {
+  background: var(--bg-card-hover);
+  border-color: var(--tracker-accent);
+  color: var(--text-primary);
+}
+
+.stepper-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.stepper-input {
+  width: 40px;
+  padding: 5px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.stepper-input:focus {
+  outline: none;
+  border-color: var(--tracker-accent);
+}
+
+.stepper-input::-webkit-outer-spin-button,
+.stepper-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.stepper-input {
+  -moz-appearance: textfield;
+}
+
+.scoring-total {
+  margin-top: 10px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.scoring-total.valid {
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  color: var(--success);
+}
+
+.scoring-total.invalid {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+/* Single select (King of Hearts, 10 of Clubs) */
+.scoring-single-select {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.single-select-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.single-select-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--tracker-accent);
+}
+
+.single-select-btn.selected {
+  background: var(--tracker-accent-subtle);
+  border-color: var(--tracker-accent);
+  color: var(--tracker-accent);
+  font-weight: 500;
+}
+
+/* Placement select (Rentz finish order) */
+.placement-select {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.placement-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.placement-row .placement-label {
+  width: 40px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.placement-points {
+  display: block;
+  font-size: 0.5625rem;
+  font-weight: 400;
+  color: var(--success);
+}
+
+.placement-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  flex: 1;
+}
+
+.placement-btn {
+  flex: 1;
+  min-width: 50px;
+  padding: 6px 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.placement-btn:hover:not(:disabled) {
+  background: var(--bg-card-hover);
+  border-color: var(--tracker-accent);
+}
+
+.placement-btn.selected {
+  background: var(--tracker-accent);
+  border-color: var(--tracker-accent);
+  color: #000;
+  font-weight: 500;
+}
+
+.placement-btn.used {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+/* Totals scoring tabs */
+.totals-scoring {
+  display: flex;
+  flex-direction: column;
+}
+
+.totals-tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 12px;
+  background: var(--bg-card);
+  padding: 3px;
+  border-radius: var(--radius-sm);
+}
+
+.totals-tab {
+  flex: 1;
+  padding: 8px 6px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-width: 0;
+}
+
+.totals-tab.active {
+  background: var(--tracker-accent);
+  color: #000;
+}
+
+.totals-tab:hover:not(.active) {
+  color: var(--text-primary);
+}

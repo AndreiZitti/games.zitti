@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { RentzSetup } from "./RentzSetup";
 
-export function PlayerSetup({ config, onStart, onStartTeamGame }) {
+export function PlayerSetup({ config, onStart, onStartTeamGame, onStartRentz, defaultRentzConfig }) {
   const isTeamGame = config.isTeamGame || false;
+  const isRentz = config.name === "Rentz";
   const isFixed = config.minPlayers === config.maxPlayers;
   const [playerCount, setPlayerCount] = useState(config.minPlayers);
+  const [setupStep, setSetupStep] = useState("players"); // "players" or "rentz-config"
 
   // For individual games
   const [names, setNames] = useState(
@@ -50,15 +53,38 @@ export function PlayerSetup({ config, onStart, onStartTeamGame }) {
         ...team.players.map((p, i) => p.trim() || `Player ${i + 1}`),
       ]);
       onStartTeamGame(teamData);
+    } else if (isRentz) {
+      // For Rentz, go to config step
+      setSetupStep("rentz-config");
     } else {
       const playerNames = names.slice(0, playerCount).map((n, i) => n.trim() || `Player ${i + 1}`);
       onStart(playerNames);
     }
   };
 
+  const handleRentzStart = (rentzConfig) => {
+    const playerNames = names.slice(0, playerCount).map((n, i) => n.trim() || `Player ${i + 1}`);
+    onStartRentz(playerNames, rentzConfig);
+  };
+
+  const handleBackToPlayers = () => {
+    setSetupStep("players");
+  };
+
   const canStart = isTeamGame
     ? teams.every((t) => t.name.trim().length > 0 && t.players.every((p) => p.trim().length > 0))
     : names.slice(0, playerCount).every((n) => n.trim().length > 0);
+
+  // Rentz config step
+  if (isRentz && setupStep === "rentz-config") {
+    return (
+      <RentzSetup
+        defaultConfig={defaultRentzConfig}
+        onStart={handleRentzStart}
+        onBack={handleBackToPlayers}
+      />
+    );
+  }
 
   if (isTeamGame) {
     // For Septica: show alternating seating order (A1, B1, A2, B2)
@@ -175,7 +201,7 @@ export function PlayerSetup({ config, onStart, onStartTeamGame }) {
 
       <div className="button-group">
         <button className="btn btn-primary" onClick={handleStart} disabled={!canStart}>
-          Start Game
+          {isRentz ? "Next: Configure Scoring" : "Start Game"}
         </button>
       </div>
     </div>

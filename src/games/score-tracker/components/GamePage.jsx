@@ -22,6 +22,14 @@ export function GamePage({ gameType }) {
     whistTotals,
     whistActiveRoundIndex,
     whistIsComplete,
+    // Rentz-specific
+    rentzData,
+    rentzConfig,
+    rentzTotals,
+    rentzActiveRoundIndex,
+    rentzIsComplete,
+    rentzCurrentDealerIndex,
+    rentzDealerGames,
     startGame,
     startTeamGame,
     addRound,
@@ -30,8 +38,13 @@ export function GamePage({ gameType }) {
     updateWhistBids,
     updateWhistTricks,
     revertWhistToBidding,
+    selectRentzMiniGame,
+    updateRentzScores,
+    revertRentzToSelecting,
     newGame,
     GAME_CONFIG,
+    RENTZ_MINI_GAMES,
+    DEFAULT_RENTZ_CONFIG,
   } = useScoreTracker(gameType);
 
   const gameConfig = GAME_CONFIG[gameType];
@@ -53,6 +66,11 @@ export function GamePage({ gameType }) {
   const needsSetup = phase === "setup" || (phase === "select") ||
     (gameConfig?.isTeamGame ? teams.length === 0 : players.length === 0);
 
+  // Handler for Rentz start with custom config
+  const handleStartRentz = (playerNames, customRentzConfig) => {
+    startGame(playerNames, gameType, customRentzConfig);
+  };
+
   return (
     <div className={`screen score-tracker ${!needsSetup ? 'score-tracker-playing' : ''}`}>
       {needsSetup ? (
@@ -64,6 +82,8 @@ export function GamePage({ gameType }) {
             config={gameConfig}
             onStart={(playerNames) => startGame(playerNames, gameType)}
             onStartTeamGame={startTeamGame}
+            onStartRentz={handleStartRentz}
+            defaultRentzConfig={DEFAULT_RENTZ_CONFIG}
           />
         </>
       ) : (
@@ -80,12 +100,23 @@ export function GamePage({ gameType }) {
           whistTotals={whistTotals}
           whistActiveRoundIndex={whistActiveRoundIndex}
           whistIsComplete={whistIsComplete}
+          rentzData={rentzData}
+          rentzConfig={rentzConfig}
+          rentzTotals={rentzTotals}
+          rentzActiveRoundIndex={rentzActiveRoundIndex}
+          rentzIsComplete={rentzIsComplete}
+          rentzCurrentDealerIndex={rentzCurrentDealerIndex}
+          rentzDealerGames={rentzDealerGames}
+          rentzMiniGames={RENTZ_MINI_GAMES}
           onAddRound={addRound}
           onUpdateRound={updateRound}
           onDeleteRound={deleteRound}
           onUpdateWhistBids={updateWhistBids}
           onUpdateWhistTricks={updateWhistTricks}
           onRevertWhistToBidding={revertWhistToBidding}
+          onSelectRentzMiniGame={selectRentzMiniGame}
+          onUpdateRentzScores={updateRentzScores}
+          onRevertRentzToSelecting={revertRentzToSelecting}
           onReset={handleReset}
           onBackToMenu={() => router.push("/score-tracker")}
         />
