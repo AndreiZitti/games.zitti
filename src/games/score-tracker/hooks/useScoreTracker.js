@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 
-const STORAGE_KEY = "scoreTracker";
+const STORAGE_KEY_PREFIX = "scoreTracker_";
 
 // Generate Whist round pattern based on player count:
 // N x 1, 2-7, N x 8, 7-2, N x 1
@@ -51,64 +51,75 @@ const GAME_CONFIG = {
   rentz: { name: "Rentz", minPlayers: 3, maxPlayers: 5 },
 };
 
-function loadFromStorage() {
-  if (typeof window === "undefined") return null;
+function loadFromStorage(gameType) {
+  if (typeof window === "undefined" || !gameType) return null;
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(STORAGE_KEY_PREFIX + gameType);
     return stored ? JSON.parse(stored) : null;
   } catch {
     return null;
   }
 }
 
-function saveToStorage(data) {
-  if (typeof window === "undefined") return;
+function saveToStorage(gameType, data) {
+  if (typeof window === "undefined" || !gameType) return;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    if (data === null) {
+      localStorage.removeItem(STORAGE_KEY_PREFIX + gameType);
+    } else {
+      localStorage.setItem(STORAGE_KEY_PREFIX + gameType, JSON.stringify(data));
+    }
   } catch {
     // Ignore storage errors
   }
 }
 
-export function useScoreTracker() {
-  const [gameType, setGameType] = useState(null); // 'septica' | 'whist' | 'rentz'
+export function useScoreTracker(initialGameType = null) {
+  const [gameType, setGameType] = useState(initialGameType);
   const [players, setPlayers] = useState([]);
   const [teams, setTeams] = useState([]); // For team games like Septica: [["P1", "P3"], ["P2", "P4"]]
   const [rounds, setRounds] = useState([]); // For Septica/Rentz
   const [whistData, setWhistData] = useState([]); // For Whist: pre-populated rounds with phases
-  const [phase, setPhase] = useState("select"); // 'select' | 'setup' | 'playing'
+  const [phase, setPhase] = useState(initialGameType ? "setup" : "select");
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load from localStorage on mount
   useEffect(() => {
-    const stored = loadFromStorage();
-    if (stored?.currentGame) {
-      setGameType(stored.currentGame.type);
-      setPlayers(stored.currentGame.players);
-      setTeams(stored.currentGame.teams || []);
-      setRounds(stored.currentGame.rounds || []);
-      setWhistData(stored.currentGame.whistData || []);
-      setPhase("playing");
+    const typeToLoad = initialGameType || gameType;
+    if (!typeToLoad) {
+      setIsLoaded(true);
+      return;
+    }
+
+    const stored = loadFromStorage(typeToLoad);
+    if (stored) {
+      setPlayers(stored.players || []);
+      setTeams(stored.teams || []);
+      setRounds(stored.rounds || []);
+      setWhistData(stored.whistData || []);
+      if (stored.players?.length > 0 || stored.teams?.length > 0) {
+        setPhase("playing");
+      }
     }
     setIsLoaded(true);
-  }, []);
+  }, [initialGameType]);
 
   // Save to localStorage whenever game state changes
   useEffect(() => {
     if (!isLoaded) return;
-    if (phase === "playing" && gameType && (players.length > 0 || teams.length > 0)) {
-      saveToStorage({
-        currentGame: {
-          type: gameType,
-          players,
-          teams,
-          rounds,
-          whistData,
-          createdAt: new Date().toISOString(),
-        },
+    const typeToSave = initialGameType || gameType;
+    if (!typeToSave) return;
+
+    if (players.length > 0 || teams.length > 0) {
+      saveToStorage(typeToSave, {
+        players,
+        teams,
+        rounds,
+        whistData,
+        updatedAt: new Date().toISOString(),
       });
     }
-  }, [isLoaded, phase, gameType, players, teams, rounds, whistData]);
+  }, [isLoaded, initialGameType, gameType, players, teams, rounds, whistData]);
 
   const selectGame = useCallback((type) => {
     setGameType(type);
@@ -213,14 +224,16 @@ export function useScoreTracker() {
   }, [players.length]);
 
   const newGame = useCallback(() => {
-    setGameType(null);
+    const typeToRemove = initialGameType || gameType;
     setPlayers([]);
     setTeams([]);
     setRounds([]);
     setWhistData([]);
-    setPhase("select");
-    saveToStorage(null);
-  }, []);
+    setPhase("setup");
+    if (typeToRemove) {
+      saveToStorage(typeToRemove, null);
+    }
+  }, [initialGameType, gameType]);
 
   const goBack = useCallback(() => {
     if (phase === "setup") {

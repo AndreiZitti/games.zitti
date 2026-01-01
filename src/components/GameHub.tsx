@@ -43,7 +43,7 @@ const games: Game[] = [
     description: "Track scores for Septica, Whist, and Rentz.",
     available: true,
     accent: "#f59e0b",
-    href: "/games/score-tracker",
+    href: "/score-tracker",
   },
 ];
 

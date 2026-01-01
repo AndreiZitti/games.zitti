@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export function PlayerSetup({ config, onStart, onStartTeamGame, onBack }) {
+export function PlayerSetup({ config, onStart, onStartTeamGame }) {
   const isTeamGame = config.isTeamGame || false;
   const isFixed = config.minPlayers === config.maxPlayers;
   const [playerCount, setPlayerCount] = useState(config.minPlayers);
@@ -63,10 +63,6 @@ export function PlayerSetup({ config, onStart, onStartTeamGame, onBack }) {
   if (isTeamGame) {
     return (
       <div className="player-setup">
-        <button className="btn-back" onClick={onBack}>
-          &larr; Back
-        </button>
-
         <h2 className="player-setup-title">{config.name}</h2>
         <p className="setup-subtitle">2 teams of 2 players each</p>
 
@@ -107,10 +103,6 @@ export function PlayerSetup({ config, onStart, onStartTeamGame, onBack }) {
 
   return (
     <div className="player-setup">
-      <button className="btn-back" onClick={onBack}>
-        &larr; Back
-      </button>
-
       <h2 className="player-setup-title">{config.name}</h2>
 
       {!isFixed && (

@@ -22,7 +22,8 @@ export function ScoreTable({
   onUpdateWhistBids,
   onUpdateWhistTricks,
   onRevertWhistToBidding,
-  onNewGame,
+  onReset,
+  onBackToMenu,
 }) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingRound, setEditingRound] = useState(null);
@@ -128,9 +129,12 @@ export function ScoreTable({
     return (
       <div className="score-table-container">
         <div className="score-table-header">
+          <button className="btn-back-menu" onClick={onBackToMenu}>
+            &larr; Score Tracker
+          </button>
           <span className="score-table-title">{config.name}</span>
-          <button className="btn-new-game" onClick={onNewGame}>
-            New
+          <button className="btn-reset" onClick={onReset}>
+            Reset
           </button>
         </div>
 
@@ -275,9 +279,12 @@ export function ScoreTable({
   return (
     <div className="score-table-container">
       <div className="score-table-header">
+        <button className="btn-back-menu" onClick={onBackToMenu}>
+          &larr; Score Tracker
+        </button>
         <span className="score-table-title">{config.name}</span>
-        <button className="btn-new-game" onClick={onNewGame}>
-          New
+        <button className="btn-reset" onClick={onReset}>
+          Reset
         </button>
       </div>
 
