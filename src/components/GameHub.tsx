@@ -37,6 +37,14 @@ const games: Game[] = [
     accent: "#dc2626",
     href: "/games/secret-hitler",
   },
+  {
+    id: "score-tracker",
+    name: "Score Tracker",
+    description: "Track scores for Septica, Whist, and Rentz.",
+    available: true,
+    accent: "#f59e0b",
+    href: "/games/score-tracker",
+  },
 ];
 
 interface GameHubProps {

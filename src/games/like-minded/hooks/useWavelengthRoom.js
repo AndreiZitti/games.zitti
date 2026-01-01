@@ -57,25 +57,27 @@ export function useWavelengthRoom() {
   const playerId = profile.id
   const savedName = profile.name
 
-  // Derived state
+  // Derived state - players are now objects with {id, name}
   const players = room?.players || []
-  const currentPlayerName = savedName
-  const isHost = players.length > 0 && players[0] === currentPlayerName
-  const isPsychic = room?.current_psychic === currentPlayerName
-  const psychicIndex = players.indexOf(room?.current_psychic)
+  const currentPlayer = players.find(p => p.id === playerId)
+  const currentPlayerName = currentPlayer?.name || savedName
+  const isHost = players.length > 0 && players[0]?.id === playerId
+  const isPsychic = room?.current_psychic_id === playerId
+  const psychicIndex = players.findIndex(p => p.id === room?.current_psychic_id)
+  const currentPsychic = players.find(p => p.id === room?.current_psychic_id)
 
   // Subscribe to room updates
   useEffect(() => {
     if (!room?.code) return
 
     const channel = supabase
-      .channel(`wavelength:${room.code}`)
+      .channel(`likeminded:${room.code}`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'games',
-          table: 'wavelength_rooms',
+          table: 'likeminded_rooms',
           filter: `code=eq.${room.code}`
         },
         (payload) => {
@@ -98,14 +100,13 @@ export function useWavelengthRoom() {
   // Try to rejoin a room
   const tryRejoin = useCallback(async () => {
     const code = getSavedRoomCode()
-    const name = savedName
 
-    if (!code || !name) return null
+    if (!code || !playerId) return null
 
     setLoading(true)
     try {
       const { data: existingRoom, error: fetchError } = await supabase
-        .from('games.wavelength_rooms')
+        .from('games.likeminded_rooms')
         .select()
         .eq('code', code)
         .single()
@@ -115,8 +116,9 @@ export function useWavelengthRoom() {
         return null
       }
 
-      // Check if we're in this room
-      if (existingRoom.players.includes(name)) {
+      // Check if we're in this room (by id now)
+      const existingPlayer = existingRoom.players.find(p => p.id === playerId)
+      if (existingPlayer) {
         setRoom(existingRoom)
         return existingRoom
       }
@@ -129,7 +131,7 @@ export function useWavelengthRoom() {
     } finally {
       setLoading(false)
     }
-  }, [savedName])
+  }, [playerId])
 
   // Create a new room
   const createRoom = useCallback(async (hostName) => {
@@ -141,19 +143,20 @@ export function useWavelengthRoom() {
       const newRoom = {
         code,
         phase: 'lobby',
-        current_psychic: null,
+        current_psychic_id: null,
         spectrum: null,
         target: null,
         clue: null,
         guess: null,
         team_score: 0,
         game_score: 0,
-        players: [hostName],
-        used_cards: []
+        players: [{ id: playerId, name: hostName }],
+        used_spectrums: [],
+        metadata: {}
       }
 
       const { data, error: supabaseError } = await supabase
-        .from('games.wavelength_rooms')
+        .from('games.likeminded_rooms')
         .insert(newRoom)
         .select()
         .single()
@@ -170,7 +173,7 @@ export function useWavelengthRoom() {
     } finally {
       setLoading(false)
     }
-  }, [updateName])
+  }, [playerId, updateName])
 
   // Join an existing room
   const joinRoom = useCallback(async (code, playerName) => {
@@ -179,7 +182,7 @@ export function useWavelengthRoom() {
 
     try {
       const { data: existingRoom, error: fetchError } = await supabase
-        .from('games.wavelength_rooms')
+        .from('games.likeminded_rooms')
         .select()
         .eq('code', code.toUpperCase())
         .single()
@@ -187,16 +190,26 @@ export function useWavelengthRoom() {
       if (fetchError) throw new Error('Room not found')
       if (existingRoom.phase !== 'lobby') throw new Error('Game already in progress')
 
+      // Check if player already in room (by id)
+      const existingPlayer = existingRoom.players.find(p => p.id === playerId)
+      if (existingPlayer) {
+        // Already in room, just reconnect
+        updateName(playerName)
+        saveRoomCode(existingRoom.code)
+        setRoom(existingRoom)
+        return existingRoom
+      }
+
       // Check for duplicate name
-      if (existingRoom.players.includes(playerName)) {
+      if (existingRoom.players.some(p => p.name === playerName)) {
         throw new Error('Name already taken in this room')
       }
 
       // Add player to room
-      const updatedPlayers = [...existingRoom.players, playerName]
+      const updatedPlayers = [...existingRoom.players, { id: playerId, name: playerName }]
 
       const { data, error: updateError } = await supabase
-        .from('games.wavelength_rooms')
+        .from('games.likeminded_rooms')
         .update({ players: updatedPlayers })
         .eq('code', code.toUpperCase())
         .select()
@@ -214,26 +227,26 @@ export function useWavelengthRoom() {
     } finally {
       setLoading(false)
     }
-  }, [updateName])
+  }, [playerId, updateName])
 
   // Start the game (host only)
   const startGame = useCallback(async () => {
     if (!room || !isHost || players.length < 2) return
 
-    const spectrum = getRandomSpectrum(room.used_cards)
+    const spectrum = getRandomSpectrum(room.used_spectrums || [])
     const target = Math.floor(Math.random() * 101)
-    const firstPsychic = players[0]
+    const firstPsychicId = players[0].id
 
     const { error: updateError } = await supabase
-      .from('games.wavelength_rooms')
+      .from('games.likeminded_rooms')
       .update({
         phase: 'psychic',
-        current_psychic: firstPsychic,
+        current_psychic_id: firstPsychicId,
         spectrum: spectrum,
         target: target,
         clue: null,
         guess: null,
-        used_cards: [...room.used_cards, spectrum.id]
+        used_spectrums: [...(room.used_spectrums || []), spectrum.id]
       })
       .eq('code', room.code)
 
@@ -245,7 +258,7 @@ export function useWavelengthRoom() {
     if (!room || !isPsychic) return
 
     const { error: updateError } = await supabase
-      .from('games.wavelength_rooms')
+      .from('games.likeminded_rooms')
       .update({
         clue: clue,
         phase: 'guessing'
@@ -260,7 +273,7 @@ export function useWavelengthRoom() {
     if (!room || isPsychic) return
 
     const { error: updateError } = await supabase
-      .from('games.wavelength_rooms')
+      .from('games.likeminded_rooms')
       .update({
         guess: guess,
         phase: 'reveal'
@@ -280,13 +293,13 @@ export function useWavelengthRoom() {
     const newGameScore = room.game_score + result.gamePoints
 
     // Rotate psychic
-    const currentPsychicIndex = players.indexOf(room.current_psychic)
+    const currentPsychicIndex = players.findIndex(p => p.id === room.current_psychic_id)
     const nextPsychicIndex = (currentPsychicIndex + 1) % players.length
 
     // Check if game should end (all players have been psychic once)
     if (nextPsychicIndex === 0) {
       const { error: updateError } = await supabase
-        .from('games.wavelength_rooms')
+        .from('games.likeminded_rooms')
         .update({
           phase: 'end',
           team_score: newTeamScore,
@@ -299,22 +312,22 @@ export function useWavelengthRoom() {
     }
 
     // Continue to next psychic
-    const spectrum = getRandomSpectrum(room.used_cards)
+    const spectrum = getRandomSpectrum(room.used_spectrums || [])
     const target = Math.floor(Math.random() * 101)
-    const nextPsychic = players[nextPsychicIndex]
+    const nextPsychicId = players[nextPsychicIndex].id
 
     const { error: updateError } = await supabase
-      .from('games.wavelength_rooms')
+      .from('games.likeminded_rooms')
       .update({
         phase: 'psychic',
-        current_psychic: nextPsychic,
+        current_psychic_id: nextPsychicId,
         spectrum: spectrum,
         target: target,
         clue: null,
         guess: null,
         team_score: newTeamScore,
         game_score: newGameScore,
-        used_cards: [...room.used_cards, spectrum.id]
+        used_spectrums: [...(room.used_spectrums || []), spectrum.id]
       })
       .eq('code', room.code)
 
@@ -329,17 +342,17 @@ export function useWavelengthRoom() {
     const target = Math.floor(Math.random() * 101)
 
     const { error: updateError } = await supabase
-      .from('games.wavelength_rooms')
+      .from('games.likeminded_rooms')
       .update({
         phase: 'psychic',
-        current_psychic: players[0],
+        current_psychic_id: players[0].id,
         spectrum: spectrum,
         target: target,
         clue: null,
         guess: null,
         team_score: 0,
         game_score: 0,
-        used_cards: [spectrum.id]
+        used_spectrums: [spectrum.id]
       })
       .eq('code', room.code)
 
@@ -348,26 +361,26 @@ export function useWavelengthRoom() {
 
   // Leave room
   const leaveRoom = useCallback(async () => {
-    if (room && currentPlayerName) {
-      const updatedPlayers = players.filter(p => p !== currentPlayerName)
+    if (room && playerId) {
+      const updatedPlayers = players.filter(p => p.id !== playerId)
 
       if (updatedPlayers.length === 0) {
         // Delete room if last player
         await supabase
-          .from('games.wavelength_rooms')
+          .from('games.likeminded_rooms')
           .delete()
           .eq('code', room.code)
       } else {
         // Remove player from room
         const updates = { players: updatedPlayers }
 
-        // If host leaves, might need to update psychic
-        if (room.current_psychic === currentPlayerName) {
-          updates.current_psychic = updatedPlayers[0]
+        // If psychic leaves, assign to next player
+        if (room.current_psychic_id === playerId) {
+          updates.current_psychic_id = updatedPlayers[0].id
         }
 
         await supabase
-          .from('games.wavelength_rooms')
+          .from('games.likeminded_rooms')
           .update(updates)
           .eq('code', room.code)
       }
@@ -376,7 +389,7 @@ export function useWavelengthRoom() {
     saveRoomCode(null)
     setRoom(null)
     setError(null)
-  }, [room, currentPlayerName, players])
+  }, [room, playerId, players])
 
   return {
     room,
@@ -384,7 +397,9 @@ export function useWavelengthRoom() {
     error,
     playerId,
     players,
+    currentPlayer,
     currentPlayerName,
+    currentPsychic,
     isHost,
     isPsychic,
     psychicIndex,

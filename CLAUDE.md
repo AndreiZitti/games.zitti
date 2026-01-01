@@ -53,7 +53,7 @@ src/
 - **Entry**: `HotTakeGame.jsx`
 - **State Management**: `hooks/useRoom.js` - Supabase realtime subscriptions
 - **Modes**: Multiplayer (table mode, remote mode), Single Device (pass-and-play)
-- **Database**: `games.rooms` table with realtime
+- **Database**: `games.hottake_rooms` table with realtime
 
 ### Like Minded
 - **Location**: `src/games/like-minded/`
@@ -61,7 +61,7 @@ src/
 - **State Management**:
   - `hooks/useWavelengthRoom.js` - Multiplayer via Supabase realtime
   - `hooks/useGameState.js` - Single device mode with localStorage persistence
-- **Database**: `games.wavelength_rooms` table with realtime
+- **Database**: `games.likeminded_rooms` table with realtime
 - **Data**: `data/spectrums.js` - Spectrum definitions
 
 ### Secret Hitler
@@ -76,9 +76,16 @@ src/
 ## Supabase Schema
 
 Games use the `games` schema:
-- `games.rooms` - Hot Take rooms
-- `games.wavelength_rooms` - Like Minded rooms
+- `games.hottake_rooms` - Hot Take rooms
+- `games.likeminded_rooms` - Like Minded rooms
 - `games.game_stats` - Player statistics (games played/hosted)
+
+Migration files: `supabase/migrations/001_hottake_rooms.sql`, `002_likeminded_rooms.sql`
+
+Both tables use consistent player structure:
+```json
+{ "id": "uuid", "name": "Player Name", ... }
+```
 
 ## Environment Variables
 
@@ -146,7 +153,7 @@ const channel = supabase
     {
       event: '*',
       schema: 'games',
-      table: 'rooms',
+      table: 'hottake_rooms',  // or 'likeminded_rooms'
       filter: `code=eq.${roomCode}`
     },
     (payload) => {

@@ -203,7 +203,9 @@
 }
 
 .theme-voldemort .selectable.selected {
-  box-shadow: 0 0 25px var(--theme-selection-selected);
+  box-shadow: 0 0 30px 8px rgba(201, 162, 39, 0.9), 0 0 60px 15px rgba(201, 162, 39, 0.5);
+  transform: scale(1.05);
+  transition: all 0.2s ease;
 }
 
 /* Game container - fills viewport and prevents scroll bleed */
@@ -214,11 +216,8 @@
   overscroll-behavior: none;
 }
 
-/* Override body background when Voldemort theme is active */
-body:has(.theme-voldemort) {
-  background-color: #1a1a2e !important;
-  overscroll-behavior: none;
-}
+/* Body styles for Voldemort theme are applied via JavaScript in SecretHitlerGame.tsx
+   to ensure proper cleanup when navigating away */
 
 /* Ensure App container has themed background */
 .theme-voldemort .App {

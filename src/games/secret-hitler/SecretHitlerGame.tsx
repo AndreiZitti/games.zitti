@@ -41,6 +41,18 @@ type Screen = "home" | "create" | "join" | "game";
 const COOKIE_NAME = "sh_name";
 const COOKIE_LOBBY = "sh_lobby";
 
+// Theme-specific body styles that need JavaScript cleanup
+const THEME_BODY_STYLES: Record<ThemeId, Partial<CSSStyleDeclaration>> = {
+  original: {
+    backgroundColor: "#4d4945",
+    overscrollBehavior: "none",
+  },
+  voldemort: {
+    backgroundColor: "#1a1a2e",
+    overscrollBehavior: "none",
+  },
+};
+
 export function SecretHitlerGame({ onBack }: SecretHitlerGameProps) {
   const [screen, setScreen] = useState<Screen>("home");
   const [loading, setLoading] = useState(false);
@@ -58,6 +70,31 @@ export function SecretHitlerGame({ onBack }: SecretHitlerGameProps) {
     lobby: string;
     artStyle: ThemeId;
   } | null>(null);
+
+  // Apply and cleanup body styles when in game with a theme
+  useEffect(() => {
+    // Only apply body styles when on game screen with an active session
+    if (screen === "game" && gameSession?.artStyle) {
+      const styles = THEME_BODY_STYLES[gameSession.artStyle];
+
+      // Apply theme styles to body
+      Object.assign(document.body.style, styles);
+
+      // Cleanup: reset body styles when leaving game screen
+      return () => {
+        document.body.style.backgroundColor = "";
+        document.body.style.overscrollBehavior = "";
+      };
+    }
+  }, [screen, gameSession?.artStyle]);
+
+  // Ensure body styles are always reset when component unmounts (navigating away from Secret Hitler)
+  useEffect(() => {
+    return () => {
+      document.body.style.backgroundColor = "";
+      document.body.style.overscrollBehavior = "";
+    };
+  }, []);
 
   // Load saved data from cookies/URL on mount and attempt auto-rejoin
   useEffect(() => {

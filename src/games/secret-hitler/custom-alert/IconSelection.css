@@ -2,6 +2,10 @@
 
 #icon-container {
     width: 100%;
+    max-height: 45vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 5px 0;
 }
 
 #icon {

@@ -43,15 +43,15 @@ export function RoomLobby({
         <ul>
           {players.map((player, index) => (
             <motion.li
-              key={player}
+              key={player.id}
               initial={{ x: -20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.3 + index * 0.1 }}
             >
               <span className="player-avatar">
-                {player.charAt(0).toUpperCase()}
+                {player.name.charAt(0).toUpperCase()}
               </span>
-              <span className="player-name">{player}</span>
+              <span className="player-name">{player.name}</span>
               {index === 0 && <span className="host-badge">Host</span>}
             </motion.li>
           ))}

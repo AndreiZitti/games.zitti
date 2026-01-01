@@ -271,6 +271,7 @@ export function LikeMindedGame({ onBack }) {
     const {
       room,
       players,
+      currentPsychic,
       isHost,
       isPsychic,
       psychicIndex,
@@ -311,7 +312,7 @@ export function LikeMindedGame({ onBack }) {
       } else {
         return (
           <WaitingScreen
-            psychicName={room.current_psychic}
+            psychicName={currentPsychic?.name}
             roundNumber={psychicIndex + 1}
             totalRounds={players.length}
             teamScore={room.team_score}
@@ -328,7 +329,7 @@ export function LikeMindedGame({ onBack }) {
         <GuesserView
           spectrum={room.spectrum}
           clue={room.clue}
-          psychicName={room.current_psychic}
+          psychicName={currentPsychic?.name}
           roundNumber={psychicIndex + 1}
           totalRounds={players.length}
           teamScore={room.team_score}
@@ -348,7 +349,7 @@ export function LikeMindedGame({ onBack }) {
           targetPosition={room.target}
           guessPosition={room.guess}
           clue={room.clue}
-          psychicName={room.current_psychic}
+          psychicName={currentPsychic?.name}
           roundNumber={psychicIndex + 1}
           totalRounds={players.length}
           teamScore={room.team_score}

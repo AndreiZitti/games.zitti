@@ -62,7 +62,7 @@ export function useRoom() {
         {
           event: '*',
           schema: 'games',
-          table: 'rooms',
+          table: 'hottake_rooms',
           filter: `code=eq.${room.code}`
         },
         (payload) => {
@@ -93,7 +93,7 @@ export function useRoom() {
     setLoading(true)
     try {
       const { data: existingRoom, error: fetchError } = await supabase
-        .from('games.rooms')
+        .from('games.hottake_rooms')
         .select()
         .eq('code', code)
         .single()
@@ -148,7 +148,7 @@ export function useRoom() {
       }
 
       const { data, error: supabaseError } = await supabase
-        .from('games.rooms')
+        .from('games.hottake_rooms')
         .insert(newRoom)
         .select()
         .single()
@@ -178,7 +178,7 @@ export function useRoom() {
     try {
       // First fetch the room
       const { data: existingRoom, error: fetchError } = await supabase
-        .from('games.rooms')
+        .from('games.hottake_rooms')
         .select()
         .eq('code', code.toUpperCase())
         .single()
@@ -205,7 +205,7 @@ export function useRoom() {
       ]
 
       const { data, error: updateError } = await supabase
-        .from('games.rooms')
+        .from('games.hottake_rooms')
         .update({ players: updatedPlayers })
         .eq('code', code.toUpperCase())
         .select()
@@ -233,7 +233,7 @@ export function useRoom() {
     if (!room || !isHost) return
 
     const { error: updateError } = await supabase
-      .from('games.rooms')
+      .from('games.hottake_rooms')
       .update({ category })
       .eq('code', room.code)
 
@@ -245,7 +245,7 @@ export function useRoom() {
     if (!room || !isHost) return
 
     const { error: updateError } = await supabase
-      .from('games.rooms')
+      .from('games.hottake_rooms')
       .update({ mode })
       .eq('code', room.code)
 
@@ -261,7 +261,7 @@ export function useRoom() {
     const playersReset = playersWithNumbers.map(p => ({ ...p, slot: null }))
 
     const { error: updateError } = await supabase
-      .from('games.rooms')
+      .from('games.hottake_rooms')
       .update({
         players: playersReset,
         phase: 'playing'
@@ -285,7 +285,7 @@ export function useRoom() {
     )
 
     const { error: updateError } = await supabase
-      .from('games.rooms')
+      .from('games.hottake_rooms')
       .update({ players: updatedPlayers })
       .eq('code', room.code)
 
@@ -316,7 +316,7 @@ export function useRoom() {
     }
 
     const { error: updateError } = await supabase
-      .from('games.rooms')
+      .from('games.hottake_rooms')
       .update({ players: updatedPlayers })
       .eq('code', room.code)
 
@@ -328,7 +328,7 @@ export function useRoom() {
     if (!room || !isHost) return
 
     const { error: updateError } = await supabase
-      .from('games.rooms')
+      .from('games.hottake_rooms')
       .update({ phase: 'revealed' })
       .eq('code', room.code)
 
@@ -348,7 +348,7 @@ export function useRoom() {
     }))
 
     const { error: updateError } = await supabase
-      .from('games.rooms')
+      .from('games.hottake_rooms')
       .update({
         players: resetPlayers,
         round: room.round + 1,
