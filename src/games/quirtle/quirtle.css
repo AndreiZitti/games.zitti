@@ -326,6 +326,23 @@
 .quirtle-tile .shape-cross::before { content: "✚"; }
 .quirtle-tile .shape-triangle::before { content: "▲"; }
 
+/* Used tile overlay (shown when tile is placed but turn not confirmed) */
+.quirtle-tile-used-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(16, 185, 129, 0.4);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  pointer-events: none;
+}
+
 /* Player Hand */
 .quirtle-hand {
   display: flex;

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './quirtle.css'
 import { useQuirtleRoom } from './hooks/useQuirtleRoom'
 import { CreateRoom } from './components/CreateRoom'
@@ -9,6 +9,7 @@ import { EndScreen } from './components/EndScreen'
 
 export function QuirtleGame({ onBack }) {
   const [screen, setScreen] = useState('home')
+  const [pendingRoomCode, setPendingRoomCode] = useState(null)
 
   const {
     room,
@@ -19,6 +20,7 @@ export function QuirtleGame({ onBack }) {
     isHost,
     isMyTurn,
     savedName,
+    tryRejoin,
     createRoom,
     joinRoom,
     startGame,
@@ -28,6 +30,22 @@ export function QuirtleGame({ onBack }) {
     leaveRoom,
     hasValidMoves
   } = useQuirtleRoom()
+
+  // Try to rejoin on mount
+  useEffect(() => {
+    const attemptRejoin = async () => {
+      const result = await tryRejoin()
+      if (result) {
+        if (result.needsJoin) {
+          setPendingRoomCode(result.code)
+          setScreen('join')
+        } else {
+          setScreen('game')
+        }
+      }
+    }
+    attemptRejoin()
+  }, [tryRejoin])
 
   const handleCreateRoom = async (name) => {
     const newRoom = await createRoom(name)
@@ -103,6 +121,7 @@ export function QuirtleGame({ onBack }) {
         loading={loading}
         error={error}
         savedName={savedName}
+        initialRoomCode={pendingRoomCode}
       />
     )
   }

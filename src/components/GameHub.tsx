@@ -30,6 +30,14 @@ const games: Game[] = [
     href: "/games/like-minded",
   },
   {
+    id: "quirtle",
+    name: "Quirtle",
+    description: "Match colors and shapes in this tile-laying strategy game.",
+    available: true,
+    accent: "#10b981",
+    href: "/games/quirtle",
+  },
+  {
     id: "secret-hitler",
     name: "Secret Hitler",
     description: "A social deduction game of political intrigue.",
@@ -44,14 +52,6 @@ const games: Game[] = [
     available: true,
     accent: "#f59e0b",
     href: "/score-tracker",
-  },
-  {
-    id: "quirtle",
-    name: "Quirtle",
-    description: "Match colors and shapes in this tile-laying strategy game.",
-    available: true,
-    accent: "#10b981",
-    href: "/games/quirtle",
   },
 ];
 

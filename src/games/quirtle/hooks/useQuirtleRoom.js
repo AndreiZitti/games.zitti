@@ -5,10 +5,26 @@ import { useUser } from '@/contexts/UserContext'
 import { generateAllTiles, shuffleArray, dealInitialHands, drawTiles, HAND_SIZE } from '../utils/tiles'
 import { calculateScore, validateTurnPlacements, hasValidMoves } from '../utils/validation'
 
+const STORAGE_KEY = 'quirtle_room_code'
+
 function getRoomCodeFromURL() {
   if (typeof window === 'undefined') return null
   const params = new URLSearchParams(window.location.search)
   return params.get('room')?.toUpperCase() || null
+}
+
+function getSavedRoomCode() {
+  if (typeof window === 'undefined') return null
+  return localStorage.getItem(STORAGE_KEY) || null
+}
+
+function saveRoomCode(code) {
+  if (typeof window === 'undefined') return
+  if (code) {
+    localStorage.setItem(STORAGE_KEY, code)
+  } else {
+    localStorage.removeItem(STORAGE_KEY)
+  }
 }
 
 function updateURLWithRoomCode(code) {
@@ -60,6 +76,55 @@ export function useQuirtleRoom() {
     }
   }, [room?.code])
 
+  // Try to rejoin a room (from URL or localStorage)
+  const tryRejoin = useCallback(async () => {
+    const urlCode = getRoomCodeFromURL()
+    const savedCode = getSavedRoomCode()
+    const code = urlCode || savedCode
+
+    if (!code) return null
+
+    setLoading(true)
+    try {
+      const { data: existingRoom, error: fetchError } = await supabaseGames
+        .from('quirtle_rooms')
+        .select()
+        .eq('code', code)
+        .single()
+
+      if (fetchError || !existingRoom) {
+        // Room doesn't exist anymore, clear saved data
+        saveRoomCode(null)
+        updateURLWithRoomCode(null)
+        return null
+      }
+
+      // Check if we're in this room
+      const existingPlayer = existingRoom.players.find(p => p.id === playerId)
+      if (existingPlayer) {
+        saveRoomCode(existingRoom.code)
+        updateURLWithRoomCode(existingRoom.code)
+        setRoom(existingRoom)
+        return existingRoom
+      }
+
+      // We're not in the room - if there's a URL code, return it for joining
+      // Otherwise clear saved data
+      if (urlCode) {
+        return { code: urlCode, needsJoin: true }
+      }
+
+      saveRoomCode(null)
+      return null
+    } catch (err) {
+      saveRoomCode(null)
+      updateURLWithRoomCode(null)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }, [playerId])
+
   // Create room
   const createRoom = useCallback(async (hostName) => {
     setLoading(true)
@@ -87,6 +152,7 @@ export function useQuirtleRoom() {
       if (supabaseError) throw supabaseError
 
       updateName(hostName)
+      saveRoomCode(data.code)
       updateURLWithRoomCode(data.code)
       setRoom(data)
       return data
@@ -137,6 +203,7 @@ export function useQuirtleRoom() {
       if (updateError) throw updateError
 
       updateName(playerName)
+      saveRoomCode(data.code)
       updateURLWithRoomCode(data.code)
       setRoom(data)
       return data
@@ -324,6 +391,7 @@ export function useQuirtleRoom() {
 
   // Leave room
   const leaveRoom = useCallback(() => {
+    saveRoomCode(null)
     updateURLWithRoomCode(null)
     setRoom(null)
     setError(null)
@@ -338,6 +406,7 @@ export function useQuirtleRoom() {
     isHost,
     isMyTurn,
     savedName: profile.name,
+    tryRejoin,
     createRoom,
     joinRoom,
     startGame,

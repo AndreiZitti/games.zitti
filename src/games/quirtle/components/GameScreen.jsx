@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { GameBoard } from './GameBoard'
-import { PlayerHand } from './PlayerHand'
 import { ScoreBoard } from './ScoreBoard'
+import { Tile } from './Tile'
 
 export function GameScreen({
   room,
@@ -156,12 +156,16 @@ export function GameScreen({
                 <p className="quirtle-hint">
                   Select tiles to swap, then confirm
                 </p>
-                <PlayerHand
-                  hand={currentPlayer.hand}
-                  selectedTiles={selectedTileIndices}
-                  onSelectTile={handleSelectTile}
-                  disabled={false}
-                />
+                <div className="quirtle-hand">
+                  {currentPlayer.hand.map((tile, index) => (
+                    <Tile
+                      key={index}
+                      tile={tile}
+                      selected={selectedTileIndices.includes(index)}
+                      onClick={() => handleSelectTile(index)}
+                    />
+                  ))}
+                </div>
                 <div className="quirtle-actions">
                   <button
                     className="btn btn-primary"
@@ -187,12 +191,23 @@ export function GameScreen({
                     Place more tiles in the same line, or confirm your turn
                   </p>
                 )}
-                <PlayerHand
-                  hand={currentPlayer.hand}
-                  selectedTiles={selectedTileIndices}
-                  onSelectTile={handleSelectTile}
-                  disabled={false}
-                />
+                <div className="quirtle-hand">
+                  {currentPlayer.hand.map((tile, index) => (
+                    <div key={index} style={{ position: 'relative' }}>
+                      <Tile
+                        tile={tile}
+                        selected={selectedTileIndices.includes(index)}
+                        disabled={usedHandIndices.includes(index)}
+                        onClick={() => handleSelectTile(index)}
+                      />
+                      {usedHandIndices.includes(index) && (
+                        <div className="quirtle-tile-used-overlay">
+                          ✓
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
                 <div className="quirtle-actions">
                   {pendingPlacements.length > 0 ? (
                     <>
@@ -221,12 +236,15 @@ export function GameScreen({
         {!isMyTurn && currentPlayer && (
           <>
             <p className="quirtle-hint">Wait for your turn</p>
-            <PlayerHand
-              hand={currentPlayer.hand}
-              selectedTiles={[]}
-              onSelectTile={() => {}}
-              disabled={true}
-            />
+            <div className="quirtle-hand">
+              {currentPlayer.hand.map((tile, index) => (
+                <Tile
+                  key={index}
+                  tile={tile}
+                  disabled={true}
+                />
+              ))}
+            </div>
           </>
         )}
       </div>

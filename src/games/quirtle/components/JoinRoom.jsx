@@ -1,8 +1,8 @@
 import { useState } from 'react'
 
-export function JoinRoom({ onBack, onJoinRoom, loading, error, savedName }) {
+export function JoinRoom({ onBack, onJoinRoom, loading, error, savedName, initialRoomCode }) {
   const [name, setName] = useState(savedName || '')
-  const [code, setCode] = useState('')
+  const [code, setCode] = useState(initialRoomCode || '')
 
   const handleSubmit = (e) => {
     e.preventDefault()

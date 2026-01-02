@@ -1,4 +1,4 @@
-export function Tile({ tile, selected, onClick, disabled, size = 50 }) {
+export function Tile({ tile, selected, onClick, disabled = false, size = 50 }) {
   const shapeClass = `shape-${tile.shape}`
   // Scale font size proportionally (default 50px tile = 1.75rem font)
   const fontSize = `${(size / 50) * 1.75}rem`
