@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { supabase } from '@/lib/supabase/client'
+import { supabase, supabaseGames } from '@/lib/supabase/client'
 import { getRandomSpectrum } from '../data/spectrums'
 import { useUser } from '@/contexts/UserContext'
 
@@ -105,8 +105,8 @@ export function useWavelengthRoom() {
 
     setLoading(true)
     try {
-      const { data: existingRoom, error: fetchError } = await supabase
-        .from('games.likeminded_rooms')
+      const { data: existingRoom, error: fetchError } = await supabaseGames
+        .from('likeminded_rooms')
         .select()
         .eq('code', code)
         .single()
@@ -155,8 +155,8 @@ export function useWavelengthRoom() {
         metadata: {}
       }
 
-      const { data, error: supabaseError } = await supabase
-        .from('games.likeminded_rooms')
+      const { data, error: supabaseError } = await supabaseGames
+        .from('likeminded_rooms')
         .insert(newRoom)
         .select()
         .single()
@@ -181,8 +181,8 @@ export function useWavelengthRoom() {
     setError(null)
 
     try {
-      const { data: existingRoom, error: fetchError } = await supabase
-        .from('games.likeminded_rooms')
+      const { data: existingRoom, error: fetchError } = await supabaseGames
+        .from('likeminded_rooms')
         .select()
         .eq('code', code.toUpperCase())
         .single()
@@ -208,8 +208,8 @@ export function useWavelengthRoom() {
       // Add player to room
       const updatedPlayers = [...existingRoom.players, { id: playerId, name: playerName }]
 
-      const { data, error: updateError } = await supabase
-        .from('games.likeminded_rooms')
+      const { data, error: updateError } = await supabaseGames
+        .from('likeminded_rooms')
         .update({ players: updatedPlayers })
         .eq('code', code.toUpperCase())
         .select()
@@ -237,8 +237,8 @@ export function useWavelengthRoom() {
     const target = Math.floor(Math.random() * 101)
     const firstPsychicId = players[0].id
 
-    const { error: updateError } = await supabase
-      .from('games.likeminded_rooms')
+    const { error: updateError } = await supabaseGames
+      .from('likeminded_rooms')
       .update({
         phase: 'psychic',
         current_psychic_id: firstPsychicId,
@@ -257,8 +257,8 @@ export function useWavelengthRoom() {
   const submitClue = useCallback(async (clue) => {
     if (!room || !isPsychic) return
 
-    const { error: updateError } = await supabase
-      .from('games.likeminded_rooms')
+    const { error: updateError } = await supabaseGames
+      .from('likeminded_rooms')
       .update({
         clue: clue,
         phase: 'guessing'
@@ -272,8 +272,8 @@ export function useWavelengthRoom() {
   const lockInGuess = useCallback(async (guess) => {
     if (!room || isPsychic) return
 
-    const { error: updateError } = await supabase
-      .from('games.likeminded_rooms')
+    const { error: updateError } = await supabaseGames
+      .from('likeminded_rooms')
       .update({
         guess: guess,
         phase: 'reveal'
@@ -298,8 +298,8 @@ export function useWavelengthRoom() {
 
     // Check if game should end (all players have been psychic once)
     if (nextPsychicIndex === 0) {
-      const { error: updateError } = await supabase
-        .from('games.likeminded_rooms')
+      const { error: updateError } = await supabaseGames
+        .from('likeminded_rooms')
         .update({
           phase: 'end',
           team_score: newTeamScore,
@@ -316,8 +316,8 @@ export function useWavelengthRoom() {
     const target = Math.floor(Math.random() * 101)
     const nextPsychicId = players[nextPsychicIndex].id
 
-    const { error: updateError } = await supabase
-      .from('games.likeminded_rooms')
+    const { error: updateError } = await supabaseGames
+      .from('likeminded_rooms')
       .update({
         phase: 'psychic',
         current_psychic_id: nextPsychicId,
@@ -341,8 +341,8 @@ export function useWavelengthRoom() {
     const spectrum = getRandomSpectrum([])
     const target = Math.floor(Math.random() * 101)
 
-    const { error: updateError } = await supabase
-      .from('games.likeminded_rooms')
+    const { error: updateError } = await supabaseGames
+      .from('likeminded_rooms')
       .update({
         phase: 'psychic',
         current_psychic_id: players[0].id,
@@ -366,8 +366,8 @@ export function useWavelengthRoom() {
 
       if (updatedPlayers.length === 0) {
         // Delete room if last player
-        await supabase
-          .from('games.likeminded_rooms')
+        await supabaseGames
+          .from('likeminded_rooms')
           .delete()
           .eq('code', room.code)
       } else {
@@ -379,8 +379,8 @@ export function useWavelengthRoom() {
           updates.current_psychic_id = updatedPlayers[0].id
         }
 
-        await supabase
-          .from('games.likeminded_rooms')
+        await supabaseGames
+          .from('likeminded_rooms')
           .update(updates)
           .eq('code', room.code)
       }

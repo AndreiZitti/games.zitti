@@ -20,7 +20,7 @@ const GAME_CONFIG = {
   rentz: {
     name: "Rentz",
     minPlayers: 3,
-    maxPlayers: 5
+    maxPlayers: 6
   },
   general: {
     name: "General",
