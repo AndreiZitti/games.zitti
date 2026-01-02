@@ -45,6 +45,14 @@ const games: Game[] = [
     accent: "#f59e0b",
     href: "/score-tracker",
   },
+  {
+    id: "quirtle",
+    name: "Quirtle",
+    description: "Match colors and shapes in this tile-laying strategy game.",
+    available: true,
+    accent: "#10b981",
+    href: "/games/quirtle",
+  },
 ];
 
 interface GameHubProps {

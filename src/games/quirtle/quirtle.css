@@ -1,0 +1,553 @@
+/* Quirtle Game Styles */
+
+.quirtle-game {
+  --quirtle-accent: #10b981;
+  --quirtle-bg: #0f172a;
+  --quirtle-surface: #1e293b;
+  --quirtle-text: #f8fafc;
+  --quirtle-text-muted: #94a3b8;
+}
+
+/* Colors for tiles */
+.quirtle-game {
+  --tile-red: #ef4444;
+  --tile-orange: #f97316;
+  --tile-yellow: #eab308;
+  --tile-green: #22c55e;
+  --tile-blue: #3b82f6;
+  --tile-purple: #a855f7;
+}
+
+/* Home Screen */
+.quirtle-home {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  background: var(--quirtle-bg);
+  color: var(--quirtle-text);
+}
+
+.quirtle-home h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  color: var(--quirtle-accent);
+}
+
+.quirtle-home .subtitle {
+  color: var(--quirtle-text-muted);
+  margin-bottom: 2rem;
+}
+
+.quirtle-home .how-to-play {
+  background: var(--quirtle-surface);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  max-width: 400px;
+}
+
+.quirtle-home .how-to-play ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.quirtle-home .how-to-play li {
+  padding: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.quirtle-home .how-to-play li::before {
+  content: "•";
+  color: var(--quirtle-accent);
+  position: absolute;
+  left: 0;
+}
+
+/* Buttons */
+.quirtle-game .btn {
+  padding: 1rem 2rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.quirtle-game .btn-primary {
+  background: var(--quirtle-accent);
+  color: white;
+}
+
+.quirtle-game .btn-primary:hover {
+  filter: brightness(1.1);
+}
+
+.quirtle-game .btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.quirtle-game .btn-secondary {
+  background: var(--quirtle-surface);
+  color: var(--quirtle-text);
+  border: 1px solid var(--quirtle-text-muted);
+}
+
+.quirtle-game .btn-secondary:hover {
+  background: #334155;
+}
+
+.quirtle-game .btn-back {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: transparent;
+  border: none;
+  color: var(--quirtle-text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.quirtle-game .btn-back:hover {
+  color: var(--quirtle-text);
+}
+
+.quirtle-game .button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 300px;
+}
+
+/* Input Groups */
+.quirtle-game .input-group {
+  margin-bottom: 1.5rem;
+}
+
+.quirtle-game .input-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.quirtle-game .input-group input {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--quirtle-text-muted);
+  background: var(--quirtle-surface);
+  color: var(--quirtle-text);
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.quirtle-game .input-group input:focus {
+  outline: none;
+  border-color: var(--quirtle-accent);
+}
+
+/* Error message */
+.quirtle-game .error {
+  background: #7f1d1d;
+  color: #fecaca;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Create/Join Room Screens */
+.quirtle-create-room,
+.quirtle-join-room {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: var(--quirtle-bg);
+  color: var(--quirtle-text);
+  position: relative;
+}
+
+.quirtle-create-room h1,
+.quirtle-join-room h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.quirtle-create-room .subtitle,
+.quirtle-join-room .subtitle {
+  color: var(--quirtle-text-muted);
+  margin-bottom: 2rem;
+}
+
+.quirtle-create-room form,
+.quirtle-join-room form {
+  width: 100%;
+  max-width: 300px;
+}
+
+/* Lobby */
+.quirtle-lobby {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  background: var(--quirtle-bg);
+  color: var(--quirtle-text);
+  position: relative;
+}
+
+.quirtle-lobby h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.quirtle-lobby .room-code {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--quirtle-accent);
+  letter-spacing: 0.2em;
+  margin-bottom: 2rem;
+}
+
+.quirtle-lobby .players-list {
+  background: var(--quirtle-surface);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 2rem;
+}
+
+.quirtle-lobby .players-list h2 {
+  font-size: 1rem;
+  color: var(--quirtle-text-muted);
+  margin-bottom: 1rem;
+}
+
+.quirtle-lobby .player-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #334155;
+}
+
+.quirtle-lobby .player-item:last-child {
+  border-bottom: none;
+}
+
+.quirtle-lobby .player-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--quirtle-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.quirtle-lobby .player-name {
+  flex: 1;
+}
+
+.quirtle-lobby .host-badge {
+  font-size: 0.75rem;
+  background: var(--quirtle-accent);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.quirtle-lobby .waiting-text {
+  color: var(--quirtle-text-muted);
+  font-style: italic;
+}
+
+/* Tile Styles */
+.quirtle-tile {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  border: 2px solid transparent;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.quirtle-tile:hover {
+  transform: scale(1.05);
+}
+
+.quirtle-tile.selected {
+  border-color: white;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.quirtle-tile.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.quirtle-tile.disabled:hover {
+  transform: none;
+}
+
+.quirtle-tile[data-color="red"] { background: var(--tile-red); }
+.quirtle-tile[data-color="orange"] { background: var(--tile-orange); }
+.quirtle-tile[data-color="yellow"] { background: var(--tile-yellow); color: #1e293b; text-shadow: none; }
+.quirtle-tile[data-color="green"] { background: var(--tile-green); }
+.quirtle-tile[data-color="blue"] { background: var(--tile-blue); }
+.quirtle-tile[data-color="purple"] { background: var(--tile-purple); }
+
+/* Shape icons (using Unicode/CSS shapes) */
+.quirtle-tile .shape-circle::before { content: "●"; }
+.quirtle-tile .shape-square::before { content: "■"; }
+.quirtle-tile .shape-diamond::before { content: "◆"; }
+.quirtle-tile .shape-star::before { content: "★"; }
+.quirtle-tile .shape-cross::before { content: "✚"; }
+.quirtle-tile .shape-triangle::before { content: "▲"; }
+
+/* Player Hand */
+.quirtle-hand {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--quirtle-surface);
+  border-radius: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Game Board */
+.quirtle-board-container {
+  flex: 1;
+  overflow: hidden;
+  background: var(--quirtle-bg);
+  position: relative;
+  touch-action: none;
+}
+
+.quirtle-board {
+  position: relative;
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.quirtle-board .tile-slot {
+  position: absolute;
+  width: 54px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quirtle-board .valid-position {
+  background: rgba(16, 185, 129, 0.2);
+  border: 2px dashed var(--quirtle-accent);
+  border-radius: 8px;
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
+}
+
+.quirtle-board .valid-position:hover {
+  background: rgba(16, 185, 129, 0.4);
+}
+
+/* Scoreboard */
+.quirtle-scoreboard {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.quirtle-score-item {
+  text-align: center;
+  min-width: 70px;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  background: var(--quirtle-surface);
+}
+
+.quirtle-score-item.active {
+  background: var(--quirtle-accent);
+}
+
+.quirtle-score-item .name {
+  font-size: 0.75rem;
+  color: var(--quirtle-text-muted);
+}
+
+.quirtle-score-item.active .name {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.quirtle-score-item .score {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Game Screen Layout */
+.quirtle-game-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--quirtle-bg);
+  color: var(--quirtle-text);
+}
+
+.quirtle-game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: var(--quirtle-surface);
+  gap: 1rem;
+}
+
+.quirtle-game-header .btn-back {
+  position: static;
+}
+
+.quirtle-game-footer {
+  padding: 1rem;
+  background: var(--quirtle-surface);
+}
+
+/* Turn indicator */
+.quirtle-turn-indicator {
+  text-align: center;
+  padding: 0.5rem;
+  background: var(--quirtle-accent);
+  color: white;
+  font-weight: 600;
+}
+
+.quirtle-turn-indicator.waiting {
+  background: #334155;
+}
+
+/* Score popup */
+.quirtle-score-popup {
+  text-align: center;
+  padding: 0.5rem;
+  background: #fbbf24;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.quirtle-score-popup.qwirkle {
+  background: #f59e0b;
+  animation: pulse 0.5s ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* End Screen */
+.quirtle-end-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: var(--quirtle-bg);
+  color: var(--quirtle-text);
+}
+
+.quirtle-end-screen h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.quirtle-end-screen .winner {
+  color: var(--quirtle-accent);
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.quirtle-final-scores {
+  background: var(--quirtle-surface);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 2rem;
+}
+
+.quirtle-final-scores .score-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #334155;
+}
+
+.quirtle-final-scores .score-row:last-child {
+  border-bottom: none;
+}
+
+.quirtle-final-scores .score-row.winner {
+  color: var(--quirtle-accent);
+  font-weight: 700;
+}
+
+/* Action buttons in footer */
+.quirtle-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.quirtle-actions .btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+}
+
+/* Hint text */
+.quirtle-hint {
+  text-align: center;
+  color: var(--quirtle-text-muted);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Bag count */
+.quirtle-bag-count {
+  font-size: 0.875rem;
+  color: var(--quirtle-text-muted);
+  white-space: nowrap;
+}
+
+/* Loading state */
+.quirtle-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--quirtle-bg);
+  color: var(--quirtle-text);
+}

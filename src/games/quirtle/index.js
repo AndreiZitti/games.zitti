@@ -1,0 +1,1 @@
+export { QuirtleGame } from './QuirtleGame'
