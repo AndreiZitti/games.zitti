@@ -282,21 +282,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s;
-  border: 2px solid transparent;
+  border: 2px solid #334155;
+  background: #1e293b;
   color: white;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .quirtle-tile:hover {
   transform: scale(1.05);
+  border-color: #475569;
 }
 
 .quirtle-tile.selected {
-  border-color: white;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  border-color: var(--quirtle-accent);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
 }
 
 .quirtle-tile.disabled {
@@ -306,14 +307,16 @@
 
 .quirtle-tile.disabled:hover {
   transform: none;
+  border-color: #334155;
 }
 
-.quirtle-tile[data-color="red"] { background: var(--tile-red); }
-.quirtle-tile[data-color="orange"] { background: var(--tile-orange); }
-.quirtle-tile[data-color="yellow"] { background: var(--tile-yellow); color: #1e293b; text-shadow: none; }
-.quirtle-tile[data-color="green"] { background: var(--tile-green); }
-.quirtle-tile[data-color="blue"] { background: var(--tile-blue); }
-.quirtle-tile[data-color="purple"] { background: var(--tile-purple); }
+/* Tile colors - applied to the shape, not background */
+.quirtle-tile[data-color="red"] { color: var(--tile-red); }
+.quirtle-tile[data-color="orange"] { color: var(--tile-orange); }
+.quirtle-tile[data-color="yellow"] { color: var(--tile-yellow); }
+.quirtle-tile[data-color="green"] { color: var(--tile-green); }
+.quirtle-tile[data-color="blue"] { color: var(--tile-blue); }
+.quirtle-tile[data-color="purple"] { color: var(--tile-purple); }
 
 /* Shape icons (using Unicode/CSS shapes) */
 .quirtle-tile .shape-circle::before { content: "●"; }
