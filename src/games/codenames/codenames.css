@@ -1,0 +1,994 @@
+/* Codenames - Game Specific Styles */
+
+/* ============================================
+   CSS VARIABLES
+   ============================================ */
+
+.codenames-home,
+.codenames-create,
+.codenames-join,
+.codenames-lobby,
+.codenames-team-setup,
+.codenames-spymaster,
+.codenames-operative,
+.codenames-end {
+  --red: #dc2626;
+  --red-light: #fecaca;
+  --red-glow: rgba(220, 38, 38, 0.4);
+  --blue: #2563eb;
+  --blue-light: #bfdbfe;
+  --blue-glow: rgba(37, 99, 235, 0.4);
+  --neutral: #a1a1aa;
+  --neutral-light: #e4e4e7;
+  --assassin: #18181b;
+  --assassin-light: #3f3f46;
+}
+
+/* ============================================
+   HOME SCREEN
+   ============================================ */
+
+.codenames-home {
+  justify-content: center;
+  text-align: center;
+  padding-top: 15vh;
+  padding-bottom: 10vh;
+}
+
+.codenames-home h1 {
+  font-size: 3.5rem;
+  background: linear-gradient(135deg, var(--red) 0%, var(--blue) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+  filter: drop-shadow(0 0 30px rgba(37, 99, 235, 0.3));
+  animation: titleEntry 0.8s ease-out;
+}
+
+.codenames-home .subtitle {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 48px;
+  font-style: italic;
+  animation: fadeUp 0.6s ease-out 0.2s both;
+}
+
+.codenames-home .how-to-play {
+  animation: fadeUp 0.6s ease-out 0.4s both;
+}
+
+.codenames-home .button-group {
+  animation: fadeUp 0.6s ease-out 0.6s both;
+}
+
+/* ============================================
+   CREATE / JOIN SCREENS
+   ============================================ */
+
+.codenames-create,
+.codenames-join {
+  padding-top: 10vh;
+}
+
+.codenames-create h2,
+.codenames-join h2 {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.codenames-create .form-group,
+.codenames-join .form-group {
+  margin-bottom: 20px;
+}
+
+.codenames-create .btn-primary,
+.codenames-join .btn-primary {
+  width: 100%;
+  margin-top: 16px;
+}
+
+/* ============================================
+   LOBBY SCREEN
+   ============================================ */
+
+.codenames-lobby {
+  padding-top: 20px;
+}
+
+.codenames-lobby h2 {
+  text-align: center;
+  margin: 24px 0;
+}
+
+.room-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+
+.room-code {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.room-code .label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.room-code .code {
+  font-size: 1.5rem;
+  font-family: 'Space Mono', monospace;
+  font-weight: bold;
+  letter-spacing: 0.15em;
+  background: linear-gradient(135deg, var(--red) 0%, var(--blue) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.language-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.lang-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.lang-btn.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.language-display {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* Teams Container */
+.teams-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.team-column {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  border: 2px solid var(--border);
+  transition: border-color 0.2s;
+}
+
+.team-column.team-red {
+  border-color: var(--red);
+}
+
+.team-column.team-blue {
+  border-color: var(--blue);
+}
+
+.team-column h3 {
+  text-align: center;
+  margin-bottom: 16px;
+  font-size: 1.1rem;
+}
+
+.team-red h3 {
+  color: var(--red);
+}
+
+.team-blue h3 {
+  color: var(--blue);
+}
+
+.team-players {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 120px;
+}
+
+.player-chip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+}
+
+.leave-team-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.leave-team-btn:hover {
+  color: var(--red);
+}
+
+.join-team-btn {
+  padding: 10px 14px;
+  background: transparent;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.team-red .join-team-btn:hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.team-blue .join-team-btn:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.team-count {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* Unassigned Players */
+.unassigned-section {
+  text-align: center;
+  padding: 16px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  margin-bottom: 24px;
+}
+
+.unassigned-section .label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.unassigned-players {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.player-name {
+  padding: 6px 12px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+}
+
+.hint {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
+.waiting {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* ============================================
+   TEAM SETUP SCREEN
+   ============================================ */
+
+.codenames-team-setup {
+  padding-top: 20px;
+}
+
+.codenames-team-setup h2 {
+  text-align: center;
+  margin: 24px 0 8px;
+}
+
+.codenames-team-setup .subtitle {
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.spymaster-section {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.role-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.spymaster-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--accent);
+  color: white;
+  border-radius: var(--radius);
+  font-weight: 500;
+}
+
+.spymaster-empty {
+  display: inline-block;
+  padding: 12px 20px;
+  background: var(--bg-elevated);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.remove-btn:hover {
+  color: white;
+}
+
+.operatives-section {
+  margin-top: 16px;
+}
+
+.operative-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+}
+
+.operative-chip {
+  padding: 6px 12px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+}
+
+.btn-volunteer {
+  margin-top: 16px;
+  width: 100%;
+}
+
+/* ============================================
+   GAME SCREENS (SPYMASTER / OPERATIVE)
+   ============================================ */
+
+.codenames-spymaster,
+.codenames-operative {
+  padding: 16px;
+  padding-bottom: 100px;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.room-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.room-info .room-code {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.role-badge {
+  padding: 4px 12px;
+  border-radius: var(--radius);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.role-badge.spymaster {
+  background: var(--accent);
+  color: white;
+}
+
+.role-badge.operative.red {
+  background: var(--red);
+  color: white;
+}
+
+.role-badge.operative.blue {
+  background: var(--blue);
+  color: white;
+}
+
+/* Scores */
+.scores {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  min-width: 60px;
+}
+
+.score.red {
+  background: var(--red-light);
+  color: var(--red);
+}
+
+.score.blue {
+  background: var(--blue-light);
+  color: var(--blue);
+}
+
+.score.active {
+  box-shadow: 0 0 0 2px currentColor;
+}
+
+.score .team-name {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.score .remaining {
+  font-size: 1.5rem;
+  font-weight: bold;
+  font-family: 'Space Mono', monospace;
+}
+
+.vs {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+/* Turn Indicator */
+.turn-indicator {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.turn-badge {
+  display: inline-block;
+  padding: 8px 20px;
+  border-radius: var(--radius);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.turn-badge.red {
+  background: var(--red);
+  color: white;
+}
+
+.turn-badge.blue {
+  background: var(--blue);
+  color: white;
+}
+
+.turn-badge.waiting {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+/* Current Clue */
+.current-clue {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  margin-bottom: 16px;
+}
+
+.clue-label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.clue-word {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--accent);
+}
+
+.clue-number {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.2rem;
+  padding: 4px 12px;
+  background: var(--accent);
+  color: white;
+  border-radius: var(--radius);
+}
+
+.guesses-left {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.waiting-clue {
+  text-align: center;
+  padding: 16px;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-bottom: 16px;
+}
+
+/* ============================================
+   GAME BOARD
+   ============================================ */
+
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.board-card {
+  aspect-ratio: 1.4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px;
+  cursor: default;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.board-card .card-word {
+  font-size: clamp(0.5rem, 2.5vw, 0.85rem);
+  font-weight: 500;
+  text-align: center;
+  word-break: break-word;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+/* Interactive cards */
+.board-card.interactive {
+  cursor: pointer;
+}
+
+.board-card.interactive:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* Selected card */
+.board-card.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+  transform: translateY(-2px);
+}
+
+/* Key card overlay (spymaster view) */
+.board-card.key-overlay.red {
+  border-color: var(--red);
+  background: linear-gradient(135deg, var(--red-light) 0%, var(--bg-card) 100%);
+}
+
+.board-card.key-overlay.blue {
+  border-color: var(--blue);
+  background: linear-gradient(135deg, var(--blue-light) 0%, var(--bg-card) 100%);
+}
+
+.board-card.key-overlay.neutral {
+  border-color: var(--neutral);
+  background: linear-gradient(135deg, var(--neutral-light) 0%, var(--bg-card) 100%);
+}
+
+.board-card.key-overlay.assassin {
+  border-color: var(--assassin);
+  background: linear-gradient(135deg, var(--assassin-light) 0%, var(--bg-card) 100%);
+}
+
+.board-card.key-overlay.assassin .card-word {
+  color: white;
+}
+
+/* Revealed cards */
+.board-card.revealed {
+  cursor: default;
+}
+
+.board-card.revealed.red {
+  background: var(--red);
+  border-color: var(--red);
+  color: white;
+}
+
+.board-card.revealed.blue {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: white;
+}
+
+.board-card.revealed.neutral {
+  background: var(--neutral);
+  border-color: var(--neutral);
+  color: white;
+}
+
+.board-card.revealed.assassin {
+  background: var(--assassin);
+  border-color: var(--assassin);
+  color: white;
+}
+
+.board-card.revealed .card-word {
+  opacity: 0.8;
+}
+
+.card-reveal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+/* ============================================
+   CLUE INPUT
+   ============================================ */
+
+.clue-section {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.clue-section h3 {
+  text-align: center;
+  margin-bottom: 16px;
+  font-size: 1rem;
+}
+
+.clue-input {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.clue-fields {
+  display: flex;
+  gap: 12px;
+}
+
+.clue-word-input {
+  flex: 1;
+  padding: 12px 16px;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.clue-number-input {
+  width: 70px;
+  padding: 12px;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.clue-hint {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+/* ============================================
+   GUESS ACTIONS
+   ============================================ */
+
+.guess-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.guess-actions .btn-reveal {
+  flex: 1;
+}
+
+.waiting-section,
+.watching-section {
+  text-align: center;
+  padding: 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  margin-bottom: 20px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* ============================================
+   TEAM PANELS
+   ============================================ */
+
+.team-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.team-panel {
+  padding: 12px;
+  border-radius: var(--radius);
+  background: var(--bg-card);
+}
+
+.team-panel.red {
+  border-left: 3px solid var(--red);
+}
+
+.team-panel.blue {
+  border-left: 3px solid var(--blue);
+}
+
+.team-panel h4 {
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+}
+
+.team-panel.red h4 {
+  color: var(--red);
+}
+
+.team-panel.blue h4 {
+  color: var(--blue);
+}
+
+.team-panel .spymaster-name {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.team-panel .operatives {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.team-panel .operative-name {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  background: var(--bg-elevated);
+  border-radius: 4px;
+}
+
+.btn-leave {
+  width: 100%;
+}
+
+/* ============================================
+   END SCREEN
+   ============================================ */
+
+.codenames-end {
+  padding-top: 20px;
+}
+
+.winner-banner {
+  text-align: center;
+  padding: 32px 20px;
+  border-radius: var(--radius-lg);
+  margin-bottom: 24px;
+}
+
+.winner-banner.red {
+  background: linear-gradient(135deg, var(--red) 0%, #991b1b 100%);
+  color: white;
+}
+
+.winner-banner.blue {
+  background: linear-gradient(135deg, var(--blue) 0%, #1d4ed8 100%);
+  color: white;
+}
+
+.winner-banner h1 {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.win-reason {
+  opacity: 0.9;
+  margin-bottom: 12px;
+}
+
+.result-emoji {
+  font-size: 3rem;
+  margin: 0;
+}
+
+.final-scores {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.final-score {
+  text-align: center;
+  padding: 16px 24px;
+  border-radius: var(--radius);
+}
+
+.final-score.red {
+  background: var(--red-light);
+  color: var(--red);
+}
+
+.final-score.blue {
+  background: var(--blue-light);
+  color: var(--blue);
+}
+
+.final-score.winner {
+  box-shadow: 0 0 0 3px currentColor;
+}
+
+.final-score .team-name {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.final-score .cards-left {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.codenames-end h3 {
+  text-align: center;
+  margin-bottom: 16px;
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes titleEntry {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 600px) {
+  .codenames-home h1 {
+    font-size: 2.5rem;
+  }
+
+  .teams-container {
+    grid-template-columns: 1fr;
+  }
+
+  .game-board {
+    gap: 4px;
+  }
+
+  .board-card {
+    aspect-ratio: 1.2;
+    padding: 4px;
+  }
+
+  .board-card .card-word {
+    font-size: clamp(0.45rem, 3vw, 0.7rem);
+  }
+
+  .scores {
+    gap: 8px;
+  }
+
+  .score {
+    padding: 6px 10px;
+    min-width: 50px;
+  }
+
+  .score .remaining {
+    font-size: 1.2rem;
+  }
+
+  .current-clue {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .clue-word {
+    font-size: 1.2rem;
+  }
+
+  .team-panels {
+    grid-template-columns: 1fr;
+  }
+
+  .guess-actions {
+    flex-direction: column;
+  }
+}

@@ -46,6 +46,14 @@ const games: Item[] = [
     accent: "#dc2626",
     href: "/games/secret-hitler",
   },
+  {
+    id: "codenames",
+    name: "Codenames",
+    description: "Give clues, find your agents, avoid the assassin!",
+    available: true,
+    accent: "#2563eb",
+    href: "/games/codenames",
+  },
 ];
 
 const tools: Item[] = [
