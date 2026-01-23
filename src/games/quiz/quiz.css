@@ -726,7 +726,9 @@
     border-radius: 50%;
     background: var(--quiz-surface-light, #1b2838);
     border: none;
-    padding: 0;
+    padding: 18px;
+    margin: -18px;
+    background-clip: content-box;
     cursor: pointer;
     transition: all var(--quiz-transition-fast);
   }
