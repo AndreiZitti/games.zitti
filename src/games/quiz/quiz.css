@@ -624,6 +624,11 @@
   transform: scale(0.98);
 }
 
+.board-tile--selectable:focus-visible {
+  outline: 2px solid var(--quiz-gold, #ffd700);
+  outline-offset: 2px;
+}
+
 .board-tile--used {
   background: var(--quiz-surface, #0d1b2a);
   border-color: transparent;

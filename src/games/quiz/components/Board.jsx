@@ -36,7 +36,7 @@ export function Board({
           >
             {index === 0 && <span className="mini-score__crown">👑</span>}
             <span className="mini-score__rank">{index + 1}.</span>
-            <span className="mini-score__name">{player.name}</span>
+            <span className="mini-score__name" title={player.name}>{player.name}</span>
             <span className="mini-score__score">{player.score}</span>
           </div>
         ))}
