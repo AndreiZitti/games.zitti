@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Timer } from './Timer'
 
 export function QuestionRound({
   room,
@@ -27,44 +28,53 @@ export function QuestionRound({
   // Count how many have answered
   const answeredCount = room.players.filter(p => p.hasAnswered).length
   const totalPlayers = room.players.length
-
-  // Timer color based on time remaining
-  const timerClass = timeRemaining <= 10 ? 'critical' : timeRemaining <= 30 ? 'warning' : ''
+  const progressPercent = totalPlayers > 0 ? (answeredCount / totalPlayers) * 100 : 0
 
   // Determine question type
   const questionType = currentQuestion.type || 'text'
   const isMultipleChoice = questionType === 'multiple' || questionType === 'boolean'
 
+  // Option letters for multiple choice
+  const optionLetters = ['A', 'B', 'C', 'D']
+
   return (
     <div className="screen quiz-question quiz-game">
+      {/* Header with meta and timer */}
       <div className="question-header">
         <div className="question-meta">
-          <span className="category">{currentQuestion.category}</span>
-          <span className="value">{currentQuestion.value} points</span>
+          <span className="question-meta__category">{currentQuestion.category}</span>
+          <span className="question-meta__value">{currentQuestion.value} pts</span>
         </div>
-        <div className={`timer ${timerClass}`}>
-          {timeRemaining}s
-        </div>
+        <Timer
+          seconds={timeRemaining}
+          maxSeconds={60}
+          warningAt={30}
+          criticalAt={10}
+        />
       </div>
 
+      {/* Question card */}
       <div className="question-content">
         <p className="question-text">{currentQuestion.question}</p>
       </div>
 
+      {/* Answer area */}
       {!hasAnswered ? (
         isMultipleChoice ? (
           // Multiple choice or True/False
-          <div className={`options-grid ${questionType === 'boolean' ? 'boolean' : ''}`}>
+          <div className={`options-grid ${questionType === 'boolean' ? 'options-grid--boolean' : ''}`}>
             {currentQuestion.options?.map((option, index) => (
               <button
                 key={index}
-                className={`option-btn ${selectedOption === option ? 'selected' : ''}`}
+                className={`option-btn ${selectedOption === option ? 'option-btn--selected' : ''}`}
                 onClick={() => handleOptionSelect(option)}
                 disabled={hasAnswered}
               >
-                <span className="option-letter">
-                  {questionType === 'boolean' ? '' : String.fromCharCode(65 + index)}
-                </span>
+                {questionType !== 'boolean' && (
+                  <span className="option-letter">
+                    {optionLetters[index]}
+                  </span>
+                )}
                 <span className="option-text">{option}</span>
               </button>
             ))}
@@ -80,8 +90,8 @@ export function QuestionRound({
               autoFocus
               maxLength={100}
             />
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="btn btn-primary"
               disabled={!textAnswer.trim()}
             >
@@ -90,21 +100,33 @@ export function QuestionRound({
           </form>
         )
       ) : (
+        // Answer submitted state
         <div className="answer-submitted">
-          <p>Answer submitted! Waiting for others...</p>
+          <p className="answer-submitted__title">Answer submitted!</p>
           {selectedOption && (
-            <p className="your-answer">Your answer: <strong>{selectedOption}</strong></p>
+            <p className="answer-submitted__answer">
+              Your answer: <strong>{selectedOption}</strong>
+            </p>
           )}
         </div>
       )}
 
+      {/* Footer: player progress */}
       <div className="answer-status">
-        <p>{answeredCount} of {totalPlayers} players have answered</p>
+        <p className="answer-status__text">
+          {answeredCount} of {totalPlayers} players answered
+        </p>
+        <div className="answer-status__progress">
+          <div
+            className="answer-status__progress-bar"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
         <div className="answer-indicators">
           {room.players.map(player => (
-            <div 
-              key={player.id} 
-              className={`indicator ${player.hasAnswered ? 'answered' : ''}`}
+            <div
+              key={player.id}
+              className={`answer-indicator ${player.hasAnswered ? 'answer-indicator--answered' : ''}`}
               title={player.name}
             >
               {player.name.charAt(0).toUpperCase()}
