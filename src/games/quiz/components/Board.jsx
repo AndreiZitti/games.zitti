@@ -17,7 +17,7 @@ export function Board({
   const pickerName = room.players.find(p => p.id === room.picker_id)?.name || 'Someone'
 
   return (
-    <div className="screen quiz-board">
+    <div className="screen quiz-board quiz-game">
       <div className="board-header">
         <h2>Quiz Board</h2>
         {isPicker ? (

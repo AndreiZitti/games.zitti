@@ -23,7 +23,7 @@ export function RevealScreen({
   }
 
   return (
-    <div className="screen quiz-reveal">
+    <div className="screen quiz-reveal quiz-game">
       <div className="reveal-header">
         <div className="question-meta">
           <span className="category">{currentQuestion.category}</span>

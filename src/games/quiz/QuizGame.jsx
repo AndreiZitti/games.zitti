@@ -85,7 +85,7 @@ export function QuizGame({ onBack }) {
   // Home screen
   if (screen === 'home') {
     return (
-      <div className="screen quiz-home">
+      <div className="screen quiz-home quiz-game">
         <button className="btn-back" onClick={onBack}>
           &larr; Back to Games
         </button>
@@ -214,7 +214,7 @@ export function QuizGame({ onBack }) {
 
   // Fallback / Loading
   return (
-    <div className="screen quiz-loading">
+    <div className="screen quiz-loading quiz-game">
       <p>Loading...</p>
     </div>
   )

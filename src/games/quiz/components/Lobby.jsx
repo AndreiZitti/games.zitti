@@ -103,7 +103,7 @@ export function Lobby({
   const showFilters = source?.hasFilters && !room.board
 
   return (
-    <div className="screen quiz-lobby">
+    <div className="screen quiz-lobby quiz-game">
       <div className="lobby-header">
         <h2>Quiz Lobby</h2>
         <div className="room-code-display">

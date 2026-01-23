@@ -36,7 +36,7 @@ export function QuestionRound({
   const isMultipleChoice = questionType === 'multiple' || questionType === 'boolean'
 
   return (
-    <div className="screen quiz-question">
+    <div className="screen quiz-question quiz-game">
       <div className="question-header">
         <div className="question-meta">
           <span className="category">{currentQuestion.category}</span>

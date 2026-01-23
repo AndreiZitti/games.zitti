@@ -4,7 +4,7 @@ export function EndScreen({ room, isHost, onPlayAgain, onLeave }) {
   const podium = sorted.slice(0, 3)
 
   return (
-    <div className="screen quiz-end">
+    <div className="screen quiz-end quiz-game">
       <h1>Game Over!</h1>
 
       <div className="winner-announcement">

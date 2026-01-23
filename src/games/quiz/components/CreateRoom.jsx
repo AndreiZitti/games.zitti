@@ -11,7 +11,7 @@ export function CreateRoom({ onBack, onCreateRoom, loading, error, savedName }) 
   }
 
   return (
-    <div className="screen quiz-create">
+    <div className="screen quiz-create quiz-game">
       <button className="btn-back" onClick={onBack}>
         &larr; Back
       </button>

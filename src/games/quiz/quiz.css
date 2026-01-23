@@ -1,4 +1,51 @@
-/* Quiz Game Styles */
+/* Quiz Game Styles - Game Show Theme */
+
+/* ===== DESIGN SYSTEM ===== */
+.quiz-game {
+  /* Game Show Color Palette */
+  --quiz-primary: #1a237e;          /* Deep royal blue - board bg */
+  --quiz-primary-light: #283593;    /* Lighter blue for hover */
+  --quiz-primary-dark: #0d1442;     /* Darker for depth */
+
+  --quiz-gold: #ffd700;             /* Gold - points, accents */
+  --quiz-gold-dim: #b8960b;         /* Muted gold */
+  --quiz-gold-glow: rgba(255, 215, 0, 0.4);
+
+  --quiz-correct: #00c853;          /* Emerald green */
+  --quiz-correct-glow: rgba(0, 200, 83, 0.3);
+  --quiz-wrong: #ff1744;            /* Ruby red */
+  --quiz-wrong-glow: rgba(255, 23, 68, 0.3);
+
+  --quiz-surface: #0d1b2a;          /* Dark navy surface */
+  --quiz-surface-light: #1b2838;    /* Elevated surface */
+  --quiz-surface-glow: rgba(26, 35, 126, 0.5);
+
+  --quiz-text: #ffffff;
+  --quiz-text-dim: #a0aec0;
+  --quiz-text-muted: #718096;
+
+  --quiz-border: rgba(255, 255, 255, 0.1);
+  --quiz-border-gold: rgba(255, 215, 0, 0.3);
+
+  /* Typography */
+  --quiz-font-display: 'Oswald', 'Arial Narrow', sans-serif;
+  --quiz-font-body: 'Inter', -apple-system, sans-serif;
+  --quiz-font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  /* Spacing */
+  --quiz-radius-sm: 6px;
+  --quiz-radius-md: 10px;
+  --quiz-radius-lg: 16px;
+
+  /* Shadows */
+  --quiz-shadow-tile: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --quiz-shadow-glow: 0 0 20px var(--quiz-gold-glow);
+
+  /* Transitions */
+  --quiz-transition-fast: 150ms ease;
+  --quiz-transition-normal: 250ms ease;
+  --quiz-transition-slow: 400ms ease;
+}
 
 /* ===== HOME SCREEN ===== */
 .quiz-home {

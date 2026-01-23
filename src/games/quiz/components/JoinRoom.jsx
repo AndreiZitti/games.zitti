@@ -18,7 +18,7 @@ export function JoinRoom({ onBack, onJoinRoom, loading, error, savedName, initia
   }
 
   return (
-    <div className="screen quiz-join">
+    <div className="screen quiz-join quiz-game">
       <button className="btn-back" onClick={onBack}>
         &larr; Back
       </button>
