@@ -62,6 +62,14 @@ const games: Item[] = [
     accent: "#eab308",
     href: "/games/quiz",
   },
+  {
+    id: "chroma",
+    name: "Chroma",
+    description: "Memorize colors. Recreate them. How dialed in are you?",
+    available: true,
+    accent: "#f97316",
+    href: "/games/chroma",
+  },
 ];
 
 const trackers: Item[] = [
