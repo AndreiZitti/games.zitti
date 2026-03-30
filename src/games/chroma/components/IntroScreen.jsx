@@ -75,11 +75,25 @@ export default function IntroScreen({ onStart, onChallenge, onBack, challengeCod
 
       <div className="chroma-intro__content">
         <h1 className="chroma-title">CHROMA</h1>
-        <p className="chroma-subtitle">
-          We&apos;ll show you 3 colors.
-          <br />
-          Then you recreate them from memory.
-        </p>
+
+        <div className="chroma-how-to">
+          <div className="chroma-how-to__step">
+            <div className="chroma-how-to__icon">👁️</div>
+            <div className="chroma-how-to__label">See a color</div>
+          </div>
+          <div className="chroma-how-to__arrow">→</div>
+          <div className="chroma-how-to__step">
+            <div className="chroma-how-to__icon">🎨</div>
+            <div className="chroma-how-to__label">Recreate it</div>
+          </div>
+          <div className="chroma-how-to__arrow">→</div>
+          <div className="chroma-how-to__step">
+            <div className="chroma-how-to__icon">🎯</div>
+            <div className="chroma-how-to__label">Get scored</div>
+          </div>
+        </div>
+
+        <p className="chroma-subtitle">3 rounds. How well do you remember colors?</p>
 
         <div className="chroma-difficulty">
           <button

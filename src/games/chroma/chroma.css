@@ -105,11 +105,51 @@
 }
 
 .chroma-subtitle {
-  font-size: 15px;
-  color: #adadad;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.3);
   text-align: center;
   line-height: 1.7;
   margin: 0;
+}
+
+/* How-to steps */
+.chroma-how-to {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chroma-how-to__step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.chroma-how-to__icon {
+  font-size: 28px;
+  line-height: 1;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.chroma-how-to__label {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.45);
+  white-space: nowrap;
+}
+
+.chroma-how-to__arrow {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.15);
+  margin-bottom: 18px;
 }
 
 /* Difficulty Toggle */
@@ -301,6 +341,17 @@
   font-variant-numeric: tabular-nums;
 }
 
+.chroma-memorize__hint {
+  position: absolute;
+  bottom: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
 .chroma-memorize__timer-last {
   opacity: 0.4;
 }
@@ -335,6 +386,18 @@
   letter-spacing: 0.06em;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
   z-index: 2;
+}
+
+.chroma-picker__hint {
+  position: absolute;
+  bottom: 28px;
+  left: 140px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.35);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  z-index: 2;
+  letter-spacing: 0.03em;
 }
 
 .chroma-picker__sliders {

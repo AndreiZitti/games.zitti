@@ -29,6 +29,15 @@ export default function PickerScreen({
       <div className="chroma-picker__round">{round}/3</div>
 
       <motion.div
+        className="chroma-picker__hint"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6, duration: 0.4 }}
+      >
+        drag the sliders to recreate it
+      </motion.div>
+
+      <motion.div
         className="chroma-picker__sliders"
         initial={{ x: -120, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}

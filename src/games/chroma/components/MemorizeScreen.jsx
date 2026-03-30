@@ -48,6 +48,9 @@ export default function MemorizeScreen({
       transition={{ duration: 0.15 }}
     >
       <div className="chroma-memorize__round">{round}/3</div>
+      <div className="chroma-memorize__hint">
+        memorize this color
+      </div>
       <div className="chroma-memorize__timer">
         {String(count).length > 1 ? (
           <>
