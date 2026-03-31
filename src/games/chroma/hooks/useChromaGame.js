@@ -6,7 +6,6 @@ const TOTAL_ROUNDS = 3;
 
 export default function useChromaGame() {
   const [phase, setPhase] = useState("home");
-  const [difficulty, setDifficulty] = useState("easy");
   const [round, setRound] = useState(1);
   const [targetColors, setTargetColors] = useState([]);
   const [pickerColor, setPickerColor] = useState([180, 50, 50]);
@@ -14,9 +13,8 @@ export default function useChromaGame() {
 
   const currentTarget = targetColors[round - 1] || [0, 50, 50];
 
-  const startGame = useCallback((diff) => {
+  const startGame = useCallback(() => {
     const colors = generateGameColors();
-    setDifficulty(diff);
     setTargetColors(colors);
     setRound(1);
     setRounds([]);
@@ -24,9 +22,7 @@ export default function useChromaGame() {
     setPhase("memorize");
   }, []);
 
-  // Start with pre-generated colors (for challenge mode)
-  const startGameWithColors = useCallback((diff, colors) => {
-    setDifficulty(diff);
+  const startGameWithColors = useCallback((colors) => {
     setTargetColors(colors);
     setRound(1);
     setRounds([]);
@@ -68,7 +64,6 @@ export default function useChromaGame() {
 
   return {
     phase,
-    difficulty,
     round,
     currentTarget,
     pickerColor,

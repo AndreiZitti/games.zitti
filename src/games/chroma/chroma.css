@@ -152,40 +152,16 @@
   margin-bottom: 18px;
 }
 
-/* Difficulty Toggle */
-.chroma-difficulty {
-  display: flex;
-  gap: 3px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 3px;
+/* Daily button */
+.chroma-btn--daily {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.chroma-difficulty__btn {
-  padding: 8px 22px;
-  border: none;
-  border-radius: 10px;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.3);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-}
-
-.chroma-difficulty__btn.active {
-  background: rgba(255, 255, 255, 0.1);
+.chroma-btn--daily:hover {
+  background: rgba(255, 255, 255, 0.12);
   color: #fff;
-}
-
-.chroma-difficulty__hint {
-  font-size: 10px;
-  font-weight: 400;
-  opacity: 0.4;
 }
 
 /* Play Button */
@@ -786,6 +762,17 @@
   text-align: center;
 }
 
+.chroma-leaderboard__daily-badge {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 6px 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 .chroma-leaderboard__label {
   font-size: 11px;
   font-weight: 600;
@@ -889,6 +876,55 @@
 
 .chroma-share-btn {
   margin-top: 4px;
+}
+
+/* Save score row */
+.chroma-leaderboard__save-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.chroma-leaderboard__name-input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  font-family: inherit;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.chroma-leaderboard__name-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.chroma-leaderboard__name-input:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.chroma-leaderboard__save-btn {
+  flex-shrink: 0;
+  padding: 10px 18px;
+  font-size: 14px;
+}
+
+.chroma-leaderboard__save-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.chroma-leaderboard__saved-msg {
+  width: 100%;
+  text-align: center;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 10px 0;
 }
 
 .chroma-challenge-btn {

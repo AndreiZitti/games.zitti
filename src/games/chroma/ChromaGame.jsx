@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
@@ -16,60 +16,73 @@ import FinalResultsScreen from "./components/FinalResultsScreen";
 import LeaderboardScreen from "./components/LeaderboardScreen";
 import "./chroma.css";
 
+function getDailyCode() {
+  const today = new Date().toISOString().split("T")[0];
+  return `daily-${today}`;
+}
+
 export function ChromaGame({ onBack }) {
   const searchParams = useSearchParams();
   const challengeFromUrl = searchParams.get("c");
-  const { id: userId, name: userName, isAuthenticated } = useUser();
+  const { id: userId, name: userName } = useUser();
 
   const [challengeCode, setChallengeCode] = useState(challengeFromUrl || null);
-  const [mode, setMode] = useState(challengeFromUrl ? "challenge" : null); // null | "solo" | "challenge"
+  const [mode, setMode] = useState(challengeFromUrl ? "challenge" : null); // null | "solo" | "challenge" | "daily"
   const [showChallengeSetup, setShowChallengeSetup] = useState(false);
-  const [challengeDifficulty, setChallengeDifficulty] = useState("easy");
 
   const game = useChromaGame();
   const { leaderboard, saveScore, fetchLeaderboard } =
     useChromaChallenge(challengeCode);
 
-  const startSolo = useCallback(
-    (difficulty) => {
-      setMode("solo");
-      game.startGame(difficulty);
+  const handleSaveScore = useCallback(
+    async (displayName) => {
+      if (!challengeCode || game.rounds.length !== game.TOTAL_ROUNDS) return;
+      const scores = game.rounds.map((r) => r.score);
+      const total = scores.reduce((a, b) => a + b, 0);
+      await saveScore(userId, displayName, scores, total, "easy");
     },
-    [game]
+    [challengeCode, game.rounds, game.TOTAL_ROUNDS, saveScore, userId]
   );
 
-  // Step 1: Create challenge code and show setup screen
-  const createChallenge = useCallback(
-    (difficulty) => {
-      const code = generateChallengeCode();
-      setChallengeCode(code);
-      setChallengeDifficulty(difficulty);
-      setShowChallengeSetup(true);
+  const startSolo = useCallback(() => {
+    setMode("solo");
+    game.startGame();
+  }, [game]);
 
-      // Update URL so they can copy it
-      const url = new URL(window.location.href);
-      url.searchParams.set("c", code);
-      window.history.replaceState({}, "", url.toString());
-    },
-    []
-  );
+  const startDaily = useCallback(() => {
+    const code = getDailyCode();
+    setChallengeCode(code);
+    setMode("daily");
+    const colors = seededGameColors(code);
+    game.startGameWithColors(colors);
+  }, [game]);
 
-  // Step 2: Actually start the challenge game
-  const startChallenge = useCallback(
-    (difficulty) => {
-      const code = challengeCode;
-      setMode("challenge");
-      setShowChallengeSetup(false);
+  const createChallenge = useCallback(() => {
+    const code = generateChallengeCode();
+    setChallengeCode(code);
+    setShowChallengeSetup(true);
 
-      const colors = seededGameColors(code);
-      game.startGameWithColors(difficulty || challengeDifficulty, colors);
-    },
-    [challengeCode, challengeDifficulty, game]
-  );
+    const url = new URL(window.location.href);
+    url.searchParams.set("c", code);
+    window.history.replaceState({}, "", url.toString());
+  }, []);
+
+  const startChallenge = useCallback(() => {
+    setMode("challenge");
+    setShowChallengeSetup(false);
+    const colors = seededGameColors(challengeCode);
+    game.startGameWithColors(colors);
+  }, [challengeCode, game]);
 
   const handlePlayAgain = useCallback(() => {
+    if (mode === "daily") {
+      // Daily is once per day — go back to intro
+      game.resetGame();
+      setMode(null);
+      setChallengeCode(null);
+      return;
+    }
     if (mode === "challenge") {
-      // New challenge
       const code = generateChallengeCode();
       setChallengeCode(code);
       const url = new URL(window.location.href);
@@ -84,7 +97,6 @@ export function ChromaGame({ onBack }) {
     setMode(null);
     setShowChallengeSetup(false);
     setChallengeCode(challengeFromUrl || null);
-    // Clean URL if we created a challenge
     if (!challengeFromUrl) {
       const url = new URL(window.location.href);
       url.searchParams.delete("c");
@@ -93,38 +105,13 @@ export function ChromaGame({ onBack }) {
     onBack();
   }, [game, challengeFromUrl, onBack]);
 
-  // Save score when game ends in challenge mode
-  const handleFinalScreen = useMemo(() => {
-    if (
-      game.phase === "final" &&
-      mode === "challenge" &&
-      challengeCode &&
-      isAuthenticated &&
-      game.rounds.length === game.TOTAL_ROUNDS
-    ) {
-      const scores = game.rounds.map((r) => r.score);
-      const total = scores.reduce((a, b) => a + b, 0);
-      saveScore(userId, userName, scores, total, game.difficulty);
-    }
-  }, [
-    game.phase,
-    game.rounds,
-    mode,
-    challengeCode,
-    isAuthenticated,
-    userId,
-    userName,
-    saveScore,
-    game.difficulty,
-    game.TOTAL_ROUNDS,
-  ]);
-
   const shareChallenge = useCallback(() => {
     const url = `${window.location.origin}/games/chroma?c=${challengeCode}`;
     navigator.clipboard.writeText(url).catch(() => {});
   }, [challengeCode]);
 
-  const { phase, difficulty, round, currentTarget, pickerColor, setPickerColor, rounds, onMemorizeComplete, submitGuess, nextRound, TOTAL_ROUNDS } = game;
+  const { phase, round, currentTarget, pickerColor, setPickerColor, rounds, onMemorizeComplete, submitGuess, nextRound, TOTAL_ROUNDS } = game;
+
 
   return (
     <div className="chroma-game">
@@ -133,7 +120,8 @@ export function ChromaGame({ onBack }) {
           {phase === "home" && !showChallengeSetup && (
             <IntroScreen
               key="intro"
-              onStart={challengeFromUrl ? () => startChallenge() : startSolo}
+              onStart={challengeFromUrl ? startChallenge : startSolo}
+              onDaily={startDaily}
               onChallenge={createChallenge}
               onBack={handleBack}
               challengeCode={challengeFromUrl}
@@ -144,7 +132,7 @@ export function ChromaGame({ onBack }) {
             <ChallengeScreen
               key="challenge-setup"
               challengeCode={challengeCode}
-              onStart={() => startChallenge()}
+              onStart={startChallenge}
               onBack={() => {
                 setShowChallengeSetup(false);
                 setChallengeCode(null);
@@ -159,7 +147,6 @@ export function ChromaGame({ onBack }) {
             <MemorizeScreen
               key={`memorize-${round}`}
               targetColor={currentTarget}
-              difficulty={difficulty}
               round={round}
               onComplete={onMemorizeComplete}
             />
@@ -187,7 +174,7 @@ export function ChromaGame({ onBack }) {
             />
           )}
 
-          {phase === "final" && mode === "challenge" && (
+          {phase === "final" && (mode === "challenge" || mode === "daily") && (
             <LeaderboardScreen
               key="leaderboard"
               rounds={rounds}
@@ -195,19 +182,20 @@ export function ChromaGame({ onBack }) {
               leaderboard={leaderboard}
               challengeCode={challengeCode}
               isChallenge={true}
+              isDaily={mode === "daily"}
+              userName={userName}
+              onSaveScore={handleSaveScore}
               onPlayAgain={handlePlayAgain}
               onBack={handleBack}
-              onShare={shareChallenge}
+              onShare={mode === "daily" ? null : shareChallenge}
             />
           )}
 
-          {phase === "final" && mode !== "challenge" && (
+          {phase === "final" && mode === "solo" && (
             <FinalResultsScreen
               key="final"
               rounds={rounds}
-              onPlayAgain={() => {
-                game.resetGame();
-              }}
+              onPlayAgain={() => game.resetGame()}
               onBack={handleBack}
             />
           )}

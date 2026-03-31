@@ -36,7 +36,7 @@ export default function ChallengeScreen({
         <p className="chroma-challenge-setup__desc">
           Share this link with friends.
           <br />
-          Everyone plays the same 5 colors!
+          Everyone plays the same 3 colors!
         </p>
 
         <div className="chroma-challenge-setup__link-box" onClick={handleCopy}>

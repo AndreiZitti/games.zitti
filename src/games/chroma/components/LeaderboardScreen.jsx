@@ -8,20 +8,42 @@ export default function LeaderboardScreen({
   leaderboard,
   challengeCode,
   isChallenge,
+  isDaily,
+  userName,
+  onSaveScore,
   onPlayAgain,
   onBack,
   onShare,
 }) {
   const [copied, setCopied] = useState(false);
+  const [editName, setEditName] = useState(userName || "");
+  const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const handleCopy = () => {
-    onShare();
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (onShare) {
+      onShare();
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
-  // Sort leaderboard by total_score descending
-  const sorted = [...leaderboard].sort((a, b) => b.total_score - a.total_score);
+  const handleSave = async () => {
+    if (!editName.trim() || saving) return;
+    setSaving(true);
+    await onSaveScore(editName.trim());
+    setSaved(true);
+    setSaving(false);
+  };
+
+  const avgScore = Math.round(totalScore / rounds.length);
+
+  // Sort leaderboard by total_score descending, limit to 100
+  const sorted = [...leaderboard]
+    .sort((a, b) => b.total_score - a.total_score)
+    .slice(0, 100);
+
+  const title = isDaily ? "Daily Challenge" : "Challenge";
 
   return (
     <motion.div
@@ -32,12 +54,20 @@ export default function LeaderboardScreen({
       transition={{ duration: 0.35 }}
     >
       <div className="chroma-leaderboard__content">
+        {isDaily && (
+          <div className="chroma-leaderboard__daily-badge">
+            {new Date().toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </div>
+        )}
+
         <div className="chroma-leaderboard__your-score">
           <div className="chroma-leaderboard__label">YOUR SCORE</div>
           <div className="chroma-leaderboard__score-row">
-            <span className="chroma-leaderboard__total">
-              {Math.round(totalScore / rounds.length)}
-            </span>
+            <span className="chroma-leaderboard__total">{avgScore}</span>
             <span className="chroma-leaderboard__max">/ 100</span>
           </div>
         </div>
@@ -57,6 +87,37 @@ export default function LeaderboardScreen({
           ))}
         </div>
 
+        {/* Name entry + save */}
+        {onSaveScore && (
+          <motion.div
+            className="chroma-leaderboard__save-row"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.3 }}
+          >
+            {saved ? (
+              <div className="chroma-leaderboard__saved-msg">Score saved!</div>
+            ) : (
+              <>
+                <input
+                  className="chroma-leaderboard__name-input"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="Your name"
+                  maxLength={32}
+                />
+                <button
+                  className="chroma-btn chroma-btn--primary chroma-leaderboard__save-btn"
+                  onClick={handleSave}
+                  disabled={!editName.trim() || saving}
+                >
+                  {saving ? "Saving…" : "Save Score"}
+                </button>
+              </>
+            )}
+          </motion.div>
+        )}
+
         {isChallenge && sorted.length > 0 && (
           <motion.div
             className="chroma-leaderboard__list"
@@ -64,7 +125,9 @@ export default function LeaderboardScreen({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.4 }}
           >
-            <div className="chroma-leaderboard__list-title">Leaderboard</div>
+            <div className="chroma-leaderboard__list-title">
+              {isDaily ? "Today's Leaderboard" : "Leaderboard"}
+            </div>
             {sorted.map((entry, i) => (
               <div
                 key={entry.player_id}
@@ -84,7 +147,7 @@ export default function LeaderboardScreen({
           </motion.div>
         )}
 
-        {isChallenge && (
+        {onShare && (
           <motion.button
             className="chroma-btn chroma-btn--ghost chroma-share-btn"
             onClick={handleCopy}
@@ -106,11 +169,13 @@ export default function LeaderboardScreen({
             className="chroma-btn chroma-btn--primary"
             onClick={onPlayAgain}
           >
-            Play Again
+            {isDaily ? "Back" : "Play Again"}
           </button>
-          <button className="chroma-btn chroma-btn--ghost" onClick={onBack}>
-            Back
-          </button>
+          {!isDaily && (
+            <button className="chroma-btn chroma-btn--ghost" onClick={onBack}>
+              Back
+            </button>
+          )}
         </motion.div>
       </div>
     </motion.div>

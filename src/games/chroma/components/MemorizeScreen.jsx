@@ -4,12 +4,11 @@ import { hsbToHex } from "../utils/color";
 
 export default function MemorizeScreen({
   targetColor,
-  difficulty,
   round,
   onComplete,
 }) {
   const startCount = 300;
-  const duration = difficulty === "hard" ? 2000 : 5000;
+  const duration = 5000;
   const [count, setCount] = useState(startCount);
   const startRef = useRef(null);
   const rafRef = useRef(null);
@@ -34,7 +33,7 @@ export default function MemorizeScreen({
 
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [duration, onComplete]);
+  }, [onComplete]);
 
   const hex = hsbToHex(...targetColor);
 

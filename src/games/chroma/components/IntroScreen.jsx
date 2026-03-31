@@ -1,9 +1,6 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
 
-export default function IntroScreen({ onStart, onChallenge, onBack, challengeCode }) {
-  const [difficulty, setDifficulty] = useState("easy");
-
+export default function IntroScreen({ onStart, onDaily, onChallenge, onBack, challengeCode }) {
   // If we arrived via a challenge URL, show join UI
   if (challengeCode) {
     return (
@@ -28,28 +25,8 @@ export default function IntroScreen({ onStart, onChallenge, onBack, challengeCod
             Play the same 3 colors and compare scores.
           </p>
 
-          <div className="chroma-difficulty">
-            <button
-              className={`chroma-difficulty__btn ${difficulty === "easy" ? "active" : ""}`}
-              onClick={() => setDifficulty("easy")}
-            >
-              Easy
-              <span className="chroma-difficulty__hint">5s</span>
-            </button>
-            <button
-              className={`chroma-difficulty__btn ${difficulty === "hard" ? "active" : ""}`}
-              onClick={() => setDifficulty("hard")}
-            >
-              Hard
-              <span className="chroma-difficulty__hint">2s</span>
-            </button>
-          </div>
-
           <div className="chroma-intro__actions">
-            <button
-              className="chroma-play-btn"
-              onClick={() => onStart(difficulty)}
-            >
+            <button className="chroma-play-btn" onClick={onStart}>
               <span className="chroma-play-btn__ring" />
               <span className="chroma-play-btn__label">Play</span>
             </button>
@@ -95,35 +72,22 @@ export default function IntroScreen({ onStart, onChallenge, onBack, challengeCod
 
         <p className="chroma-subtitle">3 rounds. How well do you remember colors?</p>
 
-        <div className="chroma-difficulty">
-          <button
-            className={`chroma-difficulty__btn ${difficulty === "easy" ? "active" : ""}`}
-            onClick={() => setDifficulty("easy")}
-          >
-            Easy
-            <span className="chroma-difficulty__hint">5s</span>
-          </button>
-          <button
-            className={`chroma-difficulty__btn ${difficulty === "hard" ? "active" : ""}`}
-            onClick={() => setDifficulty("hard")}
-          >
-            Hard
-            <span className="chroma-difficulty__hint">2s</span>
-          </button>
-        </div>
-
         <div className="chroma-intro__actions">
-          <button
-            className="chroma-play-btn"
-            onClick={() => onStart(difficulty)}
-          >
+          <button className="chroma-play-btn" onClick={onStart}>
             <span className="chroma-play-btn__ring" />
             <span className="chroma-play-btn__label">Play</span>
           </button>
 
           <button
+            className="chroma-btn chroma-btn--daily"
+            onClick={onDaily}
+          >
+            Daily Challenge
+          </button>
+
+          <button
             className="chroma-btn chroma-btn--ghost chroma-challenge-btn"
-            onClick={() => onChallenge(difficulty)}
+            onClick={onChallenge}
           >
             Challenge Friends
           </button>
