@@ -180,6 +180,7 @@ export function ChromaGame({ onBack }) {
               key={`memorize-${round}`}
               targetColor={currentTarget}
               round={round}
+              totalRounds={TOTAL_ROUNDS}
               onComplete={onMemorizeComplete}
             />
           )}

@@ -5,6 +5,7 @@ import { hsbToHex } from "../utils/color";
 export default function MemorizeScreen({
   targetColor,
   round,
+  totalRounds,
   onComplete,
 }) {
   const startCount = 300;
@@ -46,7 +47,7 @@ export default function MemorizeScreen({
       exit={{ opacity: 0 }}
       transition={{ duration: 0.15 }}
     >
-      <div className="chroma-memorize__round">{round}/3</div>
+      <div className="chroma-memorize__round">{round}/{totalRounds}</div>
       <div className="chroma-memorize__hint">
         memorize this color
       </div>
