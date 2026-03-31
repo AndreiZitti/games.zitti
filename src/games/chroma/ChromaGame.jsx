@@ -34,13 +34,6 @@ export function ChromaGame({ onBack }) {
   const { leaderboard, saveScore, fetchLeaderboard } =
     useChromaChallenge(challengeCode);
 
-  // Re-fetch leaderboard when reaching the final screen so friends' scores are fresh
-  useEffect(() => {
-    if (phase === "final" && (mode === "challenge" || mode === "daily")) {
-      fetchLeaderboard();
-    }
-  }, [phase, mode]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const handleSaveScore = useCallback(
     async (displayName) => {
       if (!challengeCode || game.rounds.length !== game.TOTAL_ROUNDS) return;
@@ -118,6 +111,13 @@ export function ChromaGame({ onBack }) {
   }, [challengeCode]);
 
   const { phase, round, currentTarget, pickerColor, setPickerColor, rounds, onMemorizeComplete, submitGuess, nextRound, TOTAL_ROUNDS } = game;
+
+  // Re-fetch leaderboard when reaching final screen so friends' scores are fresh
+  useEffect(() => {
+    if (phase === "final" && (mode === "challenge" || mode === "daily")) {
+      fetchLeaderboard();
+    }
+  }, [phase, mode]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
   return (
