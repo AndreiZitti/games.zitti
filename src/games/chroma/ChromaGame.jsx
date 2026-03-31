@@ -65,6 +65,7 @@ export function ChromaGame({ onBack }) {
     const code = getDailyCode();
     setChallengeCode(code);
     setMode("daily");
+    setShowLeaderboard(false);
     const colors = seededGameColors(code);
     game.startGameWithColors(colors);
   }, [game]);
@@ -111,6 +112,7 @@ export function ChromaGame({ onBack }) {
     game.resetGame();
     setMode(null);
     setShowChallengeSetup(false);
+    setShowLeaderboard(false);
     setChallengeCode(challengeFromUrl || null);
     if (!challengeFromUrl) {
       const url = new URL(window.location.href);

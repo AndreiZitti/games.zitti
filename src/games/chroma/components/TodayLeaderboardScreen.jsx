@@ -36,7 +36,7 @@ export default function TodayLeaderboardScreen({ onBack, onPlayDaily }) {
       <div className="chroma-leaderboard__content">
         <div className="chroma-leaderboard__daily-badge">{date}</div>
 
-        <div className="chroma-leaderboard__list-title" style={{ fontSize: 18, marginBottom: 4 }}>
+        <div className="chroma-leaderboard__list-title">
           Today&apos;s Leaderboard
         </div>
 
@@ -51,7 +51,7 @@ export default function TodayLeaderboardScreen({ onBack, onPlayDaily }) {
         )}
 
         {!loading && sorted.length > 0 && (
-          <div className="chroma-leaderboard__list" style={{ marginTop: 8 }}>
+          <div className="chroma-leaderboard__list">
             {sorted.map((entry, i) => (
               <div
                 key={entry.player_id}
@@ -69,7 +69,6 @@ export default function TodayLeaderboardScreen({ onBack, onPlayDaily }) {
 
         <motion.button
           className="chroma-btn chroma-btn--primary"
-          style={{ marginTop: 20 }}
           onClick={onPlayDaily}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
