@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-export default function IntroScreen({ onStart, onDaily, onChallenge, onBack, challengeCode }) {
+export default function IntroScreen({ onStart, onQuick, onDaily, onChallenge, onLeaderboard, onBack, challengeCode }) {
   // If we arrived via a challenge URL, show join UI
   if (challengeCode) {
     return (
@@ -78,19 +78,23 @@ export default function IntroScreen({ onStart, onDaily, onChallenge, onBack, cha
             <span className="chroma-play-btn__label">Play</span>
           </button>
 
-          <button
-            className="chroma-btn chroma-btn--daily"
-            onClick={onDaily}
-          >
-            Daily Challenge
-          </button>
+          <div className="chroma-intro__row">
+            <button className="chroma-btn chroma-btn--ghost chroma-btn--quick" onClick={onQuick}>
+              Quick
+            </button>
+            <button className="chroma-btn chroma-btn--daily" onClick={onDaily}>
+              Daily Challenge
+            </button>
+          </div>
 
-          <button
-            className="chroma-btn chroma-btn--ghost chroma-challenge-btn"
-            onClick={onChallenge}
-          >
-            Challenge Friends
-          </button>
+          <div className="chroma-intro__row">
+            <button className="chroma-btn chroma-btn--ghost chroma-challenge-btn" onClick={onChallenge}>
+              Challenge Friends
+            </button>
+            <button className="chroma-btn chroma-btn--ghost" onClick={onLeaderboard}>
+              Leaderboard
+            </button>
+          </div>
         </div>
       </div>
     </motion.div>

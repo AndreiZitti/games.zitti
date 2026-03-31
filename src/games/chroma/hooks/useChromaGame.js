@@ -2,20 +2,22 @@ import { useState, useCallback } from "react";
 import { generateGameColors, initialPickerHsb } from "../utils/colorGen";
 import { calculateScore } from "../utils/color";
 
-const TOTAL_ROUNDS = 3;
-
 export default function useChromaGame() {
   const [phase, setPhase] = useState("home");
   const [round, setRound] = useState(1);
   const [targetColors, setTargetColors] = useState([]);
   const [pickerColor, setPickerColor] = useState([180, 50, 50]);
   const [rounds, setRounds] = useState([]);
+  const [totalRounds, setTotalRounds] = useState(3);
+
+  const TOTAL_ROUNDS = totalRounds;
 
   const currentTarget = targetColors[round - 1] || [0, 50, 50];
 
   const startGame = useCallback(() => {
     const colors = generateGameColors();
     setTargetColors(colors);
+    setTotalRounds(colors.length);
     setRound(1);
     setRounds([]);
     setPickerColor(initialPickerHsb(colors[0]));
@@ -24,6 +26,7 @@ export default function useChromaGame() {
 
   const startGameWithColors = useCallback((colors) => {
     setTargetColors(colors);
+    setTotalRounds(colors.length);
     setRound(1);
     setRounds([]);
     setPickerColor(initialPickerHsb(colors[0]));
@@ -57,6 +60,7 @@ export default function useChromaGame() {
   const resetGame = useCallback(() => {
     setPhase("home");
     setRound(1);
+    setTotalRounds(3);
     setTargetColors([]);
     setRounds([]);
     setPickerColor([180, 50, 50]);

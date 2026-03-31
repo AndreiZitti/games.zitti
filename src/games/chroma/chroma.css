@@ -152,6 +152,22 @@
   margin-bottom: 18px;
 }
 
+/* Two-button row */
+.chroma-intro__row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.chroma-intro__row .chroma-btn {
+  flex: 1;
+}
+
+/* Quick button */
+.chroma-btn--quick {
+  color: rgba(255, 255, 255, 0.6);
+}
+
 /* Daily button */
 .chroma-btn--daily {
   background: rgba(255, 255, 255, 0.06);

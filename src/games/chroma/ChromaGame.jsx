@@ -14,6 +14,7 @@ import PickerScreen from "./components/PickerScreen";
 import RoundResultScreen from "./components/RoundResultScreen";
 import FinalResultsScreen from "./components/FinalResultsScreen";
 import LeaderboardScreen from "./components/LeaderboardScreen";
+import TodayLeaderboardScreen from "./components/TodayLeaderboardScreen";
 import "./chroma.css";
 
 function getDailyCode() {
@@ -27,8 +28,9 @@ export function ChromaGame({ onBack }) {
   const { id: userId, name: userName } = useUser();
 
   const [challengeCode, setChallengeCode] = useState(challengeFromUrl || null);
-  const [mode, setMode] = useState(challengeFromUrl ? "challenge" : null); // null | "solo" | "challenge" | "daily"
+  const [mode, setMode] = useState(challengeFromUrl ? "challenge" : null); // null | "solo" | "quick" | "challenge" | "daily"
   const [showChallengeSetup, setShowChallengeSetup] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   const game = useChromaGame();
   const { leaderboard, saveScore, fetchLeaderboard } =
@@ -47,6 +49,16 @@ export function ChromaGame({ onBack }) {
   const startSolo = useCallback(() => {
     setMode("solo");
     game.startGame();
+  }, [game]);
+
+  const startQuick = useCallback(() => {
+    setMode("quick");
+    const color = [
+      Math.floor(Math.random() * 360),
+      15 + Math.floor(Math.random() * 86),
+      15 + Math.floor(Math.random() * 86),
+    ];
+    game.startGameWithColors([color]);
   }, [game]);
 
   const startDaily = useCallback(() => {
@@ -76,10 +88,13 @@ export function ChromaGame({ onBack }) {
 
   const handlePlayAgain = useCallback(() => {
     if (mode === "daily") {
-      // Daily is once per day — go back to intro
       game.resetGame();
       setMode(null);
       setChallengeCode(null);
+      return;
+    }
+    if (mode === "quick") {
+      startQuick();
       return;
     }
     if (mode === "challenge") {
@@ -124,14 +139,24 @@ export function ChromaGame({ onBack }) {
     <div className="chroma-game">
       <div className="chroma-card">
         <AnimatePresence mode="wait">
-          {phase === "home" && !showChallengeSetup && (
+          {phase === "home" && !showChallengeSetup && !showLeaderboard && (
             <IntroScreen
               key="intro"
               onStart={challengeFromUrl ? startChallenge : startSolo}
+              onQuick={startQuick}
               onDaily={startDaily}
               onChallenge={createChallenge}
+              onLeaderboard={() => setShowLeaderboard(true)}
               onBack={handleBack}
               challengeCode={challengeFromUrl}
+            />
+          )}
+
+          {phase === "home" && showLeaderboard && (
+            <TodayLeaderboardScreen
+              key="today-leaderboard"
+              onBack={() => setShowLeaderboard(false)}
+              onPlayDaily={startDaily}
             />
           )}
 
@@ -198,11 +223,11 @@ export function ChromaGame({ onBack }) {
             />
           )}
 
-          {phase === "final" && mode === "solo" && (
+          {phase === "final" && (mode === "solo" || mode === "quick") && (
             <FinalResultsScreen
               key="final"
               rounds={rounds}
-              onPlayAgain={() => game.resetGame()}
+              onPlayAgain={mode === "quick" ? startQuick : () => game.resetGame()}
               onBack={handleBack}
             />
           )}
