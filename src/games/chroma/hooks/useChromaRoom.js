@@ -50,11 +50,12 @@ export default function useChromaChallenge(challengeCode) {
   }, [fetchLeaderboard]);
 
   // Save score (upsert — update if player already played this challenge)
+  // Returns true on success, false on failure
   const saveScore = useCallback(
     async (userId, userName, scores, totalScore, difficulty) => {
-      if (!challengeCode || !userId) return;
+      if (!challengeCode || !userId) return false;
 
-      await supabaseGames.from(TABLE).upsert(
+      const { error } = await supabaseGames.from(TABLE).upsert(
         {
           challenge_code: challengeCode,
           player_id: userId,
@@ -66,8 +67,13 @@ export default function useChromaChallenge(challengeCode) {
         { onConflict: "challenge_code,player_id" }
       );
 
-      // Refresh leaderboard
+      if (error) {
+        console.error("Chroma: failed to save score", error);
+        return false;
+      }
+
       await fetchLeaderboard();
+      return true;
     },
     [challengeCode, fetchLeaderboard]
   );

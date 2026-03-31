@@ -19,6 +19,7 @@ export default function LeaderboardScreen({
   const [editName, setEditName] = useState(userName || "");
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
 
   const handleCopy = () => {
     if (onShare) {
@@ -31,8 +32,13 @@ export default function LeaderboardScreen({
   const handleSave = async () => {
     if (!editName.trim() || saving) return;
     setSaving(true);
-    await onSaveScore(editName.trim());
-    setSaved(true);
+    setSaveError(false);
+    const ok = await onSaveScore(editName.trim());
+    if (ok) {
+      setSaved(true);
+    } else {
+      setSaveError(true);
+    }
     setSaving(false);
   };
 
@@ -97,6 +103,14 @@ export default function LeaderboardScreen({
           >
             {saved ? (
               <div className="chroma-leaderboard__saved-msg">Score saved!</div>
+            ) : saveError ? (
+              <div className="chroma-leaderboard__save-row">
+                <span className="chroma-leaderboard__saved-msg" style={{color:'rgba(255,100,100,0.8)'}}>Save failed — try again</span>
+                <button
+                  className="chroma-btn chroma-btn--primary chroma-leaderboard__save-btn"
+                  onClick={handleSave}
+                >Retry</button>
+              </div>
             ) : (
               <>
                 <input
