@@ -78,15 +78,9 @@ export function CodenamesGame({ onBack }) {
   }
 
   // Handle leaving
-  const handleLeave = () => {
-    leaveRoom()
-    setScreen('home')
-  }
-
-  // Handle back to game hub
-  const handleBackToHub = () => {
-    leaveRoom()
-    onBack()
+  const handleLeave = async () => {
+    const left = await leaveRoom()
+    if (left) setScreen('home')
   }
 
   // Home screen
@@ -205,6 +199,7 @@ export function CodenamesGame({ onBack }) {
             onGiveClue={giveClue}
             onLeave={handleLeave}
             getCardType={getCardType}
+            error={error}
           />
         )
       }
@@ -222,6 +217,7 @@ export function CodenamesGame({ onBack }) {
           onEndGuessing={endGuessing}
           onLeave={handleLeave}
           getCardType={getCardType}
+          error={error}
         />
       )
     }
@@ -238,6 +234,7 @@ export function CodenamesGame({ onBack }) {
           onPlayAgain={playAgain}
           onLeave={handleLeave}
           getCardType={getCardType}
+          error={error}
         />
       )
     }

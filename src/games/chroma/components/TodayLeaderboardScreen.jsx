@@ -1,23 +1,16 @@
 import { motion } from "framer-motion";
 import useChromaChallenge from "../hooks/useChromaRoom";
-
-function getDailyCode() {
-  const today = new Date().toISOString().split("T")[0];
-  return `daily-${today}`;
-}
+import { formatDailyChallengeDate, getDailyChallengeCode } from "../utils/daily";
 
 export default function TodayLeaderboardScreen({ onBack, onPlayDaily }) {
-  const { leaderboard, loading } = useChromaChallenge(getDailyCode());
+  const dailyCode = getDailyChallengeCode();
+  const { leaderboard, loading, error } = useChromaChallenge(dailyCode);
 
   const sorted = [...leaderboard]
     .sort((a, b) => b.total_score - a.total_score)
-    .slice(0, 100);
+    .slice(0, 3);
 
-  const date = new Date().toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  const date = formatDailyChallengeDate(dailyCode);
 
   return (
     <motion.div
@@ -34,19 +27,25 @@ export default function TodayLeaderboardScreen({ onBack, onPlayDaily }) {
       </button>
 
       <div className="chroma-leaderboard__content">
-        <div className="chroma-leaderboard__daily-badge">{date}</div>
+        <div className="chroma-leaderboard__daily-badge">{date} · UTC</div>
 
         <div className="chroma-leaderboard__list-title">
-          Today&apos;s Leaderboard
+          Global Daily Top 3
         </div>
 
         {loading && (
           <div className="chroma-leaderboard__saved-msg">Loading…</div>
         )}
 
-        {!loading && sorted.length === 0 && (
+        {!loading && !error && sorted.length === 0 && (
           <div className="chroma-leaderboard__saved-msg">
             No scores yet today. Be the first!
+          </div>
+        )}
+
+        {error && (
+          <div className="chroma-leaderboard__saved-msg chroma-leaderboard__saved-msg--error">
+            Could not load today&apos;s leaderboard.
           </div>
         )}
 
@@ -57,7 +56,7 @@ export default function TodayLeaderboardScreen({ onBack, onPlayDaily }) {
                 key={entry.player_id}
                 className={`chroma-leaderboard__entry ${i === 0 ? "chroma-leaderboard__entry--first" : ""}`}
               >
-                <span className="chroma-leaderboard__rank">{i + 1}</span>
+                <span className="chroma-leaderboard__rank">{["🥇", "🥈", "🥉"][i]}</span>
                 <span className="chroma-leaderboard__name">{entry.player_name}</span>
                 <span className="chroma-leaderboard__entry-score">
                   {Math.round(entry.total_score / (entry.scores?.length || 1))}

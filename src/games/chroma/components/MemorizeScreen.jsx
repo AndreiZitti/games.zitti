@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { hsbToHex } from "../utils/color";
+import IconicColorFrame from "./IconicColorFrame";
 
 export default function MemorizeScreen({
   targetColor,
   round,
   totalRounds,
   onComplete,
+  subject,
 }) {
   const startCount = 300;
   const duration = 5000;
@@ -40,16 +42,17 @@ export default function MemorizeScreen({
 
   return (
     <motion.div
-      className="chroma-screen chroma-memorize"
-      style={{ backgroundColor: hex }}
+      className={`chroma-screen chroma-memorize${subject ? " chroma-memorize--iconic" : ""}`}
+      style={subject ? undefined : { backgroundColor: hex }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.15 }}
     >
       <div className="chroma-memorize__round">{round}/{totalRounds}</div>
+      {subject && <IconicColorFrame subject={subject} original />}
       <div className="chroma-memorize__hint">
-        memorize this color
+        {subject ? `memorize ${subject.targetLabel}` : "memorize this color"}
       </div>
       <div className="chroma-memorize__timer">
         {String(count).length > 1 ? (

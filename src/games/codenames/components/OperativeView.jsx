@@ -11,7 +11,8 @@ export function OperativeView({
   onRevealCard,
   onEndGuessing,
   onLeave,
-  getCardType
+  getCardType,
+  error
 }) {
   const [selectedCard, setSelectedCard] = useState(null)
 
@@ -136,6 +137,8 @@ export function OperativeView({
           </p>
         </div>
       )}
+
+      {error && <p className="error" role="alert">{error}</p>}
 
       <div className="team-panels">
         <div className="team-panel red">

@@ -1,11 +1,16 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import ColorSwatch from "./ColorSwatch";
+import { formatDailyChallengeDate } from "../utils/daily";
+import { qualifiesForDailyTopThree } from "../utils/leaderboard";
 
 export default function LeaderboardScreen({
   rounds,
   totalScore,
   leaderboard,
+  leaderboardLoading,
+  leaderboardReady,
+  leaderboardError,
   challengeCode,
   isChallenge,
   isDaily,
@@ -20,6 +25,7 @@ export default function LeaderboardScreen({
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
+  const autoSaveAttempted = useRef(false);
 
   const handleCopy = () => {
     if (onShare) {
@@ -31,6 +37,7 @@ export default function LeaderboardScreen({
 
   const handleSave = async () => {
     if (!editName.trim() || saving) return;
+    autoSaveAttempted.current = true;
     setSaving(true);
     setSaveError(false);
     const ok = await onSaveScore(editName.trim());
@@ -44,12 +51,37 @@ export default function LeaderboardScreen({
 
   const avgScore = Math.round(totalScore / rounds.length);
 
-  // Sort leaderboard by total_score descending, limit to 100
   const sorted = [...leaderboard]
     .sort((a, b) => b.total_score - a.total_score)
-    .slice(0, 100);
+    .slice(0, isDaily ? 3 : 100);
+  const hasPlayerName = Boolean(userName?.trim());
+  const isUnnamedDailyPlayer = isDaily && !hasPlayerName;
+  const guestQualifies =
+    isUnnamedDailyPlayer &&
+    leaderboardReady &&
+    !leaderboardLoading &&
+    !leaderboardError &&
+    qualifiesForDailyTopThree(totalScore, sorted);
 
-  const title = isDaily ? "Daily Challenge" : "Challenge";
+  useEffect(() => {
+    if (!isDaily || !userName?.trim() || autoSaveAttempted.current) return;
+
+    autoSaveAttempted.current = true;
+    let active = true;
+    setSaving(true);
+    setSaveError(false);
+
+    onSaveScore(userName.trim()).then((ok) => {
+      if (!active) return;
+      setSaved(ok);
+      setSaveError(!ok);
+      setSaving(false);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [isDaily, onSaveScore, userName]);
 
   return (
     <motion.div
@@ -62,11 +94,7 @@ export default function LeaderboardScreen({
       <div className="chroma-leaderboard__content">
         {isDaily && (
           <div className="chroma-leaderboard__daily-badge">
-            {new Date().toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
+            {formatDailyChallengeDate(challengeCode)} · UTC
           </div>
         )}
 
@@ -75,6 +103,9 @@ export default function LeaderboardScreen({
           <div className="chroma-leaderboard__score-row">
             <span className="chroma-leaderboard__total">{avgScore}</span>
             <span className="chroma-leaderboard__max">/ 100</span>
+          </div>
+          <div className="chroma-leaderboard__scoring-note">
+            Perceptual match score · CIEDE2000
           </div>
         </div>
 
@@ -93,44 +124,70 @@ export default function LeaderboardScreen({
           ))}
         </div>
 
-        {/* Name entry + save */}
-        {onSaveScore && (
+        {/* Named daily players save automatically. Guests are only asked for
+            a first name when they strictly qualify for the Top 3. */}
+        {onSaveScore && (!isUnnamedDailyPlayer || guestQualifies) && (
           <motion.div
-            className="chroma-leaderboard__save-row"
+            className={`chroma-leaderboard__save-row ${
+              guestQualifies ? "chroma-leaderboard__save-row--qualified" : ""
+            }`}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.3 }}
           >
             {saved ? (
-              <div className="chroma-leaderboard__saved-msg">Score saved!</div>
+              <div className="chroma-leaderboard__saved-msg">Best score saved!</div>
             ) : saveError ? (
-              <div className="chroma-leaderboard__save-row">
-                <span className="chroma-leaderboard__saved-msg" style={{color:'rgba(255,100,100,0.8)'}}>Save failed — try again</span>
+              <>
+                <span className="chroma-leaderboard__saved-msg chroma-leaderboard__saved-msg--error">
+                  Save failed — try again
+                </span>
                 <button
                   className="chroma-btn chroma-btn--primary chroma-leaderboard__save-btn"
                   onClick={handleSave}
                 >Retry</button>
+              </>
+            ) : isDaily && hasPlayerName ? (
+              <div className="chroma-leaderboard__saved-msg">
+                Saving your best score…
               </div>
             ) : (
               <>
-                <input
-                  className="chroma-leaderboard__name-input"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  placeholder="Your name"
-                  maxLength={32}
-                />
-                <button
-                  className="chroma-btn chroma-btn--primary chroma-leaderboard__save-btn"
-                  onClick={handleSave}
-                  disabled={!editName.trim() || saving}
-                >
-                  {saving ? "Saving…" : "Save Score"}
-                </button>
+                {guestQualifies && (
+                  <div className="chroma-leaderboard__qualification-msg">
+                    You made today’s Top 3! Add your first name to join it.
+                  </div>
+                )}
+                <div className="chroma-leaderboard__save-fields">
+                  <input
+                    className="chroma-leaderboard__name-input"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    placeholder={guestQualifies ? "First name" : "Your name"}
+                    aria-label={guestQualifies ? "First name" : "Your name"}
+                    autoComplete="given-name"
+                    maxLength={32}
+                  />
+                  <button
+                    className="chroma-btn chroma-btn--primary chroma-leaderboard__save-btn"
+                    onClick={handleSave}
+                    disabled={!editName.trim() || saving}
+                  >
+                    {saving ? "Saving…" : guestQualifies ? "Join Top 3" : "Save Score"}
+                  </button>
+                </div>
               </>
             )}
           </motion.div>
         )}
+
+        {isUnnamedDailyPlayer &&
+          !leaderboardError &&
+          (!leaderboardReady || leaderboardLoading) && (
+            <div className="chroma-leaderboard__saved-msg">
+              Checking today’s Top 3…
+            </div>
+          )}
 
         {isChallenge && sorted.length > 0 && (
           <motion.div
@@ -140,7 +197,7 @@ export default function LeaderboardScreen({
             transition={{ delay: 0.3, duration: 0.4 }}
           >
             <div className="chroma-leaderboard__list-title">
-              {isDaily ? "Today's Leaderboard" : "Leaderboard"}
+              {isDaily ? "Global Daily Top 3" : "Leaderboard"}
             </div>
             {sorted.map((entry, i) => (
               <div
@@ -149,7 +206,9 @@ export default function LeaderboardScreen({
                   i === 0 ? "chroma-leaderboard__entry--first" : ""
                 }`}
               >
-                <span className="chroma-leaderboard__rank">{i + 1}</span>
+                <span className="chroma-leaderboard__rank">
+                  {isDaily ? ["🥇", "🥈", "🥉"][i] : i + 1}
+                </span>
                 <span className="chroma-leaderboard__name">
                   {entry.player_name}
                 </span>
@@ -159,6 +218,22 @@ export default function LeaderboardScreen({
               </div>
             ))}
           </motion.div>
+        )}
+
+        {isDaily &&
+          !saving &&
+          !leaderboardError &&
+          !guestQualifies &&
+          sorted.length === 0 && (
+          <div className="chroma-leaderboard__saved-msg">
+            No scores yet today. Yours can be first.
+          </div>
+        )}
+
+        {leaderboardError && (
+          <div className="chroma-leaderboard__saved-msg chroma-leaderboard__saved-msg--error">
+            Leaderboard unavailable. Your score was not lost locally.
+          </div>
         )}
 
         {onShare && (

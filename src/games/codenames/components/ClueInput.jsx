@@ -1,22 +1,36 @@
 import { useState } from 'react'
+import { validateClue } from '../utils/clues'
 
-export function ClueInput({ onSubmit, disabled }) {
+export function ClueInput({ onSubmit, disabled, board, revealedCards }) {
   const [word, setWord] = useState('')
   const [number, setNumber] = useState('')
+  const [submitError, setSubmitError] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleSubmit = (e) => {
+  const clueValidation = validateClue(word, board, revealedCards)
+  const parsedNumber = Number(number)
+  const isNumberValid = number !== '' && Number.isInteger(parsedNumber) && parsedNumber >= 0 && parsedNumber <= 9
+  const isValid = clueValidation.valid && isNumberValid
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (word.trim() && number !== '') {
-      onSubmit(word.trim(), parseInt(number, 10))
-      setWord('')
-      setNumber('')
+    if (!isValid || submitting) return
+
+    setSubmitting(true)
+    setSubmitError(null)
+
+    try {
+      const submitted = await onSubmit(word.trim(), parsedNumber)
+      if (submitted !== false) {
+        setWord('')
+        setNumber('')
+      }
+    } catch (error) {
+      setSubmitError(error.message || 'Could not submit that clue.')
+    } finally {
+      setSubmitting(false)
     }
   }
-
-  const isValid = word.trim().length > 0 &&
-                  !word.includes(' ') &&
-                  number !== '' &&
-                  parseInt(number, 10) >= 0
 
   return (
     <form className="clue-input" onSubmit={handleSubmit}>
@@ -27,14 +41,14 @@ export function ClueInput({ onSubmit, disabled }) {
           onChange={(e) => setWord(e.target.value.toUpperCase())}
           placeholder="ONE WORD CLUE"
           className="clue-word-input"
-          disabled={disabled}
+          disabled={disabled || submitting}
           autoFocus
         />
         <select
           value={number}
           onChange={(e) => setNumber(e.target.value)}
           className="clue-number-input"
-          disabled={disabled}
+          disabled={disabled || submitting}
         >
           <option value="">##</option>
           <option value="0">∞</option>
@@ -47,13 +61,18 @@ export function ClueInput({ onSubmit, disabled }) {
       <button
         type="submit"
         className="btn btn-primary"
-        disabled={disabled || !isValid}
+        disabled={disabled || submitting || !isValid}
       >
-        Give Clue
+        {submitting ? 'Sending…' : 'Give Clue'}
       </button>
 
+      {word && !clueValidation.valid && (
+        <p className="clue-error" role="alert">{clueValidation.error}</p>
+      )}
+      {submitError && <p className="clue-error" role="alert">{submitError}</p>}
+
       <p className="clue-hint">
-        One word only, no numbers or parts of board words
+        One word only; it cannot be a visible board word or part of one
       </p>
     </form>
   )

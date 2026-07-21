@@ -10,7 +10,8 @@ export function SpymasterView({
   blueTeam,
   onGiveClue,
   onLeave,
-  getCardType
+  getCardType,
+  error
 }) {
   const redSpymaster = redTeam.find(p => p.id === room.red_spymaster)
   const blueSpymaster = blueTeam.find(p => p.id === room.blue_spymaster)
@@ -80,7 +81,12 @@ export function SpymasterView({
       {isGivingClue && (
         <div className="clue-section">
           <h3>Give your team a clue</h3>
-          <ClueInput onSubmit={onGiveClue} disabled={false} />
+          <ClueInput
+            onSubmit={onGiveClue}
+            disabled={false}
+            board={room.board}
+            revealedCards={room.revealed_cards}
+          />
         </div>
       )}
 
@@ -102,6 +108,8 @@ export function SpymasterView({
           </p>
         </div>
       )}
+
+      {error && <p className="error" role="alert">{error}</p>}
 
       <div className="team-panels">
         <div className="team-panel red">
