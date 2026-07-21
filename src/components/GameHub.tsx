@@ -31,14 +31,6 @@ const games: Item[] = [
     href: "/games/like-minded",
   },
   {
-    id: "quirtle",
-    name: "Quirtle",
-    description: "Match colors and shapes in this tile-laying strategy game.",
-    available: true,
-    accent: "#10b981",
-    href: "/games/quirtle",
-  },
-  {
     id: "secret-hitler",
     name: "Secret Hitler",
     description: "A social deduction game of political intrigue.",
@@ -53,14 +45,6 @@ const games: Item[] = [
     available: true,
     accent: "#2563eb",
     href: "/games/codenames",
-  },
-  {
-    id: "quiz",
-    name: "Quiz",
-    description: "Race to answer trivia! Fastest correct wins the most points.",
-    available: true,
-    accent: "#eab308",
-    href: "/games/quiz",
   },
   {
     id: "chroma",

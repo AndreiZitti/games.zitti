@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { generateGameColors, initialPickerHsb } from "../utils/colorGen";
-import { calculateScore } from "../utils/color";
+import { calculateScoreDetails } from "../utils/color";
 
 export default function useChromaGame() {
   const [phase, setPhase] = useState("home");
@@ -38,10 +38,10 @@ export default function useChromaGame() {
   }, []);
 
   const submitGuess = useCallback(() => {
-    const score = calculateScore(currentTarget, pickerColor);
+    const { score, distance } = calculateScoreDetails(currentTarget, pickerColor);
     setRounds((prev) => [
       ...prev,
-      { target: currentTarget, guess: [...pickerColor], score },
+      { target: currentTarget, guess: [...pickerColor], score, distance },
     ]);
     setPhase("result");
   }, [currentTarget, pickerColor]);

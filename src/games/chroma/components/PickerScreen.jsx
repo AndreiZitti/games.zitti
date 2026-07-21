@@ -1,12 +1,15 @@
 import { motion } from "framer-motion";
 import HsbSlider from "./HsbSlider";
 import { hsbToHex } from "../utils/color";
+import IconicColorFrame from "./IconicColorFrame";
 
 export default function PickerScreen({
   pickerColor,
   onPickerChange,
   round,
+  totalRounds,
   onSubmit,
+  subject,
 }) {
   const [h, s, b] = pickerColor;
   const previewHex = hsbToHex(h, s, b);
@@ -19,14 +22,16 @@ export default function PickerScreen({
 
   return (
     <motion.div
-      className="chroma-screen chroma-picker"
-      style={{ backgroundColor: previewHex }}
+      className={`chroma-screen chroma-picker${subject ? " chroma-picker--iconic" : ""}`}
+      style={subject ? undefined : { backgroundColor: previewHex }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
     >
-      <div className="chroma-picker__round">{round}/3</div>
+      <div className="chroma-picker__round">{round}/{totalRounds}</div>
+
+      {subject && <IconicColorFrame subject={subject} color={pickerColor} />}
 
       <motion.div
         className="chroma-picker__hint"
@@ -34,7 +39,7 @@ export default function PickerScreen({
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6, duration: 0.4 }}
       >
-        drag the sliders to recreate it
+        {subject ? `recolor ${subject.targetLabel}` : "drag the sliders to recreate it"}
       </motion.div>
 
       <motion.div

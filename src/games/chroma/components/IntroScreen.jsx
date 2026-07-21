@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-export default function IntroScreen({ onStart, onQuick, onDaily, onChallenge, onLeaderboard, onBack, challengeCode }) {
+export default function IntroScreen({ onStart, onQuick, onIconic, onDaily, onChallenge, onLeaderboard, onBack, challengeCode }) {
   // If we arrived via a challenge URL, show join UI
   if (challengeCode) {
     return (
@@ -86,6 +86,10 @@ export default function IntroScreen({ onStart, onQuick, onDaily, onChallenge, on
               Daily Challenge
             </button>
           </div>
+
+          <button className="chroma-btn chroma-btn--iconic" onClick={onIconic}>
+            <span>📺</span> Iconic Colors
+          </button>
 
           <div className="chroma-intro__row">
             <button className="chroma-btn chroma-btn--ghost chroma-challenge-btn" onClick={onChallenge}>

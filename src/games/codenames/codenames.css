@@ -725,6 +725,13 @@
   margin-top: 8px;
 }
 
+.clue-error {
+  margin: 0;
+  color: #f87171;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
 /* ============================================
    GUESS ACTIONS
    ============================================ */

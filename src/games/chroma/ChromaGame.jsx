@@ -3,10 +3,7 @@ import { AnimatePresence } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
 import useChromaGame from "./hooks/useChromaGame";
-import useChromaChallenge, {
-  seededGameColors,
-  generateChallengeCode,
-} from "./hooks/useChromaRoom";
+import useChromaChallenge, { generateChallengeCode } from "./hooks/useChromaRoom";
 import IntroScreen from "./components/IntroScreen";
 import ChallengeScreen from "./components/ChallengeScreen";
 import MemorizeScreen from "./components/MemorizeScreen";
@@ -15,35 +12,41 @@ import RoundResultScreen from "./components/RoundResultScreen";
 import FinalResultsScreen from "./components/FinalResultsScreen";
 import LeaderboardScreen from "./components/LeaderboardScreen";
 import TodayLeaderboardScreen from "./components/TodayLeaderboardScreen";
+import { getDailyChallengeCode, seededGameColors } from "./utils/daily";
+import { shuffledIconicSubjects } from "./data/iconicSubjects";
 import "./chroma.css";
-
-function getDailyCode() {
-  const today = new Date().toISOString().split("T")[0];
-  return `daily-${today}`;
-}
 
 export function ChromaGame({ onBack }) {
   const searchParams = useSearchParams();
   const challengeFromUrl = searchParams.get("c");
-  const { id: userId, name: userName } = useUser();
+  const { profile, updateName } = useUser();
+  const userId = profile.id;
+  const userName = profile.name;
 
   const [challengeCode, setChallengeCode] = useState(challengeFromUrl || null);
-  const [mode, setMode] = useState(challengeFromUrl ? "challenge" : null); // null | "solo" | "quick" | "challenge" | "daily"
+  const [mode, setMode] = useState(challengeFromUrl ? "challenge" : null); // null | "solo" | "quick" | "iconic" | "challenge" | "daily"
+  const [iconicSubjects, setIconicSubjects] = useState([]);
   const [showChallengeSetup, setShowChallengeSetup] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   const game = useChromaGame();
-  const { leaderboard, saveScore, fetchLeaderboard } =
-    useChromaChallenge(challengeCode);
+  const {
+    leaderboard,
+    loading: leaderboardLoading,
+    hasFetched: leaderboardReady,
+    error: leaderboardError,
+    saveScore,
+    fetchLeaderboard,
+  } = useChromaChallenge(challengeCode);
 
   const handleSaveScore = useCallback(
     async (displayName) => {
       if (!challengeCode || game.rounds.length !== game.TOTAL_ROUNDS) return;
-      const scores = game.rounds.map((r) => r.score);
-      const total = scores.reduce((a, b) => a + b, 0);
-      await saveScore(userId, displayName, scores, total, "easy");
+      const saved = await saveScore(userId, displayName, game.rounds, "standard");
+      if (saved) updateName(displayName);
+      return saved;
     },
-    [challengeCode, game.rounds, game.TOTAL_ROUNDS, saveScore, userId]
+    [challengeCode, game.rounds, game.TOTAL_ROUNDS, saveScore, userId, updateName]
   );
 
   const startSolo = useCallback(() => {
@@ -61,8 +64,15 @@ export function ChromaGame({ onBack }) {
     game.startGameWithColors([color]);
   }, [game]);
 
+  const startIconic = useCallback(() => {
+    const subjects = shuffledIconicSubjects();
+    setMode("iconic");
+    setIconicSubjects(subjects);
+    game.startGameWithColors(subjects.map((subject) => subject.targetHsb));
+  }, [game]);
+
   const startDaily = useCallback(() => {
-    const code = getDailyCode();
+    const code = getDailyChallengeCode();
     setChallengeCode(code);
     setMode("daily");
     setShowLeaderboard(false);
@@ -98,6 +108,10 @@ export function ChromaGame({ onBack }) {
       startQuick();
       return;
     }
+    if (mode === "iconic") {
+      startIconic();
+      return;
+    }
     if (mode === "challenge") {
       const code = generateChallengeCode();
       setChallengeCode(code);
@@ -113,6 +127,7 @@ export function ChromaGame({ onBack }) {
     setMode(null);
     setShowChallengeSetup(false);
     setShowLeaderboard(false);
+    setIconicSubjects([]);
     setChallengeCode(challengeFromUrl || null);
     if (!challengeFromUrl) {
       const url = new URL(window.location.href);
@@ -128,13 +143,14 @@ export function ChromaGame({ onBack }) {
   }, [challengeCode]);
 
   const { phase, round, currentTarget, pickerColor, setPickerColor, rounds, onMemorizeComplete, submitGuess, nextRound, TOTAL_ROUNDS } = game;
+  const currentIconicSubject = mode === "iconic" ? iconicSubjects[round - 1] : null;
 
   // Re-fetch leaderboard when reaching final screen so friends' scores are fresh
   useEffect(() => {
     if (phase === "final" && (mode === "challenge" || mode === "daily")) {
       fetchLeaderboard();
     }
-  }, [phase, mode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [phase, mode, fetchLeaderboard]);
 
 
   return (
@@ -146,6 +162,7 @@ export function ChromaGame({ onBack }) {
               key="intro"
               onStart={challengeFromUrl ? startChallenge : startSolo}
               onQuick={startQuick}
+              onIconic={startIconic}
               onDaily={startDaily}
               onChallenge={createChallenge}
               onLeaderboard={() => setShowLeaderboard(true)}
@@ -184,6 +201,7 @@ export function ChromaGame({ onBack }) {
               round={round}
               totalRounds={TOTAL_ROUNDS}
               onComplete={onMemorizeComplete}
+              subject={currentIconicSubject}
             />
           )}
 
@@ -193,7 +211,9 @@ export function ChromaGame({ onBack }) {
               pickerColor={pickerColor}
               onPickerChange={setPickerColor}
               round={round}
+              totalRounds={TOTAL_ROUNDS}
               onSubmit={submitGuess}
+              subject={currentIconicSubject}
             />
           )}
 
@@ -203,9 +223,12 @@ export function ChromaGame({ onBack }) {
               target={rounds[rounds.length - 1]?.target}
               guess={rounds[rounds.length - 1]?.guess}
               score={rounds[rounds.length - 1]?.score || 0}
+              distance={rounds[rounds.length - 1]?.distance}
               round={round}
+              totalRounds={TOTAL_ROUNDS}
               isLastRound={round >= TOTAL_ROUNDS}
               onNext={nextRound}
+              subject={currentIconicSubject}
             />
           )}
 
@@ -215,6 +238,9 @@ export function ChromaGame({ onBack }) {
               rounds={rounds}
               totalScore={rounds.reduce((s, r) => s + r.score, 0)}
               leaderboard={leaderboard}
+              leaderboardLoading={leaderboardLoading}
+              leaderboardReady={leaderboardReady}
+              leaderboardError={leaderboardError}
               challengeCode={challengeCode}
               isChallenge={true}
               isDaily={mode === "daily"}
@@ -226,11 +252,11 @@ export function ChromaGame({ onBack }) {
             />
           )}
 
-          {phase === "final" && (mode === "solo" || mode === "quick") && (
+          {phase === "final" && (mode === "solo" || mode === "quick" || mode === "iconic") && (
             <FinalResultsScreen
               key="final"
               rounds={rounds}
-              onPlayAgain={mode === "quick" ? startQuick : () => game.resetGame()}
+              onPlayAgain={mode === "quick" ? startQuick : mode === "iconic" ? startIconic : () => game.resetGame()}
               onBack={handleBack}
             />
           )}

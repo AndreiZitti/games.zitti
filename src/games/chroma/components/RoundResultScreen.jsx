@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { hsbToHex } from "../utils/color";
+import IconicColorFrame from "./IconicColorFrame";
 
 const ANIM_DURATION = 1500;
 
@@ -70,9 +71,12 @@ export default function RoundResultScreen({
   target,
   guess,
   score,
+  distance,
   round,
+  totalRounds,
   isLastRound,
   onNext,
+  subject,
 }) {
   const [displayScore, setDisplayScore] = useState(0);
   const startTimeRef = useRef(null);
@@ -103,41 +107,55 @@ export default function RoundResultScreen({
 
   return (
     <motion.div
-      className="chroma-screen chroma-result"
+      className={`chroma-screen chroma-result${subject ? " chroma-result--iconic" : ""}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
     >
-      {/* Horizontal split: top = guess, bottom = original */}
-      <div className="chroma-result__halves">
-        <div
-          className="chroma-result__half chroma-result__half--guess"
-          style={{ backgroundColor: guessHex }}
-        >
-          <span className="chroma-result__half-label" style={{ color: guessTextColor }}>
-            YOUR PICK
-          </span>
-          <span className="chroma-result__half-hsb" style={{ color: guessTextColor }}>
-            {formatHsb(guess)}
-          </span>
+      {subject ? (
+        <div className="chroma-result__iconic-comparison">
+          <div className="chroma-result__iconic-half">
+            <IconicColorFrame subject={subject} color={guess} className="chroma-iconic-frame--fill" />
+            <span className="chroma-result__iconic-label">YOUR PICK · {formatHsb(guess)}</span>
+          </div>
+          <div className="chroma-result__iconic-half">
+            <IconicColorFrame subject={subject} original className="chroma-iconic-frame--fill" />
+            <span className="chroma-result__iconic-label chroma-result__iconic-label--bottom">
+              ORIGINAL · {formatHsb(target)}
+            </span>
+          </div>
         </div>
-        <div
-          className="chroma-result__half chroma-result__half--target"
-          style={{ backgroundColor: targetHex }}
-        >
-          <span className="chroma-result__half-label" style={{ color: targetTextColor }}>
-            ORIGINAL
-          </span>
-          <span className="chroma-result__half-hsb" style={{ color: targetTextColor }}>
-            {formatHsb(target)}
-          </span>
+      ) : (
+        <div className="chroma-result__halves">
+          <div
+            className="chroma-result__half chroma-result__half--guess"
+            style={{ backgroundColor: guessHex }}
+          >
+            <span className="chroma-result__half-label" style={{ color: guessTextColor }}>
+              YOUR PICK
+            </span>
+            <span className="chroma-result__half-hsb" style={{ color: guessTextColor }}>
+              {formatHsb(guess)}
+            </span>
+          </div>
+          <div
+            className="chroma-result__half chroma-result__half--target"
+            style={{ backgroundColor: targetHex }}
+          >
+            <span className="chroma-result__half-label" style={{ color: targetTextColor }}>
+              ORIGINAL
+            </span>
+            <span className="chroma-result__half-hsb" style={{ color: targetTextColor }}>
+              {formatHsb(target)}
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Score overlay centered */}
-      <div className="chroma-result__overlay">
-        <div className="chroma-result__round">{round}/3</div>
+      <div className={`chroma-result__overlay${subject ? " chroma-result__overlay--iconic" : ""}`}>
+        <div className="chroma-result__round">{round}/{totalRounds}</div>
         <div className="chroma-result__score">
           {Math.round(displayScore)}
         </div>
@@ -149,6 +167,9 @@ export default function RoundResultScreen({
         >
           {getFeedback(score)}
         </motion.div>
+        <div className="chroma-result__distance">
+          Perceptual difference: {distance?.toFixed(1) ?? "—"} · lower is closer
+        </div>
         <motion.button
           className="chroma-next-btn"
           onClick={onNext}

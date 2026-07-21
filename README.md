@@ -19,7 +19,6 @@ _A collection of party games for your next game night_
 |------|-------------|
 | **Hot Take** | Where do you stand? Rank yourselves 1-100 on spicy topics |
 | **Like Minded** | Give clues. Find the wavelength. Beat the game! |
-| **Quirtle** | Match colors and shapes in this tile-laying strategy game |
 | **Secret Hitler** | A social deduction game of political intrigue |
 | **Codenames** | Give clues, find your agents, avoid the assassin! |
 

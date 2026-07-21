@@ -1,8 +1,10 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase, supabaseGames } from '@/lib/supabase/client'
 import { generateRoomCode } from '@/lib/random'
 import { useUser } from '@/contexts/UserContext'
 import { getRandomWords, generateKeyCard, getCardType } from '../data/words'
+import { validateClue } from '../utils/clues'
+import { buildLeaveUpdates, playerIsSpymaster, resetRound, resolveCardReveal } from '../utils/roomState'
 
 // LocalStorage key for this game
 const STORAGE_KEY = 'codenamesRoomCode'
@@ -42,11 +44,59 @@ function updateURLWithRoomCode(code) {
   window.history.replaceState({}, '', url)
 }
 
+const MAX_MUTATION_ATTEMPTS = 5
+
+async function fetchCodenamesRoom(code) {
+  const { data, error } = await supabaseGames
+    .from('codenames_rooms')
+    .select()
+    .eq('code', code)
+    .maybeSingle()
+
+  if (error) throw error
+  return data
+}
+
+async function mutateCodenamesRoom(code, reducer) {
+  for (let attempt = 0; attempt < MAX_MUTATION_ATTEMPTS; attempt += 1) {
+    const currentRoom = await fetchCodenamesRoom(code)
+    if (!currentRoom) throw new Error('Room no longer exists')
+
+    const updates = reducer(currentRoom)
+    if (!updates) return currentRoom
+
+    const expectedRevision = currentRoom.revision ?? 0
+    const { data, error } = await supabaseGames
+      .from('codenames_rooms')
+      .update({ ...updates, revision: expectedRevision + 1 })
+      .eq('code', code)
+      .eq('revision', expectedRevision)
+      .select()
+      .maybeSingle()
+
+    if (error) throw error
+    if (data) return data
+  }
+
+  throw new Error('The room changed too quickly. Please try again.')
+}
+
+function playerTeam(room, playerId) {
+  return room.players.find(player => player.id === playerId)?.team || null
+}
+
+function assertHost(room, playerId) {
+  if (room.players[0]?.id !== playerId) {
+    throw new Error('Only the host can do that')
+  }
+}
+
 export function useCodenamesRoom() {
   const { profile, updateName, incrementGamesPlayed, incrementGamesHosted } = useUser()
   const [room, setRoom] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const countedEndedPhase = useRef(false)
 
   // Player ID from UserContext
   const playerId = profile.id
@@ -72,6 +122,8 @@ export function useCodenamesRoom() {
   useEffect(() => {
     if (!room?.code) return
 
+    countedEndedPhase.current = room.phase === 'ended'
+
     const channel = supabase
       .channel(`codenames:${room.code}`)
       .on(
@@ -84,10 +136,10 @@ export function useCodenamesRoom() {
         },
         (payload) => {
           if (payload.new) {
-            // Check if game ended - count as game played
-            if (payload.old?.phase !== 'ended' && payload.new.phase === 'ended') {
+            if (payload.new.phase === 'ended' && !countedEndedPhase.current) {
               incrementGamesPlayed()
             }
+            countedEndedPhase.current = payload.new.phase === 'ended'
             setRoom(payload.new)
           }
         }
@@ -153,11 +205,13 @@ export function useCodenamesRoom() {
 
     try {
       const code = generateRoomCode()
+      const normalizedName = hostName.trim()
       const newRoom = {
         code,
+        revision: 0,
         phase: 'lobby',
         language: 'en',
-        players: [{ id: playerId, name: hostName, team: null }],
+        players: [{ id: playerId, name: normalizedName, team: null }],
         board: null,
         key_card: null,
         current_team: null,
@@ -180,7 +234,7 @@ export function useCodenamesRoom() {
 
       if (supabaseError) throw supabaseError
 
-      updateName(hostName)
+      updateName(normalizedName)
       saveRoomCode(data.code)
       updateURLWithRoomCode(data.code)
 
@@ -200,41 +254,22 @@ export function useCodenamesRoom() {
     setError(null)
 
     try {
-      const { data: existingRoom, error: fetchError } = await supabaseGames
-        .from('codenames_rooms')
-        .select()
-        .eq('code', code.toUpperCase())
-        .single()
+      const normalizedCode = code.toUpperCase()
+      const normalizedName = playerName.trim()
+      const data = await mutateCodenamesRoom(normalizedCode, currentRoom => {
+        if (currentRoom.phase !== 'lobby') throw new Error('Game already in progress')
 
-      if (fetchError) throw new Error('Room not found')
-      if (existingRoom.phase !== 'lobby') throw new Error('Game already in progress')
+        const existingPlayer = currentRoom.players.find(player => player.id === playerId)
+        const players = existingPlayer
+          ? currentRoom.players.map(player =>
+              player.id === playerId ? { ...player, name: normalizedName } : player
+            )
+          : [...currentRoom.players, { id: playerId, name: normalizedName, team: null }]
 
-      // Check if player already in room
-      const existingPlayer = existingRoom.players.find(p => p.id === playerId)
-      if (existingPlayer) {
-        updateName(playerName)
-        saveRoomCode(existingRoom.code)
-        updateURLWithRoomCode(existingRoom.code)
-        setRoom(existingRoom)
-        return existingRoom
-      }
+        return { players }
+      })
 
-      // Add player to room
-      const updatedPlayers = [
-        ...existingRoom.players,
-        { id: playerId, name: playerName, team: null }
-      ]
-
-      const { data, error: updateError } = await supabaseGames
-        .from('codenames_rooms')
-        .update({ players: updatedPlayers })
-        .eq('code', code.toUpperCase())
-        .select()
-        .single()
-
-      if (updateError) throw updateError
-
-      updateName(playerName)
+      updateName(normalizedName)
       saveRoomCode(data.code)
       updateURLWithRoomCode(data.code)
 
@@ -250,281 +285,347 @@ export function useCodenamesRoom() {
 
   // Join a team (lobby phase)
   const joinTeam = useCallback(async (team) => {
-    if (!room || room.phase !== 'lobby') return
+    if (!room || !['red', 'blue'].includes(team)) return false
 
-    const updatedPlayers = room.players.map(p =>
-      p.id === playerId ? { ...p, team } : p
-    )
+    try {
+      setError(null)
+      const data = await mutateCodenamesRoom(room.code, currentRoom => {
+        if (currentRoom.phase !== 'lobby') throw new Error('Team selection has ended')
+        if (!currentRoom.players.some(player => player.id === playerId)) {
+          throw new Error('You are no longer in this room')
+        }
 
-    const { error: updateError } = await supabaseGames
-      .from('codenames_rooms')
-      .update({ players: updatedPlayers })
-      .eq('code', room.code)
-
-    if (updateError) setError(updateError.message)
+        return {
+          players: currentRoom.players.map(player =>
+            player.id === playerId ? { ...player, team } : player
+          )
+        }
+      })
+      setRoom(data)
+      return true
+    } catch (err) {
+      setError(err.message)
+      return false
+    }
   }, [room, playerId])
 
   // Leave team (back to unassigned)
   const leaveTeam = useCallback(async () => {
-    if (!room || room.phase !== 'lobby') return
+    if (!room) return false
 
-    const updatedPlayers = room.players.map(p =>
-      p.id === playerId ? { ...p, team: null } : p
-    )
-
-    const { error: updateError } = await supabaseGames
-      .from('codenames_rooms')
-      .update({ players: updatedPlayers })
-      .eq('code', room.code)
-
-    if (updateError) setError(updateError.message)
+    try {
+      setError(null)
+      const data = await mutateCodenamesRoom(room.code, currentRoom => {
+        if (currentRoom.phase !== 'lobby') throw new Error('Team selection has ended')
+        return {
+          players: currentRoom.players.map(player =>
+            player.id === playerId ? { ...player, team: null } : player
+          )
+        }
+      })
+      setRoom(data)
+      return true
+    } catch (err) {
+      setError(err.message)
+      return false
+    }
   }, [room, playerId])
 
   // Set language (host only)
   const setLanguage = useCallback(async (language) => {
-    if (!room || !isHost) return
+    if (!room || !['en', 'ro'].includes(language)) return false
 
-    const { error: updateError } = await supabaseGames
-      .from('codenames_rooms')
-      .update({ language })
-      .eq('code', room.code)
-
-    if (updateError) setError(updateError.message)
-  }, [room, isHost])
+    try {
+      setError(null)
+      const data = await mutateCodenamesRoom(room.code, currentRoom => {
+        assertHost(currentRoom, playerId)
+        if (currentRoom.phase !== 'lobby') throw new Error('Language can only change in the lobby')
+        return { language }
+      })
+      setRoom(data)
+      return true
+    } catch (err) {
+      setError(err.message)
+      return false
+    }
+  }, [room, playerId])
 
   // Start team setup phase (host only)
   const startTeamSetup = useCallback(async () => {
-    if (!room || !isHost) return
+    if (!room) return false
 
-    // Validate: need at least 2 players per team
-    const redCount = room.players.filter(p => p.team === 'red').length
-    const blueCount = room.players.filter(p => p.team === 'blue').length
+    try {
+      setError(null)
+      const data = await mutateCodenamesRoom(room.code, currentRoom => {
+        assertHost(currentRoom, playerId)
+        if (currentRoom.phase !== 'lobby') throw new Error('Team setup has already started')
 
-    if (redCount < 2 || blueCount < 2) {
-      setError('Each team needs at least 2 players')
-      return
+        const redCount = currentRoom.players.filter(player => player.team === 'red').length
+        const blueCount = currentRoom.players.filter(player => player.team === 'blue').length
+        if (redCount < 2 || blueCount < 2) {
+          throw new Error('Each team needs at least 2 players')
+        }
+
+        return { phase: 'team-setup' }
+      })
+      setRoom(data)
+      return true
+    } catch (err) {
+      setError(err.message)
+      return false
     }
-
-    const { error: updateError } = await supabaseGames
-      .from('codenames_rooms')
-      .update({ phase: 'team-setup' })
-      .eq('code', room.code)
-
-    if (updateError) setError(updateError.message)
-  }, [room, isHost])
+  }, [room, playerId])
 
   // Become spymaster for your team
   const becomeSpymaster = useCallback(async () => {
-    if (!room || !myTeam || room.phase !== 'team-setup') return
+    if (!room) return false
 
-    const field = myTeam === 'red' ? 'red_spymaster' : 'blue_spymaster'
+    try {
+      setError(null)
+      const data = await mutateCodenamesRoom(room.code, currentRoom => {
+        if (currentRoom.phase !== 'team-setup') throw new Error('Spymaster selection has ended')
 
-    const { error: updateError } = await supabaseGames
-      .from('codenames_rooms')
-      .update({ [field]: playerId })
-      .eq('code', room.code)
+        const team = playerTeam(currentRoom, playerId)
+        if (!team) throw new Error('Join a team before becoming Spymaster')
 
-    if (updateError) setError(updateError.message)
-  }, [room, myTeam, playerId])
+        const field = team === 'red' ? 'red_spymaster' : 'blue_spymaster'
+        if (currentRoom[field] && currentRoom[field] !== playerId) {
+          throw new Error('Your team already has a Spymaster')
+        }
+
+        return { [field]: playerId }
+      })
+      setRoom(data)
+      return true
+    } catch (err) {
+      setError(err.message)
+      return false
+    }
+  }, [room, playerId])
 
   // Remove spymaster (host only, or self-remove)
   const removeSpymaster = useCallback(async (team) => {
-    if (!room || room.phase !== 'team-setup') return
+    if (!room || !['red', 'blue'].includes(team)) return false
 
-    // Can only remove if host or removing yourself
-    const spymasterId = team === 'red' ? room.red_spymaster : room.blue_spymaster
-    if (!isHost && spymasterId !== playerId) return
+    try {
+      setError(null)
+      const data = await mutateCodenamesRoom(room.code, currentRoom => {
+        if (currentRoom.phase !== 'team-setup') throw new Error('Spymaster selection has ended')
 
-    const field = team === 'red' ? 'red_spymaster' : 'blue_spymaster'
+        const field = team === 'red' ? 'red_spymaster' : 'blue_spymaster'
+        const spymasterId = currentRoom[field]
+        const currentIsHost = currentRoom.players[0]?.id === playerId
+        if (!currentIsHost && spymasterId !== playerId) {
+          throw new Error('Only the host or that Spymaster can remove the role')
+        }
 
-    const { error: updateError } = await supabaseGames
-      .from('codenames_rooms')
-      .update({ [field]: null })
-      .eq('code', room.code)
-
-    if (updateError) setError(updateError.message)
-  }, [room, isHost, playerId])
+        return { [field]: null }
+      })
+      setRoom(data)
+      return true
+    } catch (err) {
+      setError(err.message)
+      return false
+    }
+  }, [room, playerId])
 
   // Start game (host only)
   const startGame = useCallback(async () => {
-    if (!room || !isHost || room.phase !== 'team-setup') return
+    if (!room) return false
 
-    // Validate: both teams need spymasters
-    if (!room.red_spymaster || !room.blue_spymaster) {
-      setError('Both teams need a spymaster')
-      return
-    }
+    try {
+      setError(null)
+      const data = await mutateCodenamesRoom(room.code, currentRoom => {
+        assertHost(currentRoom, playerId)
+        if (currentRoom.phase !== 'team-setup') throw new Error('Game cannot start from this phase')
+        if (!currentRoom.red_spymaster || !currentRoom.blue_spymaster) {
+          throw new Error('Both teams need a Spymaster')
+        }
 
-    // Generate board and key card
-    const board = getRandomWords(room.language, 25)
-    const keyCard = generateKeyCard()
+        const redCount = currentRoom.players.filter(player => player.team === 'red').length
+        const blueCount = currentRoom.players.filter(player => player.team === 'blue').length
+        if (redCount < 2 || blueCount < 2) {
+          throw new Error('Each team needs at least 2 players')
+        }
 
-    const { error: updateError } = await supabaseGames
-      .from('codenames_rooms')
-      .update({
-        phase: 'playing',
-        board,
-        key_card: keyCard,
-        current_team: keyCard.firstTeam,
-        current_clue: null,
-        guesses_remaining: 0,
-        revealed_cards: [],
-        red_remaining: keyCard.firstTeam === 'red' ? 9 : 8,
-        blue_remaining: keyCard.firstTeam === 'blue' ? 9 : 8
+        const board = getRandomWords(currentRoom.language, 25)
+        const keyCard = generateKeyCard()
+
+        return {
+          phase: 'playing',
+          board,
+          key_card: keyCard,
+          current_team: keyCard.firstTeam,
+          current_clue: null,
+          guesses_remaining: 0,
+          revealed_cards: [],
+          red_remaining: keyCard.firstTeam === 'red' ? 9 : 8,
+          blue_remaining: keyCard.firstTeam === 'blue' ? 9 : 8,
+          winner: null,
+          win_reason: null
+        }
       })
-      .eq('code', room.code)
-
-    if (!updateError) {
+      setRoom(data)
       incrementGamesHosted()
-    } else {
-      setError(updateError.message)
+      return true
+    } catch (err) {
+      setError(err.message)
+      return false
     }
-  }, [room, isHost, incrementGamesHosted])
+  }, [room, playerId, incrementGamesHosted])
 
   // Give clue (spymaster only, on their turn)
   const giveClue = useCallback(async (word, number) => {
-    if (!room || !isSpymaster || !isMyTurn || room.current_clue) return
+    if (!room) return false
 
-    const clue = {
-      word: word.toUpperCase(),
-      number: parseInt(number, 10),
-      givenBy: playerId
-    }
+    try {
+      setError(null)
+      const clueNumber = Number(number)
+      if (!Number.isInteger(clueNumber) || clueNumber < 0 || clueNumber > 9) {
+        throw new Error('Choose a clue number from 0 to 9')
+      }
 
-    // guesses = number + 1 (bonus guess), or 25 if unlimited (0)
-    const guessesRemaining = number === 0 ? 25 : parseInt(number, 10) + 1
+      const data = await mutateCodenamesRoom(room.code, currentRoom => {
+        if (currentRoom.phase !== 'playing') throw new Error('The game is not active')
 
-    const { error: updateError } = await supabaseGames
-      .from('codenames_rooms')
-      .update({
-        current_clue: clue,
-        guesses_remaining: guessesRemaining
+        const team = playerTeam(currentRoom, playerId)
+        const spymasterId = team === 'red' ? currentRoom.red_spymaster : currentRoom.blue_spymaster
+        if (!team || spymasterId !== playerId || currentRoom.current_team !== team) {
+          throw new Error('It is not your turn to give a clue')
+        }
+        if (currentRoom.current_clue) throw new Error('A clue has already been given')
+
+        const validation = validateClue(word, currentRoom.board, currentRoom.revealed_cards)
+        if (!validation.valid) throw new Error(validation.error)
+
+        return {
+          current_clue: {
+            word: word.trim().toLocaleUpperCase(currentRoom.language === 'ro' ? 'ro-RO' : 'en-US'),
+            number: clueNumber,
+            givenBy: playerId
+          },
+          guesses_remaining: clueNumber === 0 ? 25 : clueNumber + 1
+        }
       })
-      .eq('code', room.code)
-
-    if (updateError) setError(updateError.message)
-  }, [room, isSpymaster, isMyTurn, playerId])
+      setRoom(data)
+      return true
+    } catch (err) {
+      setError(err.message)
+      return false
+    }
+  }, [room, playerId])
 
   // Reveal a card (operative only, on their turn, after clue given)
   const revealCard = useCallback(async (position) => {
-    if (!room || isSpymaster || !isMyTurn || !room.current_clue) return
-    if (room.revealed_cards.includes(position)) return // Already revealed
+    if (!room || !Number.isInteger(position) || position < 0 || position > 24) return false
 
-    const cardType = getCardType(room.key_card, position)
-    const newRevealedCards = [...room.revealed_cards, position]
+    try {
+      setError(null)
+      const data = await mutateCodenamesRoom(room.code, currentRoom => {
+        if (currentRoom.phase !== 'playing' || !currentRoom.current_clue) {
+          throw new Error('There is no active guessing turn')
+        }
 
-    let updates = {
-      revealed_cards: newRevealedCards,
-      guesses_remaining: room.guesses_remaining - 1
+        const team = playerTeam(currentRoom, playerId)
+        if (!team || currentRoom.current_team !== team || playerIsSpymaster(currentRoom, playerId)) {
+          throw new Error('It is not your turn to guess')
+        }
+        if (currentRoom.revealed_cards.includes(position)) {
+          throw new Error('That card has already been revealed')
+        }
+
+        return resolveCardReveal(currentRoom, position)
+      })
+      setRoom(data)
+      return true
+    } catch (err) {
+      setError(err.message)
+      return false
     }
-
-    // Handle different card types
-    if (cardType === 'assassin') {
-      // Game over - other team wins
-      const winner = room.current_team === 'red' ? 'blue' : 'red'
-      updates.phase = 'ended'
-      updates.winner = winner
-      updates.win_reason = 'assassin'
-      updates.current_clue = null
-    } else if (cardType === room.current_team) {
-      // Correct guess - decrement remaining
-      const remainingField = room.current_team === 'red' ? 'red_remaining' : 'blue_remaining'
-      const newRemaining = room[remainingField] - 1
-      updates[remainingField] = newRemaining
-
-      // Check for win
-      if (newRemaining === 0) {
-        updates.phase = 'ended'
-        updates.winner = room.current_team
-        updates.win_reason = 'cards'
-        updates.current_clue = null
-      } else if (updates.guesses_remaining === 0) {
-        // Out of guesses, switch turns
-        updates.current_team = room.current_team === 'red' ? 'blue' : 'red'
-        updates.current_clue = null
-      }
-      // Otherwise, can continue guessing
-    } else if (cardType === 'neutral') {
-      // Neutral - turn ends
-      updates.current_team = room.current_team === 'red' ? 'blue' : 'red'
-      updates.current_clue = null
-    } else {
-      // Other team's card - decrement their remaining, turn ends
-      const otherTeam = room.current_team === 'red' ? 'blue' : 'red'
-      const remainingField = otherTeam === 'red' ? 'red_remaining' : 'blue_remaining'
-      const newRemaining = room[remainingField] - 1
-      updates[remainingField] = newRemaining
-
-      // Check if other team wins (we revealed their last card)
-      if (newRemaining === 0) {
-        updates.phase = 'ended'
-        updates.winner = otherTeam
-        updates.win_reason = 'cards'
-        updates.current_clue = null
-      } else {
-        updates.current_team = otherTeam
-        updates.current_clue = null
-      }
-    }
-
-    const { error: updateError } = await supabaseGames
-      .from('codenames_rooms')
-      .update(updates)
-      .eq('code', room.code)
-
-    if (updateError) setError(updateError.message)
-  }, [room, isSpymaster, isMyTurn])
+  }, [room, playerId])
 
   // End guessing early (operative only)
   const endGuessing = useCallback(async () => {
-    if (!room || isSpymaster || !isMyTurn || !room.current_clue) return
+    if (!room) return false
 
-    const { error: updateError } = await supabaseGames
-      .from('codenames_rooms')
-      .update({
-        current_team: room.current_team === 'red' ? 'blue' : 'red',
-        current_clue: null,
-        guesses_remaining: 0
+    try {
+      setError(null)
+      const data = await mutateCodenamesRoom(room.code, currentRoom => {
+        if (currentRoom.phase !== 'playing' || !currentRoom.current_clue) {
+          throw new Error('There is no active guessing turn')
+        }
+
+        const team = playerTeam(currentRoom, playerId)
+        if (!team || currentRoom.current_team !== team || playerIsSpymaster(currentRoom, playerId)) {
+          throw new Error('It is not your turn to end guessing')
+        }
+
+        return {
+          current_team: currentRoom.current_team === 'red' ? 'blue' : 'red',
+          current_clue: null,
+          guesses_remaining: 0
+        }
       })
-      .eq('code', room.code)
-
-    if (updateError) setError(updateError.message)
-  }, [room, isSpymaster, isMyTurn])
+      setRoom(data)
+      return true
+    } catch (err) {
+      setError(err.message)
+      return false
+    }
+  }, [room, playerId])
 
   // Play again (host only)
   const playAgain = useCallback(async () => {
-    if (!room || !isHost) return
+    if (!room) return false
 
-    // Reset players (keep teams)
-    const { error: updateError } = await supabaseGames
-      .from('codenames_rooms')
-      .update({
-        phase: 'lobby',
-        board: null,
-        key_card: null,
-        current_team: null,
-        current_clue: null,
-        guesses_remaining: 0,
-        revealed_cards: [],
-        red_spymaster: null,
-        blue_spymaster: null,
-        red_remaining: 0,
-        blue_remaining: 0,
-        winner: null,
-        win_reason: null
+    try {
+      setError(null)
+      const data = await mutateCodenamesRoom(room.code, currentRoom => {
+        assertHost(currentRoom, playerId)
+        if (currentRoom.phase !== 'ended') throw new Error('The game has not ended')
+        return resetRound()
       })
-      .eq('code', room.code)
-
-    if (updateError) setError(updateError.message)
-  }, [room, isHost])
+      setRoom(data)
+      return true
+    } catch (err) {
+      setError(err.message)
+      return false
+    }
+  }, [room, playerId])
 
   // Leave room
-  const leaveRoom = useCallback(() => {
-    saveRoomCode(null)
-    updateURLWithRoomCode(null)
-    setRoom(null)
-    setError(null)
-  }, [])
+  const leaveRoom = useCallback(async () => {
+    if (!room) {
+      saveRoomCode(null)
+      updateURLWithRoomCode(null)
+      return true
+    }
+
+    try {
+      setError(null)
+      const data = await mutateCodenamesRoom(room.code, currentRoom => {
+        return buildLeaveUpdates(currentRoom, playerId)
+      })
+
+      if (data.players.length === 0) {
+        const { error: deleteError } = await supabaseGames
+          .from('codenames_rooms')
+          .delete()
+          .eq('code', data.code)
+          .eq('revision', data.revision)
+
+        if (deleteError) throw deleteError
+      }
+
+      saveRoomCode(null)
+      updateURLWithRoomCode(null)
+      setRoom(null)
+      return true
+    } catch (err) {
+      setError(err.message)
+      return false
+    }
+  }, [room, playerId])
 
   return {
     // State

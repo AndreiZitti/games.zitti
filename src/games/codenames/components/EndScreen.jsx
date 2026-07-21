@@ -8,7 +8,8 @@ export function EndScreen({
   blueTeam,
   onPlayAgain,
   onLeave,
-  getCardType
+  getCardType,
+  error
 }) {
   const didWin = room.winner === myTeam
   const winnerName = room.winner === 'red' ? 'Red Team' : 'Blue Team'
@@ -51,6 +52,8 @@ export function EndScreen({
         isInteractive={false}
         getCardType={getCardType}
       />
+
+      {error && <p className="error" role="alert">{error}</p>}
 
       <div className="button-group">
         {isHost ? (

@@ -119,8 +119,16 @@ export const wordsRO = [
 export function getRandomWords(language = 'en', count = 25) {
   const wordList = language === 'ro' ? wordsRO : wordsEN;
 
+  // Some translated source entries overlap. Deduplicate before shuffling so a
+  // board can never contain the same visible word twice.
+  const uniqueWords = [...new Set(wordList)];
+
+  if (count > uniqueWords.length) {
+    throw new Error(`Requested ${count} words, but only ${uniqueWords.length} are available`);
+  }
+
   // Fisher-Yates shuffle
-  const shuffled = [...wordList];
+  const shuffled = [...uniqueWords];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
